@@ -348,14 +348,38 @@ The HEEx/DB-content story was de-risked end to end in scratch projects (`tmp/hee
   output; compile once **~12 ms**, per-request render **~255 µs**. `cache: per_user` frontmatter drives it.
 - **Safety hardening**: naive compile of author `{6*7}` **executed → "42" (RCE)**; the sentinel→neutralize
   →swap pipeline made `{6*7}`, `<%= %>`, `<.evil>` all inert while legit `{{vars}}` and `:::card` still work.
+- **P3 — server-backed live demo** (`tmp/keen_docs_p3`, Bandit + real `KeenDocs.Extensions.Demo`): a
+  ` ```html demo ` + ` ```js run ` fence pair authored in markdown mounts a CDN `<web-multiselect>` and wires
+  its `searchCallback` to a **generic `/api/data/:set?q=` endpoint on the same app**. Verified headlessly:
+  `GET /api/data/countries?q=ge` → `[Algeria, Argentina, Georgia, Germany]` (server-side filter), unknown set
+  → 404 with known-set list, and the rendered page carries the component + the footer run-script that fetches
+  it. Proves the load-bearing promise — demos that talk to a *real* generic server, authored inline. The
+  data endpoint is the "data-shape-oriented endpoint" of §4 in miniature: adding a data set = the whole backend.
+- **P2 — island actually mounts** (`tmp/keen_docs_p2`, Bandit + real `KeenDocs.Extensions.App`): `:::app{name}`
+  emits the real `<div data-app phx-hook="KeenApp" data-props>` wrapper + `#keen-apps` manifest + `#keen-context`
+  + modulepreload + a `mountStatic()` footer bootstrap. The **real keen-phoenix-svelte client runtime**
+  (esbuild-bundled to `/apps_runtime.js`; `phoenix` inlined but inert) drives the **real prebuilt `hello-js`
+  bundle**. Verified headlessly (`mount-proof.mjs`): the runtime's `AppsManager.create` cleared the server
+  placeholder and mounted the island; markup rendered ("Plain JS island — 0 ticks") and advanced to "1 tick" —
+  i.e. mounted *and* live. `.mjs` must be served as `text/javascript` or the browser rejects the ES module.
+- **P4 — publish/ingest + content-hash dedup** (`tmp/keen_docs_p4`: a Node `keendocs` CLI mirroring
+  pure-admin-cli's idioms — hand-rolled argv parser, ANSI phase logs, per-file sha256 + a rolled-up
+  `content_sha` — and an Elixir/Bandit ingest server with a **content-addressed blob store**). Proven end to
+  end: publish `v2.0.0` → 3 blobs stored; republish unchanged → `unchanged`, **0 writes** (whole-version
+  `content_sha` hit); publish `v2.0.1` with a byte-identical `index.md` → `stored 2, deduped 1`, blob store
+  **5 not 6** — the shared file is stored once across versions (**per-file dedup, the payoff**). Bonus: the
+  ingested bytes render through the real `keen_markdown` (`GET /docs/:pkg/:ver/:slug`). Gates work: Bearer
+  auth → `401`, `x-keendocs-cli-version` below the server minimum → `426` (version-gates the CLI, per §4.2).
+  POC transport is JSON+base64 (dedup is the point); the real CLI packs a zip + multipart like pure-admin-cli.
 
 ## 9. Next steps
 
 **POC scorecard.** Proven: ✅ markdown→live HTML pipeline · ✅ extension model · ✅ library extraction ·
 ✅ `transform_markdown` (redefine base constructs) · ✅ HEEx target (`:::card`→`<.card>` real components) ·
-✅ cached HEEx route (P1) · ✅ dynamic `{{vars}}` · ✅ compile-boundary safety hardening.
-Open POCs: P2 island actually mounts · P3 generic data endpoint + live demo · P4 publish/ingest + dedup ·
-P5 multi-version + domain routing · P6 CEM→API reference · P7 fulltext.
+✅ cached HEEx route (P1) · ✅ dynamic `{{vars}}` · ✅ compile-boundary safety hardening ·
+✅ P2 island actually mounts · ✅ P3 generic data endpoint + live server-backed demo ·
+✅ P4 publish/ingest + content-hash dedup (Node `keendocs` CLI + blob-store ingest).
+Open POCs: P5 multi-version + domain routing · P6 CEM→API reference · P7 fulltext.
 
 1. **Phoenix-ify**: `phx.new`, mount the renderer in a controller/LiveView route (the `Output` regions
    map onto a layout's head/body/footer slots). The P1 spike (`tmp/keen_docs_p1`) is the template.
