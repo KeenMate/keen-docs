@@ -1,30 +1,41 @@
 defmodule KeenDocs.POC do
   @moduledoc """
-  POC entrypoint: render a sample `.md` (front matter + directives + live demo)
-  into a standalone `build/poc.html` that mounts a real `<web-multiselect>` from
-  the jsdelivr CDN. Run with:
+  POC entrypoint: render a sample `.md` (front matter + directives + live demos) into
+  a standalone `build/poc.html`. Run with:
 
       mix run -e "KeenDocs.POC.build()"
+
+  The page shell hardcodes nothing about the component being documented. It assembles
+  the regions the renderer produced — head contributions, body, footer scripts — and
+  the CDN tags come from front matter via `KeenDocs.Extensions.CdnPackage`.
   """
 
-  alias KeenDocs.Markdown.{Frontmatter, DirectiveParser, Renderer}
+  alias KeenDocs.Markdown.{DirectiveParser, Frontmatter, HTML, Output, Renderer}
 
-  @cdn_ver "2.0.0"
-
+  @doc "Render `source` to a standalone HTML page at `out`."
+  @spec build(Path.t(), Path.t()) :: :ok
   def build(source \\ "priv/content/form-integration.md", out \\ "build/poc.html") do
-    raw = File.read!(source)
-    {meta, body} = Frontmatter.split(raw)
-    html = body |> DirectiveParser.parse() |> Renderer.render()
+    output = render_file(source)
 
     File.mkdir_p!(Path.dirname(out))
-    File.write!(out, page(meta, html))
-    IO.puts("wrote #{out}  (#{byte_size(html)} bytes of rendered content)")
+    File.write!(out, page(output))
+
+    IO.puts("wrote #{out}  (#{byte_size(Output.body_html(output))} bytes of rendered body)")
   end
 
-  defp page(meta, content) do
+  @doc "Render a markdown file to an `Output` of page regions."
+  @spec render_file(Path.t()) :: Output.t()
+  def render_file(source) do
+    {meta, body} = source |> File.read!() |> Frontmatter.split()
+
+    body
+    |> DirectiveParser.parse()
+    |> Renderer.render(meta: meta)
+  end
+
+  defp page(%Output{meta: meta} = output) do
     title = Map.get(meta, "title", "keen-docs POC")
-    desc = Map.get(meta, "description", "")
-    css = File.read!("priv/web/keendocs.css")
+    description = Map.get(meta, "description", "")
 
     """
     <!doctype html>
@@ -32,22 +43,36 @@ defmodule KeenDocs.POC do
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>#{title}</title>
-      <meta name="description" content="#{desc}" />
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@keenmate/web-multiselect@#{@cdn_ver}/dist/style.css" />
-      <script type="module" src="https://cdn.jsdelivr.net/npm/@keenmate/web-multiselect@#{@cdn_ver}/dist/multiselect.js"></script>
-      <style>#{css}</style>
+      <title>#{HTML.esc(title)}</title>
+      <meta name="description" content="#{HTML.esc(description)}" />
+    #{Output.head_html(output)}  <style>#{File.read!("priv/web/keendocs.css")}</style>
     </head>
-    <body>
+    <body#{body_class(output)}>
       <main class="kd-page">
         <header class="kd-page-head">
-          <h1>#{title}</h1>
-          <p class="kd-page-desc">#{desc}</p>
+          <h1>#{HTML.esc(title)}</h1>
+          <p class="kd-page-desc">#{HTML.esc(description)}</p>
         </header>
-        #{content}
+    #{toc(output)}#{Output.body_html(output)}
       </main>
-    </body>
+    #{Output.footer_html(output)}</body>
     </html>
     """
+  end
+
+  defp body_class(%Output{body_class: []}), do: ""
+  defp body_class(%Output{body_class: classes}), do: ~s( class="#{HTML.esc(Enum.join(classes, " "))}")
+
+  # Renders the headings the markdown pass collected — proof the generated ids are
+  # real and link-able, not just decoration.
+  defp toc(%Output{toc: []}), do: ""
+
+  defp toc(%Output{toc: headings}) do
+    items =
+      Enum.map_join(headings, "", fn %{level: level, id: id, text: text} ->
+        ~s(<li class="kd-toc-h#{level}"><a href="##{HTML.esc(id)}">#{HTML.esc(text)}</a></li>)
+      end)
+
+    ~s(<nav class="kd-toc" aria-label="On this page"><ul>#{items}</ul></nav>\n)
   end
 end

@@ -1,151 +1,132 @@
 defmodule KeenDocs.Markdown.Renderer do
   @moduledoc """
-  Renders the `KeenDocs.Markdown.DirectiveParser` node tree to an HTML string.
+  Renders a `KeenDocs.Markdown.DirectiveParser` node tree into a
+  `KeenDocs.Markdown.Output` — page regions, not a single HTML string.
 
-  Layout is a generic primitive (`columns`/`col`) decoupled from "demo-ness",
-  which lives on the code fence (`demo` / `run` / `example`). `showcase` is a
-  preset over `columns` that auto-assigns accent colors per column position.
+  The renderer itself knows almost nothing about the authoring vocabulary. Every
+  `:::directive` and every fence role is provided by an extension registered in the
+  `KeenDocs.Markdown.Context`; the built-in layout, block, demo and diagram support
+  are just the extensions that ship in the box. What is left here is the dispatch
+  loop, plain markdown text, and the fallback for unclaimed nodes.
 
-  Markdown text runs and `example` fences are highlighted server-side by MDEx
-  (self-contained inline styles — no client-side highlight.js, no FOUC).
+  Markdown and code are highlighted server-side (MDEx + Lumis, inline styles), so
+  there is no client-side highlighter and no FOUC.
   """
 
-  alias KeenDocs.Markdown.DirectiveParser
+  alias KeenDocs.Markdown.{Context, DirectiveParser, HTML, Output}
 
-  @accents ~w(blue green cyan amber)
+  @heading_re ~r|<h([1-6]) id="([^"]*)"[^>]*>(.*?)</h\1>|s
+  @tag_re ~r/<[^>]*>/
 
-  @spec render([DirectiveParser.node_t()]) :: String.t()
-  def render(nodes) when is_list(nodes) do
-    nodes |> Enum.map(&render_node/1) |> Enum.join("\n")
+  @doc """
+  Render a node tree to an `Output`.
+
+  Options are passed to `KeenDocs.Markdown.Context.new/1` — `:extensions`, `:meta`
+  and `:theme`.
+  """
+  @spec render([DirectiveParser.node_t()], keyword()) :: Output.t()
+  def render(nodes, opts \\ []) when is_list(nodes) do
+    ctx = opts |> Context.new() |> run_document_hooks(nodes)
+    {html, ctx} = render_nodes(nodes, ctx)
+
+    ctx
+    |> Context.put_body(html)
+    |> run_finalize_hooks()
+    |> Context.finalize()
   end
 
-  # ---- directives ----
+  @doc """
+  Render a list of nodes, threading the context.
 
-  defp render_node({:directive, "columns", attrs, children}) do
-    cols = Enum.filter(children, &col?/1)
-    ~s(<div class="kd-columns" style="grid-template-columns: #{grid_template(attrs["cols"], length(cols))}">) <>
-      render(children) <>
-      "</div>"
+  Extensions call this to render their own children.
+  """
+  @spec render_nodes([DirectiveParser.node_t()], Context.t()) :: {iodata(), Context.t()}
+  def render_nodes(nodes, ctx) when is_list(nodes) do
+    {html, ctx} =
+      Enum.reduce(nodes, {[], ctx}, fn node, {acc, ctx} ->
+        {html, ctx} = render_node(node, ctx)
+        {[html | acc], ctx}
+      end)
+
+    {Enum.reverse(html), ctx}
   end
 
-  defp render_node({:directive, "showcase", attrs, children}) do
-    cols = Enum.filter(children, &col?/1)
-
-    body =
-      cols
-      |> Enum.with_index()
-      |> Enum.map(fn {c, i} -> col_html(c, Enum.at(@accents, rem(i, length(@accents)))) end)
-      |> Enum.join("\n")
-
-    header =
-      case {attrs["title"], attrs["subtitle"]} do
-        {nil, _} -> ""
-        {title, nil} -> ~s(<h3 class="kd-showcase-title">#{esc(title)}</h3>)
-        {title, sub} -> ~s(<h3 class="kd-showcase-title">#{esc(title)}</h3><p class="kd-showcase-sub">#{esc(sub)}</p>)
-      end
-
-    ~s(<section class="kd-showcase">#{header}) <>
-      ~s(<div class="kd-columns" style="grid-template-columns: #{grid_template(attrs["cols"], length(cols))}">) <>
-      body <>
-      "</div></section>"
+  @doc "Highlight a code string server-side, at the context's theme."
+  @spec highlight(String.t(), String.t() | nil, Context.t()) :: iodata()
+  def highlight(code, lang, ctx) do
+    Lumis.highlight!(code, Context.lumis_opts(ctx, language(lang)))
   end
 
-  defp render_node({:directive, "col", attrs, _children} = col), do: col_html(col, attrs["accent"])
-
-  defp render_node({:directive, "card", attrs, children}) do
-    header = if attrs["title"], do: ~s(<div class="kd-card-header">#{esc(attrs["title"])}</div>), else: ""
-    ~s(<div class="kd-card">#{header}<div class="kd-card-body">#{render(children)}</div></div>)
-  end
-
-  defp render_node({:directive, "callout", attrs, children}) do
-    type = attrs["type"] || "info"
-    header = if attrs["title"], do: ~s(<div class="kd-callout-title">#{esc(attrs["title"])}</div>), else: ""
-    ~s(<div class="kd-callout kd-callout-#{esc(type)}">#{header}<div class="kd-callout-body">#{render(children)}</div></div>)
-  end
-
-  # unknown directive: render children in a labelled wrapper so nothing is lost
-  defp render_node({:directive, name, _attrs, children}) do
-    ~s(<div class="kd-directive kd-directive-#{esc(name)}">#{render(children)}</div>)
-  end
-
-  # ---- leaves ----
-
-  defp render_node({:markdown, text}), do: MDEx.to_html!(text, mdex_opts())
-
-  defp render_node({:fence, lang, flags, code}) do
-    cond do
-      "demo" in flags -> demo_html(lang, code)
-      "run" in flags -> run_html(code)
-      true -> ~s(<div class="kd-code">#{highlight(code, lang)}</div>)
-    end
-  end
-
-  # ---- helpers ----
-
-  defp col?({:directive, "col", _, _}), do: true
-  defp col?(_), do: false
-
-  defp col_html({:directive, "col", attrs, children}, accent) do
-    accent_class = if accent, do: " kd-accent-#{esc(accent)}", else: ""
-    header = if attrs["title"], do: ~s(<div class="kd-col-header#{accent_class}">#{esc(attrs["title"])}</div>), else: ""
-    ~s(<div class="kd-col">#{header}<div class="kd-col-body">#{render(children)}</div></div>)
-  end
-
-  defp demo_html(lang, code) do
-    id = "kd-demo-#{System.unique_integer([:positive])}"
-    Process.put(:kd_last_demo, id)
-
-    ~s(<div class="kd-demo" id="#{id}">) <>
-      ~s(<div class="kd-demo-live">#{code}</div>) <>
-      ~s(<details class="kd-demo-source"><summary>source</summary>#{highlight(code, lang)}</details>) <>
-      "</div>"
-  end
-
-  defp run_html(code) do
-    target = Process.get(:kd_last_demo, "document.body")
-    root_expr = if target == "document.body", do: "document.body", else: "document.getElementById(\"#{target}\")"
-
-    """
-    <script type="module">
-    (function () {
-      const root = #{root_expr};
-      if (!root) return;
-      const el = root.querySelector(".kd-demo-live > *") || root;
-      const out = (v) => {
-        let o = root.querySelector(".kd-out");
-        if (!o) { o = document.createElement("pre"); o.className = "kd-out"; root.appendChild(o); }
-        o.textContent = typeof v === "string" ? v : JSON.stringify(v, null, 2);
-      };
-      #{code}
-    })();
-    </script>
-    """
-  end
-
-  # "80/20" -> "80fr 20fr"; nil -> "repeat(N, 1fr)"
-  defp grid_template(nil, n), do: "repeat(#{max(n, 1)}, 1fr)"
-
-  defp grid_template(spec, _n) do
-    spec
-    |> String.split(~r/[\/\s]+/, trim: true)
-    |> Enum.map(&"#{&1}fr")
-    |> Enum.join(" ")
-  end
-
-  defp highlight(code, lang) do
-    lang = if lang in [nil, ""], do: "text", else: lang
-    MDEx.to_html!("```#{lang}\n#{code}\n```", mdex_opts())
-  end
-
-  defp mdex_opts do
+  @doc "MDEx options for this context — GFM on, raw HTML allowed, heading ids generated."
+  @spec mdex_opts(Context.t()) :: keyword()
+  def mdex_opts(%Context{theme: theme}) do
     [
-      extension: [table: true, strikethrough: true, autolink: true],
-      render: [unsafe: false],
-      syntax_highlight: [engine: :lumis, opts: [formatter: {:html_inline, theme: "github_light"}]]
+      extension: [
+        table: true,
+        strikethrough: true,
+        autolink: true,
+        tasklist: true,
+        footnotes: true,
+        header_id_prefix: ""
+      ],
+      # Content is trusted: it ships through the API-keyed publish CLI (DESIGN.md §6),
+      # so authors may use inline HTML (<kbd>, <sup>, …) in prose.
+      render: [unsafe: true],
+      syntax_highlight: [engine: :lumis, opts: [formatter: {:html_inline, theme: theme}]]
     ]
   end
 
-  defp esc(nil), do: ""
-  defp esc(v) when is_binary(v), do: v |> String.replace("&", "&amp;") |> String.replace("<", "&lt;") |> String.replace(">", "&gt;") |> String.replace("\"", "&quot;")
-  defp esc(v), do: v |> to_string() |> esc()
+  # ---- dispatch ----
+
+  defp render_node({:directive, name, _attrs, children} = node, ctx) do
+    case Context.directive_handler(ctx, name) do
+      nil ->
+        # Unknown directive: keep the children rather than dropping the block.
+        {html, ctx} = render_nodes(children, ctx)
+        {[~s(<div class="kd-directive kd-directive-#{HTML.esc(name)}">), html, "</div>"], ctx}
+
+      module ->
+        module.render(node, ctx)
+    end
+  end
+
+  defp render_node({:fence, lang, flags, code} = node, ctx) do
+    case Context.fence_handler(ctx, flags, lang) do
+      nil -> {[~s(<div class="kd-code">), highlight(code, lang, ctx), "</div>"], ctx}
+      module -> module.render(node, ctx)
+    end
+  end
+
+  defp render_node({:markdown, text}, ctx) do
+    html = MDEx.to_html!(text, mdex_opts(ctx))
+    {html, collect_headings(html, ctx)}
+  end
+
+  # ---- document hooks ----
+
+  defp run_document_hooks(ctx, nodes) do
+    meta = Context.meta(ctx)
+    Enum.reduce(ctx.document_hooks, ctx, fn module, ctx -> module.document(meta, nodes, ctx) end)
+  end
+
+  # Runs once the body is rendered, for contributions that depend on what the page
+  # turned out to contain — an island manifest cannot be built before that.
+  defp run_finalize_hooks(ctx),
+    do: Enum.reduce(ctx.finalize_hooks, ctx, fn module, ctx -> module.finalize(ctx) end)
+
+  # ---- table of contents ----
+
+  # Read the ids comrak actually generated rather than re-implementing its slugifier.
+  defp collect_headings(html, ctx) do
+    @heading_re
+    |> Regex.scan(html)
+    |> Enum.reduce(ctx, fn [_, level, id, inner], ctx ->
+      Context.put_heading(ctx, String.to_integer(level), id, text_of(inner))
+    end)
+  end
+
+  defp text_of(inner), do: @tag_re |> Regex.replace(inner, "") |> String.trim()
+
+  defp language(lang) when lang in [nil, ""], do: "text"
+  defp language(lang), do: lang
 end

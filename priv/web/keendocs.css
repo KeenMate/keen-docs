@@ -7,7 +7,6 @@
   --kd-accent-blue: #0d6efd;
   --kd-accent-green: #198754;
   --kd-accent-cyan: #0dcaf0;
-  --kd-accent-amber: #fd7e14;
 }
 
 * { box-sizing: border-box; }
@@ -35,7 +34,13 @@ body {
 .kd-accent-blue  { color: var(--kd-accent-blue); }
 .kd-accent-green { color: var(--kd-accent-green); }
 .kd-accent-cyan  { color: var(--kd-accent-cyan); }
-.kd-accent-amber { color: var(--kd-accent-amber); }
+
+/* Children of a columns/showcase block that are not :::col — prose written between or
+   above the columns. They keep their place in source order instead of being dropped or
+   consuming a grid track. */
+.kd-span { grid-column: 1 / -1; min-width: 0; }
+.kd-span > :first-child { margin-top: 0; }
+.kd-span > :last-child { margin-bottom: 0; }
 
 /* ---- showcase preset ---- */
 .kd-showcase { border: 1px solid var(--kd-border); border-radius: .5rem; padding: 1.25rem; margin: 1.5rem 0; background: var(--kd-bg); }
@@ -61,6 +66,28 @@ body {
 .kd-demo-source { margin-top: .5rem; font-size: .85rem; }
 .kd-demo-source summary { cursor: pointer; color: var(--kd-muted); }
 .kd-out { margin-top: .75rem; padding: .6rem .8rem; background: #0d1117; color: #c9d1d9; border-radius: .375rem; font-size: .8rem; white-space: pre-wrap; }
+.kd-demo-orphan { border-left: 4px solid #dc3545; background: #fdecee; padding: .75rem 1rem; border-radius: .375rem; font-size: .9rem; }
+
+/* ---- keen-phoenix-svelte islands ---- */
+[data-app] { min-height: 3rem; }
+[data-app]:empty { border: 1px dashed var(--kd-border); border-radius: .375rem; }
+.kd-app-error { border-left: 4px solid #dc3545; background: #fdecee; padding: .75rem 1rem; border-radius: .375rem; font-size: .9rem; }
+
+/* ---- mermaid (renders into the <pre> in place) ---- */
+pre.mermaid { border: 1px solid var(--kd-border); border-radius: .5rem; padding: 1rem; background: var(--kd-bg); text-align: center; }
+
+/* ---- table of contents ---- */
+.kd-toc { border: 1px solid var(--kd-border); border-radius: .5rem; background: var(--kd-bg); padding: .75rem 1rem; margin-bottom: 2rem; font-size: .9rem; }
+.kd-toc ul { list-style: none; margin: 0; padding: 0; }
+.kd-toc a { color: var(--kd-secondary); text-decoration: none; }
+.kd-toc a:hover { text-decoration: underline; }
+.kd-toc-h3 { padding-left: 1rem; }
+.kd-toc-h4 { padding-left: 2rem; }
+
+/* ---- heading anchors (ids generated server-side by MDEx) ---- */
+h1 > a.anchor, h2 > a.anchor, h3 > a.anchor, h4 > a.anchor { opacity: 0; margin-left: .35rem; text-decoration: none; color: var(--kd-muted); }
+h1 > a.anchor::after, h2 > a.anchor::after, h3 > a.anchor::after, h4 > a.anchor::after { content: "#"; }
+h1:hover > a.anchor, h2:hover > a.anchor, h3:hover > a.anchor, h4:hover > a.anchor { opacity: 1; }
 
 /* ---- code blocks (MDEx inline-styled <pre>) ---- */
 .kd-code pre, pre { border-radius: .5rem; padding: 1rem; overflow: auto; font-size: .85rem; border: 1px solid var(--kd-border); }

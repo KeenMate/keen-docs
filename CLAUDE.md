@@ -13,11 +13,13 @@ problems being fixed, and the roadmap. This file is only the working conventions
 
 ## Current state: POC
 
-A plain **Mix** project (not `phx.new` yet) proving the markdown→live-docs pipeline. The pipeline is
-four modules under `lib/keen_docs/markdown/` + `lib/keen_docs/poc.ex`. See DESIGN.md §8.
+A plain **Mix** project (not `phx.new` yet) proving the markdown→live-docs pipeline: the core under
+`lib/keen_docs/markdown/`, the authoring vocabulary as extensions under `lib/keen_docs/extensions/`,
+and `lib/keen_docs/poc.ex` as the page shell. See DESIGN.md §8.
 
 ```bash
 mix deps.get
+mix test
 mix run -e "KeenDocs.POC.build()"   # → build/poc.html (open in a browser)
 ```
 
@@ -34,9 +36,22 @@ Generic, data-shape-oriented endpoints back the live demos. See DESIGN.md §4–
 - `markdown/directive_parser.ex` — **the heart**: pure Elixir, **code-fence-aware** scanner that builds a
   nested `:::` block tree. Node shapes: `{:directive, name, attrs, children}`, `{:markdown, text}`,
   `{:fence, lang, flags, code}`. Keep it dependency-free.
-- `markdown/renderer.ex` — node tree → HTML. Markdown & `example` fences via `MDEx.to_html!/2`
-  (server-side highlighting); `demo`/`run` fences → live region + `<script type="module">`.
-- `poc.ex` — wires it into a standalone HTML page.
+- `markdown/renderer.ex` — node tree → `Output`. Only the dispatch loop, plain markdown and fallbacks
+  live here; the authoring vocabulary lives in extensions.
+- `markdown/output.ex` — the result: **page regions** (`head`/`body`/`footer` + keyed `assets`, `toc`).
+  Rendering never returns a bare HTML string.
+- `markdown/context.ex` — per-render state: extension registry, deterministic demo counter, accumulating
+  output. **Never** reach for the process dictionary or any global here.
+- `markdown/extension.ex` — behaviour: `directives/0`, `fences/0`, `render/2 → {iodata, ctx}`,
+  `document/3` (before body), `finalize/1` (after body). All optional. Cross-block state goes in the
+  context's private store, keyed by module.
+- `extensions/` — `layout` (columns/col/showcase), `blocks` (card/callout), `demo` (demo/run/example
+  fences), `app` (keen-phoenix-svelte islands: `:::app` + `:::props` + `:::placeholder`), `mermaid`,
+  `open_graph`, `cdn_package`. Registered in `config :keen_docs, :extensions`.
+- `poc.ex` — assembles the regions into a standalone HTML page.
+
+**Adding a block type means writing an extension, not editing the renderer.** Extensions are installed
+server-side; content repos stay pure data and never ship Elixir.
 
 ### Authoring model (keep these invariants)
 
@@ -50,21 +65,25 @@ Generic, data-shape-oriented endpoints back the live demos. See DESIGN.md §4–
 
 ## Conventions
 
-- **Elixir 1.18 / OTP 27.** Idiomatic Elixir; small focused modules; pattern-match over conditionals.
+- **Elixir 1.20 / OTP 29** (installed via Homebrew; `mix.exs` still declares `~> 1.15`). Idiomatic
+  Elixir; small focused modules; pattern-match over conditionals.
 - **Markdown engine**: MDEx (comrak Rust NIF, precompiled) + **lumis** for highlighting. Highlighting is
   opt-in and the engine isn't bundled — `{:lumis, "~> 0.1"}` + `config :mdex_native, syntax_highlighter: :lumis`.
 - **Server-side rendering only** for content/highlighting — no client-side re-highlighting, no FOUC hacks
   (that was a svelte-docs anti-pattern we're explicitly removing).
 - Never reintroduce a **global mutable singleton** for config/state (svelte-docs' SSR leak). Keep state
   request/domain-scoped.
-- When adding content features, update `priv/content/form-integration.md` (the exercise-everything sample)
-  and re-run the POC build to verify.
+- Rendering must stay **deterministic** — the same document renders to the same bytes. Ingestion relies
+  on content hashing (DESIGN.md §4), so never use `System.unique_integer/1` or timestamps in output.
+- When adding content features, update `priv/content/form-integration.md` (the exercise-everything sample),
+  add tests under `test/`, and re-run the POC build to verify.
 
 ## Persistent design memory
 
-Cross-session design context lives in the memory dir (indexed by
-`~/.claude/projects/C--Git-KM-keen-docs/memory/MEMORY.md`): `keen-docs-purpose`,
-`keen-docs-rendering-model`, `svelte-docs-architecture-issues`. Update these when decisions change.
+The architecture of record lives in [`DESIGN.md`](./DESIGN.md) — update it when decisions change.
+Cross-session context that is *not* derivable from the repo (toolchain quirks, authoring-style
+preferences) lives in the memory dir indexed by
+`~/.claude/projects/-Users-ondrejvalenta-Documents-GitHub-keen-docs/memory/MEMORY.md`.
 
 ## Related repos (siblings under C:\Git\KM)
 

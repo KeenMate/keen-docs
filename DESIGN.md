@@ -95,7 +95,69 @@ pinned to the doc version** → demo-runtime versioning is free. Server-backed d
 element at a generic endpoint (`data-url="/api/data/languages"`). True keen-phoenix-svelte island apps
 are the **rare** case (LiveView / custom interactive, e.g. inline-edit, chat).
 
-Demo spectrum: (a) static markup · (b) markup + generic-endpoint URL · (c) `js run` block · (d) island app (rare).
+Demo spectrum: (a) static markup · (b) markup + generic-endpoint URL · (c) `js run` block · (d) island
+app (rare) — authored as `:::app`, see §5 below.
+
+### Rendering produces page regions, not a string
+
+A block does not only contribute body markup: a mermaid diagram needs its runtime loaded, an OG hook
+needs `<meta>` tags in the head, a `js run` block needs a module script *after* the content it drives.
+So rendering returns an **`Output` of page regions** — `head`, `body`, `footer`, plus keyed `assets`,
+a `toc` and `body_class` — and the page shell assembles them.
+
+Assets are **keyed and deduplicated**: ten mermaid diagrams load the bundle once, a page with none
+loads nothing. On finalize, assets lead their region so a library `<script>` always precedes the init
+that uses it.
+
+### Extensions are installed at server level
+
+The renderer knows almost nothing about the authoring vocabulary. Every `:::directive` and every fence
+role is supplied by an **extension** listed in `config :keen_docs, :extensions` — including the
+built-in layout, block and demo vocabularies, so the built-ins exercise the same contract a
+third-party extension would.
+
+An extension implements any of four optional callbacks:
+
+| Callback | Purpose |
+|---|---|
+| `directives/0` | the `:::name` blocks it renders |
+| `fences/0` | fence keys it renders — matched against fence *flags*, then the *language* |
+| `render/2` | `{iodata, context}` — emit markup *and* register assets/head/footer contributions |
+| `document/3` | whole-document hook, **before** body rendering (front-matter-driven contributions) |
+| `finalize/1` | hook **after** body rendering, for contributions that depend on what the page contained |
+
+State an extension needs across blocks lives in the context's private store, keyed by module — never
+in process state.
+
+Extensions are **server-installed, never content-authored**: content repos stay pure data (§4) and
+simply use whatever the server has. Reference implementations: `Mermaid` (asset contribution),
+`OpenGraph` (document hook → head), `CdnPackage` (front matter `uses:`/`version:` → pinned jsdelivr
+tags, which is how §5's "pinned to the doc version" is actually delivered), and `App` (below).
+
+### `:::app` — keen-phoenix-svelte islands
+
+`:::app` is the markdown equivalent of `<.app>`, rendering the same wrapper contract
+(`phx-hook="KeenApp"`, `phx-update="ignore"`, `data-app`, JSON `data-props`, `data-eager`). Every part
+is a **named block** rather than an inferred one:
+
+```
+:::app{name="org-browser" component="tree"}
+:::props        ← a JSON fence, validated at build time
+:::placeholder  ← markup shown until the island mounts
+:::
+```
+
+Bundle URL resolution, most specific first: a `src=` attribute → front matter `apps: {name: url}` →
+the configured `base_path` (`/apps/<name>/main.mjs`, mirroring `KeenPhoenixSvelte.Apps.base_path/0`).
+
+Page-level runtime (`keen-context`, the `keen-apps` manifest, one `modulepreload` per island) is
+emitted from `finalize/1`, because the manifest must list every island the page turned out to mount —
+which `document/3` runs too early to know. `mountStatic()` bootstrapping is emitted only if a
+`runtime:` URL is configured; a real Phoenix page calls it from its own `app.js`.
+
+Note that `<.app>` tracks used apps in `Process.put/2`. Here they ride the render context instead, so
+two documents rendered in one process cannot bleed into each other's manifest — the same class of bug
+§3 exists to remove, avoided by construction.
 
 ### API Reference is generated
 
@@ -107,43 +169,96 @@ The API Reference page is **generated from the CEM manifest** per version — no
 - CLI runtime: **Node** (npm `@keenmate/keendocs`).
 - Markdown engine: **MDEx** (comrak Rust NIF, precompiled) + **lumis** for server-side highlighting.
 - Layout is generic (`columns`/`col`); `showcase` is a preset; `col` = labelled (no chrome), `card` = boxed.
-- Width shorthand: `cols="80/20"`; demos load from CDN pinned to version; `js run` executes (content is trusted — published via API-keyed CLI).
+- Width shorthand: `cols="80/20"`; demos load from CDN pinned to version.
+- **Trust model: content is trusted**, because it ships through the API-keyed publish CLI. Therefore
+  inline `js run` executes *and* prose may contain inline HTML (`<kbd>`, `<sup>`, …) — MDEx runs with
+  `unsafe: true`. Revisit only if untrusted/community-contributed content is ever accepted.
+- **Rendering returns page regions** (`head`/`body`/`footer` + keyed assets), never a bare HTML string.
+- **Extensions are server-installed** and configured in `config :keen_docs, :extensions`; content
+  repos never register their own. The built-in vocabulary is itself a set of extensions.
+- Demo ids are a **deterministic per-document counter** (`kd-demo-1`, …), so the same document always
+  renders to the same bytes — random ids would defeat the content-hash dedup in §4.
 
 ## 7. Open questions (decide before/while building the real app)
 
 - **Directive syntax** final sign-off (`:::name{attrs}` + fence flags) — currently assumed good.
-- **Multi-tab code**: auto-tab consecutive `example` fences vs explicit `:::code{tabs}` wrapper (lean: explicit).
+- **Multi-tab code**: the wrapper alone is *not explicit enough* — consecutive bare fences inside
+  `:::code{tabs}` leave the tab boundary ambiguous and give nowhere to hang a human-readable title.
+  Direction: a per-tab marker carrying its own title, with the fence inside still carrying `lang` for
+  highlighting — `:::code{tabs}` › `:::tab{title="HTML"}` › fence › `:::`. Settle the exact syntax
+  before implementing.
 - **CDN vs self-hosted** component bundles (lean: self-host from ingested bundle + CDN fallback; works offline/intranet).
 - **Content storage**: Postgres rows + tsvector/pgvector for fulltext; assets/bundles on disk or object storage.
 - **Auth**: confirm `../keen-auth-permissions` for profiles/favorites/notes.
-- **Trust model**: confirm content is trusted so inline `js run` may execute.
+- **Multi-package CDN**: `CdnPackage` currently loads one package per page from front matter. Decide
+  whether a page may document several at once.
 
 ## 8. Where we are — POC
 
 A **plain Mix project** (not `phx.new` yet) proving the markdown→live-docs pipeline is manageable.
+Built on **Elixir 1.20.2 / OTP 29**; `mix.exs` still declares `~> 1.15` and nothing is pinned.
 
 Files:
 - `lib/keen_docs/markdown/frontmatter.ex` — YAML front-matter split (`yaml_elixir`).
 - `lib/keen_docs/markdown/directive_parser.ex` — **core**: pure Elixir, code-fence-aware nested `:::` block tree.
-- `lib/keen_docs/markdown/renderer.ex` — node tree → HTML; markdown/`example` via MDEx (server-side highlight), `demo`/`run` → live region + script.
+- `lib/keen_docs/markdown/renderer.ex` — node tree → `Output`; dispatch loop, plain markdown, fallbacks.
+- `lib/keen_docs/markdown/output.ex` — the page-region result (head/body/footer/assets/toc).
+- `lib/keen_docs/markdown/context.ex` — per-render state: extension registry, demo counter, accumulating output.
+- `lib/keen_docs/markdown/extension.ex` — the extension behaviour.
+- `lib/keen_docs/markdown/html.ex` — shared escaping.
+- `lib/keen_docs/extensions/` — `layout` (columns/col/showcase), `blocks` (card/callout),
+  `demo` (demo/run/example fences), `app` (keen-phoenix-svelte islands), `mermaid`, `open_graph`,
+  `cdn_package`.
 - `lib/keen_docs/poc.ex` — renders `priv/content/form-integration.md` → standalone `build/poc.html`.
-- `priv/content/form-integration.md` — sample exercising every feature (showcase, 80/20 columns, callout, card, table, live `<web-multiselect>` + `js run`).
+- `priv/content/form-integration.md` — sample exercising every feature.
 - `priv/web/keendocs.css` — POC styles.
+- `test/` — ExUnit suite (77 tests) over parser, renderer, extensions and front matter.
 
-**Run:** `mix run -e "KeenDocs.POC.build()"` then open `build/poc.html`.
+**Run:** `mix test`, then `mix run -e "KeenDocs.POC.build()"` and open `build/poc.html`.
 
 **Verified:** showcase 3 positional-accent columns; true 80/20 CSS-grid; callout; card; GFM table; two live
-`<web-multiselect>@2.0.0` from jsdelivr; `js run` change→output; **server-side syntax highlighting**
-(inline styles, no client hljs / no FOUC).
+`<web-multiselect>@2.0.0` from jsdelivr (loaded from front matter, not hardcoded); `js run` change→output
+from the footer; mermaid diagram with its runtime loaded once; OG tags; heading ids + TOC;
+**server-side syntax highlighting** (inline styles, no client hljs / no FOUC); byte-identical output
+across repeated renders; `:::app` island wrapper + `keen-apps` manifest + module preload.
 
-**Gotcha recorded:** MDEx `default_syntax_highlight_options` is `nil` (opt-in) and neither `:lumis` nor
-`:syntect` ships in the precompiled `mdex_native` — need `{:lumis, "~> 0.1"}` + `config :mdex_native,
-syntax_highlighter: :lumis`.
+**Not yet proven / known gaps:**
+- **Islands do not actually mount in the POC.** `:::app` renders the wrapper, manifest, context script
+  and preload correctly, but this standalone page serves no bundle and calls no `mountStatic()`.
+  Real mounting is only testable after step 1 below.
+- **Fences are detected at any indentation** (`@fence_re` is anchored `^\s*`), so a fence indented
+  inside a list item is hoisted out as a top-level fence node and breaks the list. Pre-existing;
+  fixing it means reworking fence detection, so it was left alone rather than risking the
+  fence-length fix.
+- No `:::code{tabs}` yet — the `<details>` source view still stands in.
+
+**Defects found and fixed once the pipeline was probed directly** (the original sample passed only
+because every directive in it happened to carry attributes):
+
+| Defect | Cause |
+|---|---|
+| Attribute-less directive crashed the parser | `Regex.run/2` drops trailing non-participating groups, so `:::columns` matched as 2 elements |
+| A shorter nested fence closed a longer one | closing test accepted any run of ≥3 of the same char |
+| `showcase` silently dropped non-`col` children | rendered only its filtered columns |
+| `columns` leaked stray prose into the grid | rendered all children as grid items |
+| `js run` bound to a demo from a *previously rendered document* | pairing lived in `Process.put/2` — the §3 anti-pattern in miniature |
+| Inline HTML in prose was stripped | `unsafe: false` |
+| No heading ids | `header_id_prefix` not set |
+
+**Gotchas recorded:**
+- MDEx `default_syntax_highlight_options` is `nil` (opt-in) and neither `:lumis` nor `:syntect` ships in
+  the precompiled `mdex_native` — need `{:lumis, "~> 0.1"}` + `config :mdex_native, syntax_highlighter: :lumis`.
+- `extension: [header_ids: …]` is **deprecated** in MDEx 0.13.5 → `header_id_prefix`. Use the empty
+  prefix: a non-empty one prefixes the `id` but *not* the generated anchor's `href`, breaking self-links.
+- Call `Lumis.highlight!/2` directly rather than round-tripping code through a markdown fence string —
+  the round-trip cannot represent a sample that itself contains fences.
+- Precompiled NIFs resolve to `nif-2.15` artifacts and work on OTP 29; no Rust toolchain needed.
 
 ## 9. Next steps
 
-1. **Phoenix-ify**: `phx.new`, mount the renderer in a controller/LiveView route (renderer already returns an HTML string).
-2. **Tabbed code** (`:::code{tabs}`) to replace the POC's `<details>` source view (the CodeShowcase equivalent).
+1. **Phoenix-ify**: `phx.new`, mount the renderer in a controller/LiveView route (the `Output` regions
+   map onto a layout's head/body/footer slots).
+2. **Tabbed code** (`:::code{tabs}` + per-tab markers, see §7) to replace the POC's `<details>` source view.
 3. **Content bundle + manifest format** (folder-per-version) — the unit `keendocs publish` ships and the app ingests.
 4. **`keendocs` CLI** (Node) — `publish` (pack + upload) mirroring `pure-admin-cli`; `init`/`dev` later.
 5. **Ingestion + storage** — upload endpoint, content-hash dedup, Postgres + fulltext.

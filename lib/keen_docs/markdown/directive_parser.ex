@@ -61,6 +61,12 @@ defmodule KeenDocs.Markdown.DirectiveParser do
     do_parse(after_fence, acc, [])
   end
 
+  # `Regex.run/2` drops trailing groups that did not participate, so an attribute-less
+  # `:::columns` matches as 2 elements while `:::columns{…}` matches as 3. Normalise the
+  # short form rather than complicating @open_re — `parse_attrs/1` already handles nil.
+  defp handle_directive([full, name], rest, acc, md),
+    do: handle_directive([full, name, nil], rest, acc, md)
+
   defp handle_directive([_, name, attrs_str], rest, acc, md) do
     {children, after_children} = do_parse(rest, [], [])
     directive = {:directive, name, parse_attrs(attrs_str), children}
@@ -68,17 +74,21 @@ defmodule KeenDocs.Markdown.DirectiveParser do
     do_parse(after_children, acc, [])
   end
 
-  # A closing fence is a line whose only non-space content is the same fence char.
   defp take_until_fence([], _marker, code), do: {Enum.reverse(code), []}
 
   defp take_until_fence([line | rest], marker, code) do
-    fence_char = String.first(marker)
-
-    if Regex.match?(~r/^\s*#{Regex.escape(fence_char)}{3,}\s*$/, line) do
+    if closing_fence?(line, marker) do
       {Enum.reverse(code), rest}
     else
       take_until_fence(rest, marker, [line | code])
     end
+  end
+
+  # A closing fence uses the same character and is *at least as long* as the opener, so a
+  # ```-fenced sample can be shown verbatim inside a ````-fenced block without ending it.
+  defp closing_fence?(line, marker) do
+    char = String.first(marker)
+    Regex.match?(~r/^\s*#{Regex.escape(char)}{#{String.length(marker)},}\s*$/, line)
   end
 
   # ---- markdown buffer helpers ----
