@@ -17,10 +17,10 @@ defmodule KeenDocs.MixProject do
 
   defp deps do
     [
-      {:mdex, "~> 0.2"},
-      {:lumis, "~> 0.1"},
-      {:yaml_elixir, "~> 2.9"},
-      # Used directly for island props / runtime JSON, not just via mdex.
+      # The markdown-superset engine, extracted so a portal app can render content too.
+      # Brings mdex/lumis/yaml_elixir transitively; keen-docs adds only its own extensions.
+      {:keen_markdown, path: "../keen-markdown"},
+      # Used directly for island props / runtime JSON (KeenDocs.Extensions.App).
       {:jason, "~> 1.4"}
     ]
   end

@@ -1,3 +1,11 @@
+/* keen-docs POC styles.
+ *
+ * keen_markdown emits classed HTML (kd-columns, kd-card, kd-callout, …) and
+ * inline-styled code (Lumis html_inline — no stylesheet needed for highlighting). How
+ * those classes *look* is a presentation concern owned by the consuming app, so all of
+ * it lives here, not in the engine. A different consumer (e.g. a non-KeenMate portal)
+ * ships its own. */
+
 :root {
   --kd-primary: #00a7e1;
   --kd-secondary: #003459;
@@ -25,7 +33,7 @@ body {
 .kd-page-head h1 { color: var(--kd-secondary); margin-bottom: .25rem; }
 .kd-page-desc { color: var(--kd-muted); margin-top: 0; }
 
-/* ---- columns / col ---- */
+/* ---- columns / col (KeenMarkdown.Extensions.Layout) ---- */
 .kd-columns { display: grid; gap: 1.5rem; margin: 1.25rem 0; align-items: start; }
 @media (max-width: 768px) { .kd-columns { grid-template-columns: 1fr !important; } }
 
@@ -47,12 +55,11 @@ body {
 .kd-showcase-title { margin: 0 0 .1rem; color: var(--kd-secondary); }
 .kd-showcase-sub { margin: 0 0 1rem; color: var(--kd-muted); font-size: .9rem; }
 
-/* ---- card ---- */
+/* ---- card / callout (KeenMarkdown.Extensions.Blocks) ---- */
 .kd-card { border: 1px solid var(--kd-border); border-radius: .5rem; overflow: hidden; background: var(--kd-bg); }
 .kd-card-header { background: var(--kd-secondary); color: #fff; padding: .6rem 1rem; font-weight: 600; }
 .kd-card-body { padding: 1rem; }
 
-/* ---- callout ---- */
 .kd-callout { border-left: 4px solid var(--kd-primary); border-radius: .375rem; padding: .9rem 1rem; margin: 1.25rem 0; background: #e7f6fc; }
 .kd-callout-title { font-weight: 600; margin-bottom: .25rem; }
 .kd-callout-warning { border-left-color: #ffc107; background: #fff8e6; }
@@ -60,7 +67,7 @@ body {
 .kd-callout-body > :first-child { margin-top: 0; }
 .kd-callout-body > :last-child { margin-bottom: 0; }
 
-/* ---- demo live region ---- */
+/* ---- demo live region (KeenDocs.Extensions.Demo) ---- */
 .kd-demo { }
 .kd-demo-live { padding: 1rem; border: 1px dashed var(--kd-border); border-radius: .375rem; background: #fff; }
 .kd-demo-source { margin-top: .5rem; font-size: .85rem; }
@@ -68,7 +75,7 @@ body {
 .kd-out { margin-top: .75rem; padding: .6rem .8rem; background: #0d1117; color: #c9d1d9; border-radius: .375rem; font-size: .8rem; white-space: pre-wrap; }
 .kd-demo-orphan { border-left: 4px solid #dc3545; background: #fdecee; padding: .75rem 1rem; border-radius: .375rem; font-size: .9rem; }
 
-/* ---- keen-phoenix-svelte islands ---- */
+/* ---- keen-phoenix-svelte islands (KeenDocs.Extensions.App) ---- */
 [data-app] { min-height: 3rem; }
 [data-app]:empty { border: 1px dashed var(--kd-border); border-radius: .375rem; }
 .kd-app-error { border-left: 4px solid #dc3545; background: #fdecee; padding: .75rem 1rem; border-radius: .375rem; font-size: .9rem; }
@@ -89,7 +96,7 @@ h1 > a.anchor, h2 > a.anchor, h3 > a.anchor, h4 > a.anchor { opacity: 0; margin-
 h1 > a.anchor::after, h2 > a.anchor::after, h3 > a.anchor::after, h4 > a.anchor::after { content: "#"; }
 h1:hover > a.anchor, h2:hover > a.anchor, h3:hover > a.anchor, h4:hover > a.anchor { opacity: 1; }
 
-/* ---- code blocks (MDEx inline-styled <pre>) ---- */
+/* ---- code blocks (MDEx inline-styled <pre>; this only adds chrome, not colours) ---- */
 .kd-code pre, pre { border-radius: .5rem; padding: 1rem; overflow: auto; font-size: .85rem; border: 1px solid var(--kd-border); }
 :not(pre) > code { background: #eef1f4; padding: .1rem .35rem; border-radius: .25rem; font-size: .85em; }
 

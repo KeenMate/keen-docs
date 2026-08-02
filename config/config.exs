@@ -1,21 +1,24 @@
 import Config
 
-# Use the Lumis engine for MDEx server-side syntax highlighting.
+# Use the Lumis engine for MDEx server-side syntax highlighting. This configures the
+# :mdex_native application (highlighting is opt-in; the precompiled NIF bundles no
+# engine), so the running app must set it even though keen_markdown carries the code.
 config :mdex_native, syntax_highlighter: :lumis
 
-# Markdown extensions installed at server level. Content bundles are pure data and
-# never register their own — they use whatever is listed here (DESIGN.md §4/§5).
-# The layout, block and demo vocabularies are themselves extensions, so the built-ins
-# exercise the same contract a third-party extension would.
-config :keen_docs,
+# The markdown vocabulary available to content, assembled from the keen_markdown generic
+# set plus keen-docs' own docs-specific extensions (live demos, CDN packages, islands).
+# Content bundles are pure data and never register their own — they use what is listed
+# here. Both the built-ins and keen-docs' extensions exercise the same behaviour.
+config :keen_markdown,
   extensions: [
-    KeenDocs.Extensions.Layout,
-    KeenDocs.Extensions.Blocks,
+    KeenMarkdown.Extensions.Layout,
+    KeenMarkdown.Extensions.Blocks,
+    KeenMarkdown.Extensions.Example,
+    KeenMarkdown.Extensions.Mermaid,
+    KeenMarkdown.Extensions.OpenGraph,
     KeenDocs.Extensions.Demo,
-    KeenDocs.Extensions.App,
-    KeenDocs.Extensions.Mermaid,
-    KeenDocs.Extensions.OpenGraph,
-    KeenDocs.Extensions.CdnPackage
+    KeenDocs.Extensions.CdnPackage,
+    KeenDocs.Extensions.App
   ]
 
 # keen-phoenix-svelte islands mounted by `:::app`. `base_path` mirrors

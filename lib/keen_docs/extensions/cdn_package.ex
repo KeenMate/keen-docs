@@ -17,9 +17,9 @@ defmodule KeenDocs.Extensions.CdnPackage do
   assets, which keeps them ahead of any demo `run` script in the footer ordering.
   """
 
-  use KeenDocs.Markdown.Extension
+  use KeenMarkdown.Extension
 
-  alias KeenDocs.Markdown.{Context, HTML}
+  alias KeenMarkdown.{Context, HTML}
 
   @cdn "https://cdn.jsdelivr.net/npm"
 

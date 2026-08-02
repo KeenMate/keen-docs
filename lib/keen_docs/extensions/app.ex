@@ -55,9 +55,9 @@ defmodule KeenDocs.Extensions.App do
   into each other's manifest.
   """
 
-  use KeenDocs.Markdown.Extension
+  use KeenMarkdown.Extension
 
-  alias KeenDocs.Markdown.{Context, HTML, Renderer}
+  alias KeenMarkdown.{Context, HTML, Renderer}
 
   @default_base_path "/apps"
   @tag_re ~r/^[a-zA-Z][\w-]*$/

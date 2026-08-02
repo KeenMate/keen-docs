@@ -125,6 +125,7 @@ An extension implements any of four optional callbacks:
 | `render/2` | `{iodata, context}` — emit markup *and* register assets/head/footer contributions |
 | `document/3` | whole-document hook, **before** body rendering (front-matter-driven contributions) |
 | `finalize/1` | hook **after** body rendering, for contributions that depend on what the page contained |
+| `transform_markdown/2` | rewrite the **base-markdown AST** (comrak `MDEx.Document`) of a `{:markdown}` run before it becomes HTML — the seam for redefining built-in constructs (`##` → `<div class="header-2">`, custom lists). The `:::`/fence layers are our grammar; this reaches CommonMark underneath. Fast path is preserved when no transform is installed. |
 
 State an extension needs across blocks lives in the context's private store, keyed by module — never
 in process state.
@@ -164,17 +165,71 @@ two documents rendered in one process cannot bleed into each other's manifest �
 Packages already ship `custom-elements.json` (CEM) + `web-types.json` (e.g. `../web-multiselect`).
 The API Reference page is **generated from the CEM manifest** per version — no hand-written API pages.
 
+### Rendering targets: HTML and HEEx (proven — see §8)
+
+The parser/renderer are **output-format-agnostic** — the renderer just concatenates whatever iodata the
+extensions return. The target is decided entirely by *which extension set is installed*:
+
+- **HTML target (default).** `:::card` → `<div class="kd-card">…</div>`. What the POC and any static host uses.
+- **HEEx target.** `:::card` → a component tag `<.card>…</.card>` that a **consuming Phoenix app** compiles
+  against its own design system (e.g. `keen_pure_admin` / pure-admin function components). Base markdown
+  still renders to HTML (a subset of HEEx, so it slots straight into `<.card>`). Children are rendered to
+  HTML **first**, then wrapped — keen_markdown owns markdown→HTML, the compile step owns component-tag→component.
+
+keen_markdown stays **Phoenix-free**: a HEEx extension only emits `<.card>` *strings*; the consumer runs
+`Phoenix.LiveView.TagEngine.compile/2` in a module that imports the components. Same engine, different
+extension list — this is why extracting `keen_markdown` mattered.
+
+**Compile & cache model** (for content stored in a DB, compiled on the fly):
+
+- A published version is content-hash-immutable (§4), so it's a stable cache key.
+- **Static page** → render once, cache the **HTML** (~1 µs/request warm).
+- **Dynamic page** (per-user) → cache the **compiled template**, render per request with assigns (~255 µs).
+- The compile itself (~9–12 ms) is paid once per version, never per request.
+- Each page picks its strategy via **frontmatter metadata** (`cache: static | per_user`), read off `Output.meta`.
+
+**Content variables** — `{{user.displayName}}` (mustache, deliberately *not* HEEx `{}` / EEx `<%%>`). A
+whitelisted dotted path `[\w.]+` is translated to a safe lookup `Vars.get(assigns, "user.displayName")`
+(read-only into the per-request assigns map — never arbitrary code) and populated per request.
+
+**Safety at the compile boundary** — compiling author content = running code, so the invariant is *only
+trusted tokens ever reach the compiler*. The proven approach: emit trusted constructs (component tags,
+`{{var}}` lookups) as forge-proof **sentinels** (base64, null-delimited — comrak strips nulls so content
+can't forge one), **neutralize** the whole body (escape every author `{}` / `<% %>` / `<.component>`),
+then **swap** sentinels back into real HEEx. This blocks RCE via `{6*7}`, `<%= %>`, `<.evil>` injection
+while keeping legit components and vars working. **XSS is a separate axis** — raw author HTML (`<script>`)
+still passes with `unsafe: true`; sanitize (ammonia / `unsafe: false`) if content is ever untrusted.
+
 ## 6. Decisions locked
 
 - CLI runtime: **Node** (npm `@keenmate/keendocs`).
 - Markdown engine: **MDEx** (comrak Rust NIF, precompiled) + **lumis** for server-side highlighting.
+  **Confirmed over `md`** after checking the ecosystem: MDEx is extensible at the *options* and *AST*
+  levels but **not the grammar** — comrak can't learn new source syntax like `:::`. That's fine, because
+  *our directive layer supplies the grammar* and delegates prose to comrak. `md` (am-kantox) is the only
+  grammar-extensible Elixir lib, but explicitly drops CommonMark compliance and comrak's speed — a trade
+  we don't need. Earmark is retired/deprecated; cmark archived. Base markdown is ~60% of a real doc, so
+  correctness of the payload matters more than base-grammar extensibility we already have one layer up.
+- **Rendering target is pluggable via the extension set** — HTML (default) or HEEx component tags compiled
+  by the consumer. The parser/renderer are format-agnostic; output format is purely an extension concern.
+- **DB content → HEEx compiled on the fly, cached per content hash.** Static pages cache rendered HTML;
+  per-user pages cache the compiled template and render per request with assigns. Strategy is declared per
+  page in frontmatter (`cache:`).
+- **Content variables** use mustache `{{a.b}}` → whitelisted `Vars.get(assigns, "a.b")` (read-only, not code).
+- **Compile-boundary safety = trust separation** (sentinel → neutralize → swap): only trusted tokens are
+  compiled, so author `{…}`/`<%…%>`/`<.component>` can't execute (RCE-safe). XSS remains a separate policy.
 - Layout is generic (`columns`/`col`); `showcase` is a preset; `col` = labelled (no chrome), `card` = boxed.
 - Width shorthand: `cols="80/20"`; demos load from CDN pinned to version.
 - **Trust model: content is trusted**, because it ships through the API-keyed publish CLI. Therefore
   inline `js run` executes *and* prose may contain inline HTML (`<kbd>`, `<sup>`, …) — MDEx runs with
   `unsafe: true`. Revisit only if untrusted/community-contributed content is ever accepted.
 - **Rendering returns page regions** (`head`/`body`/`footer` + keyed assets), never a bare HTML string.
-- **Extensions are server-installed** and configured in `config :keen_docs, :extensions`; content
+- **The rendering engine is a standalone library**, `keen_markdown` (`../keen-markdown`, module root
+  `KeenMarkdown`). keen-docs consumes it via a path dep. Boundary: **generic vocabulary lives in the
+  library** (layout, cards/callouts, `example` fences, mermaid, OG); **docs-specific vocabulary stays in
+  keen-docs** (live `demo`/`run` fences, `cdn_package`, `app` islands). This lets a content portal like
+  `../cafeindustrial-cz` reuse the engine without any docs machinery.
+- **Extensions are server-installed** and configured in `config :keen_markdown, :extensions`; content
   repos never register their own. The built-in vocabulary is itself a set of extensions.
 - Demo ids are a **deterministic per-document counter** (`kd-demo-1`, …), so the same document always
   renders to the same bytes — random ids would defeat the content-hash dedup in §4.
@@ -192,29 +247,47 @@ The API Reference page is **generated from the CEM manifest** per version — no
 - **Auth**: confirm `../keen-auth-permissions` for profiles/favorites/notes.
 - **Multi-package CDN**: `CdnPackage` currently loads one package per page from front matter. Decide
   whether a page may document several at once.
+- **HEEx target productionization**: the safety approach (sentinel/neutralize/swap) is proven in a spike;
+  decide whether the HEEx extension set + safe compile pipeline live in a `keen_markdown_heex` companion,
+  in keen-docs, or in each consumer (e.g. keen_pure_admin). Also: whether the engine should natively emit
+  a *skeleton + fragments* (author content as assigns data) as an even stronger trust boundary.
+- **XSS policy**: with `unsafe: true`, trusted content may embed `<script>`. Confirm trusted-only, else
+  add HTML sanitization (ammonia / `unsafe: false`). Orthogonal to the RCE hardening.
+- **Vars in attributes**: `{{var}}` populates in body text; supporting it in directive/component attributes
+  (`:::card{title="{{user.name}}"}`) needs separate handling (currently escaped).
+- **Neutralization audit**: the compile-boundary escape list is a construct blacklist — audit + fuzz before
+  production; the sentinel *trust separation* is the backbone, neutralization is defense on top.
+- **Does keen-docs itself need the HEEx target?** Its demos are client-side (CDN web components, islands),
+  so HTML output suffices. HEEx/components earn their keep for a portal (keen_pure_admin) wanting docs
+  chrome to *be* real design-system components. keen-docs may stay HTML-target; HEEx is a portal concern.
 
 ## 8. Where we are — POC
 
 A **plain Mix project** (not `phx.new` yet) proving the markdown→live-docs pipeline is manageable.
 Built on **Elixir 1.20.2 / OTP 29**; `mix.exs` still declares `~> 1.15` and nothing is pinned.
 
-Files:
-- `lib/keen_docs/markdown/frontmatter.ex` — YAML front-matter split (`yaml_elixir`).
-- `lib/keen_docs/markdown/directive_parser.ex` — **core**: pure Elixir, code-fence-aware nested `:::` block tree.
-- `lib/keen_docs/markdown/renderer.ex` — node tree → `Output`; dispatch loop, plain markdown, fallbacks.
-- `lib/keen_docs/markdown/output.ex` — the page-region result (head/body/footer/assets/toc).
-- `lib/keen_docs/markdown/context.ex` — per-render state: extension registry, demo counter, accumulating output.
-- `lib/keen_docs/markdown/extension.ex` — the extension behaviour.
-- `lib/keen_docs/markdown/html.ex` — shared escaping.
-- `lib/keen_docs/extensions/` — `layout` (columns/col/showcase), `blocks` (card/callout),
-  `demo` (demo/run/example fences), `app` (keen-phoenix-svelte islands), `mermaid`, `open_graph`,
-  `cdn_package`.
+**The engine now lives in `../keen-markdown`** (Hex `keen_markdown`, module root `KeenMarkdown`);
+keen-docs consumes it via `{:keen_markdown, path: "../keen-markdown"}` and adds only its docs-specific
+extensions. Work on the parser/renderer/behaviour happens in that repo.
+
+In `../keen-markdown` (`KeenMarkdown.*`, 56 tests):
+- `frontmatter.ex` — YAML front-matter split (`yaml_elixir`).
+- `directive_parser.ex` — **core**: pure Elixir, code-fence-aware nested `:::` block tree.
+- `renderer.ex` — node tree → `Output`; dispatch loop, plain markdown, fallbacks, `transform_markdown` hook.
+- `output.ex` / `context.ex` / `extension.ex` / `html.ex` — regions, per-render state, behaviour, escaping.
+- `keen_markdown.ex` — public API (`KeenMarkdown.render/2` → `Output`).
+- generic extensions: `layout` (columns/col/showcase), `blocks` (card/callout), `example`
+  (highlighted copyable source), `mermaid`, `open_graph`. **Ships no CSS** — emits classed HTML + inline-styled code; the consumer owns styling.
+
+In keen-docs (the first consumer, 29 tests):
+- `lib/keen_docs/extensions/` — `demo` (live `demo`/`run` fences), `cdn_package` (jsdelivr, pinned),
+  `app` (keen-phoenix-svelte islands).
 - `lib/keen_docs/poc.ex` — renders `priv/content/form-integration.md` → standalone `build/poc.html`.
 - `priv/content/form-integration.md` — sample exercising every feature.
-- `priv/web/keendocs.css` — POC styles.
-- `test/` — ExUnit suite (77 tests) over parser, renderer, extensions and front matter.
+- `priv/web/keendocs.css` — all POC styling (page shell + `kd-*` component classes the engine emits + demo/island); the engine ships none.
+- The full vocabulary is assembled in `config :keen_markdown, :extensions` = generic set ++ keen-docs' three.
 
-**Run:** `mix test`, then `mix run -e "KeenDocs.POC.build()"` and open `build/poc.html`.
+**Run:** `mix test` (here **and** in `../keen-markdown`), then `mix run -e "KeenDocs.POC.build()"` and open `build/poc.html`.
 
 **Verified:** showcase 3 positional-accent columns; true 80/20 CSS-grid; callout; card; GFM table; two live
 `<web-multiselect>@2.0.0` from jsdelivr (loaded from front matter, not hardcoded); `js run` change→output
@@ -254,10 +327,38 @@ because every directive in it happened to carry attributes):
   the round-trip cannot represent a sample that itself contains fences.
 - Precompiled NIFs resolve to `nif-2.15` artifacts and work on OTP 29; no Rust toolchain needed.
 
+### Proven in throwaway spikes (`keen-docs/tmp/`, gitignored)
+
+The HEEx/DB-content story was de-risked end to end in scratch projects (`tmp/heex_proof`,
+`tmp/keen_docs_p1`). Code is throwaway; the findings are the keepers:
+
+- **`transform_markdown` hook** (landed in keen_markdown, 4 tests): `## x` → `<div class="header-2">x</div>`
+  via comrak AST rewrite, base markdown around it untouched. Proves redefining built-in constructs.
+- **`MDEx.to_heex` works on runtime strings** (it's a macro that snapshots the *caller's* imports at
+  compile time, but the content is a runtime arg). Confirmed `<.card>` from a DB string compiles against
+  a real component. Underlying primitive: `Phoenix.LiveView.TagEngine.compile/2` + `Code.eval_quoted`.
+  Gotcha: MDEx does **not** markdown-process a component's children — fine, since keen_markdown renders
+  children to HTML first.
+- **HEEx extension set** (`:::card` → `<.card>`, ~20 lines): same engine, only the extension list differs;
+  compiled against real `card/1`/`callout/1` components → real design-system HTML.
+- **P1 — cached HTTP route** (Bandit + Plug, ETS cache keyed by content hash): cold render **~9.2 ms**
+  (parse + MDEx + TagEngine.compile + eval), warm **~1 µs** (~9000× speedup). `GET /docs/:id` served with
+  `x-cache: hit`. Confirms MDEx's "eval each time is slow" warning *and* that per-version caching erases it.
+- **Dynamic `{{vars}}`**: same compiled template rendered for two users (Ondrej/Alice) with different
+  output; compile once **~12 ms**, per-request render **~255 µs**. `cache: per_user` frontmatter drives it.
+- **Safety hardening**: naive compile of author `{6*7}` **executed → "42" (RCE)**; the sentinel→neutralize
+  →swap pipeline made `{6*7}`, `<%= %>`, `<.evil>` all inert while legit `{{vars}}` and `:::card` still work.
+
 ## 9. Next steps
 
+**POC scorecard.** Proven: ✅ markdown→live HTML pipeline · ✅ extension model · ✅ library extraction ·
+✅ `transform_markdown` (redefine base constructs) · ✅ HEEx target (`:::card`→`<.card>` real components) ·
+✅ cached HEEx route (P1) · ✅ dynamic `{{vars}}` · ✅ compile-boundary safety hardening.
+Open POCs: P2 island actually mounts · P3 generic data endpoint + live demo · P4 publish/ingest + dedup ·
+P5 multi-version + domain routing · P6 CEM→API reference · P7 fulltext.
+
 1. **Phoenix-ify**: `phx.new`, mount the renderer in a controller/LiveView route (the `Output` regions
-   map onto a layout's head/body/footer slots).
+   map onto a layout's head/body/footer slots). The P1 spike (`tmp/keen_docs_p1`) is the template.
 2. **Tabbed code** (`:::code{tabs}` + per-tab markers, see §7) to replace the POC's `<details>` source view.
 3. **Content bundle + manifest format** (folder-per-version) — the unit `keendocs publish` ships and the app ingests.
 4. **`keendocs` CLI** (Node) — `publish` (pack + upload) mirroring `pure-admin-cli`; `init`/`dev` later.
@@ -270,8 +371,12 @@ because every directive in it happened to carry attributes):
 
 ## Related repos
 
+- `../keen-markdown` — **the extracted rendering engine** (Hex `keen_markdown`, module root `KeenMarkdown`);
+  keen-docs consumes it via a path dep. The parser/renderer/extensions live here now.
 - `../svelte-docs` — the predecessor (SvelteKit lib).
 - `../keen-phoenix-svelte` — island mounter (Hex `keen_phoenix_svelte` / npm `@keenmate/phoenix_svelte`).
 - `../pure-admin-cli` — the CLI publish flow to mirror.
 - `../web-multiselect` — flagship web component (ships CEM manifest); first content target.
 - `../keen-auth-permissions` — likely auth layer.
+- `../cafeindustrial-cz` — a Phoenix portal (LiveView, hardcoded `.heex` content today); candidate second
+  consumer of `keen_markdown` and the HEEx-target case.

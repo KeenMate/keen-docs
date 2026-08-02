@@ -10,7 +10,7 @@ defmodule KeenDocs.POC do
   the CDN tags come from front matter via `KeenDocs.Extensions.CdnPackage`.
   """
 
-  alias KeenDocs.Markdown.{DirectiveParser, Frontmatter, HTML, Output, Renderer}
+  alias KeenMarkdown.{HTML, Output}
 
   @doc "Render `source` to a standalone HTML page at `out`."
   @spec build(Path.t(), Path.t()) :: :ok
@@ -26,11 +26,9 @@ defmodule KeenDocs.POC do
   @doc "Render a markdown file to an `Output` of page regions."
   @spec render_file(Path.t()) :: Output.t()
   def render_file(source) do
-    {meta, body} = source |> File.read!() |> Frontmatter.split()
-
-    body
-    |> DirectiveParser.parse()
-    |> Renderer.render(meta: meta)
+    # Front-matter split, parse and render all happen in keen_markdown; the extension
+    # set (generic + keen-docs') is picked up from `config :keen_markdown, :extensions`.
+    source |> File.read!() |> KeenMarkdown.render()
   end
 
   defp page(%Output{meta: meta} = output) do

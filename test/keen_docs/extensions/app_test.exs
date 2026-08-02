@@ -1,7 +1,7 @@
 defmodule KeenDocs.Extensions.AppTest do
   use ExUnit.Case, async: true
 
-  alias KeenDocs.Markdown.{DirectiveParser, Output, Renderer}
+  alias KeenMarkdown.{DirectiveParser, Output, Renderer}
 
   @extensions [KeenDocs.Extensions.App]
 

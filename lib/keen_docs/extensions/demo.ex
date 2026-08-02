@@ -1,28 +1,31 @@
 defmodule KeenDocs.Extensions.Demo do
   @moduledoc """
-  Fence roles that make a code block live: `demo`, `run` and `example`.
+  The **live** fence roles that a docs site needs: `demo` and `run`.
 
   Demo-ness lives on the fence, never on the layout (DESIGN.md §5):
 
     * ` ```html demo ` — mounts the markup for real and shows its source.
     * ` ```js run ` — executes against the *preceding* demo, with `el` bound to the
       demo's first element and `out/1` printing into the demo's output pane.
-    * ` ```lang example ` — highlighted, copyable source that is not executed.
+
+  The generic ` ```lang example ` role (highlighted, copyable source that is not
+  executed) lives in `KeenMarkdown.Extensions.Example` — any content site wants it,
+  not just docs. Only the live-mounting roles are docs-specific and stay here.
 
   A `run` block is paired with its demo through the render context, and its script is
   contributed to the page **footer** rather than inlined mid-body, so the element it
   drives is guaranteed to exist by the time the module runs.
 
   Demo ids come from a per-document counter, so the same document always renders to
-  the same bytes — see `KeenDocs.Markdown.Context`.
+  the same bytes — see `KeenMarkdown.Context`.
   """
 
-  use KeenDocs.Markdown.Extension
+  use KeenMarkdown.Extension
 
-  alias KeenDocs.Markdown.{Context, Renderer}
+  alias KeenMarkdown.{Context, Renderer}
 
   @impl true
-  def fences, do: ~w(demo run example)
+  def fences, do: ~w(demo run)
 
   @impl true
   def render({:fence, lang, flags, code}, ctx) do
