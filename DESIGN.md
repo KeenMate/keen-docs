@@ -233,6 +233,13 @@ still passes with `unsafe: true`; sanitize (ammonia / `unsafe: false`) if conten
   repos never register their own. The built-in vocabulary is itself a set of extensions.
 - Demo ids are a **deterministic per-document counter** (`kd-demo-1`, …), so the same document always
   renders to the same bytes — random ids would defeat the content-hash dedup in §4.
+- **DB access layer = stored functions + raw Postgrex, NOT Ecto** (matches `../keen-auth-permissions`).
+  The schema lives in the database as SQL functions; `db-gen` (KeenMate's Go generator, vendored as
+  `db-gen-win.exe`/`db-gen-linux` + `db-gen.json` + `db-gen/*.gotmpl`) reads those functions and generates
+  the typed Elixir wrappers — `KeenDocs.Database` context + `KeenDocs.Database.{Models,Parsers}.*` — into
+  `lib/keen_docs/database/` (committed). A thin `KeenDocs.Repo` (Postgrex `start_link` + `query/2`) is all
+  the generated `use KeenDocs.Database, repo: …` needs; no Ecto schemas/migrations. **Migrations are run by
+  debee** (see the toolchain note in §8).
 
 ## 7. Open questions (decide before/while building the real app)
 
@@ -371,6 +378,101 @@ The HEEx/DB-content story was de-risked end to end in scratch projects (`tmp/hee
   ingested bytes render through the real `keen_markdown` (`GET /docs/:pkg/:ver/:slug`). Gates work: Bearer
   auth → `401`, `x-keendocs-cli-version` below the server minimum → `426` (version-gates the CLI, per §4.2).
   POC transport is JSON+base64 (dedup is the point); the real CLI packs a zip + multipart like pure-admin-cli.
+- **P5 — multi-version + domain-scoped routing** (`tmp/keen_docs_p5`, one Bandit app): a single `Endpoint`
+  plug resolves the **request Host into a tenant scope** and forwards — the whole multi-tenant trick
+  (DESIGN.md §4.3). The hub host (`docs.localhost`) aggregates *every* package with its semver-`latest`;
+  a package subdomain (`web-multiselect.localhost`) is the *same app* scoped to one library. Multi-version
+  works: `/` → latest (2.1.0 over 2.0.0 via `Version` sort, not lexical), `/2.0.0` explicit, a version
+  switcher that carries the current slug across versions (`/2.0.0/getting-started`), and page nav from the
+  catalog. Content is a folder-per-version tree read into `:persistent_term` at boot (stands in for the DB
+  after P4 ingest); pages render through the real `keen_markdown`. Verified with `curl -H "Host: …"`: hub
+  aggregation, per-package scoping, cross-domain links both ways, `404` for unknown tenant and unknown version.
+- **P6 — CEM → API reference generator** (`tmp/keen_docs_p6`): a docs-specific `:::api{tag="web-multiselect"}`
+  extension that reads the component's `custom-elements.json` (CEM, schema 1.0.0) and generates the reference
+  — the realisation of §5 "API Reference is generated". Run against web-multiselect's **real 203 KB CEM**:
+  it emitted **75 attributes · 38 properties · 4 methods · 3 events**, with attribute→property mapping
+  (`search-hint`→`searchHint`), full typed method signatures
+  (`setSelected(values: (string | number)[], opts: { notify?: boolean })`), and — crucially — *only the
+  public API*: private/protected/static members and the custom-element/form lifecycle callbacks
+  (`connectedCallback`, `formResetCallback`, static `formAssociated`, …) are all filtered out (0 leakage).
+  Author writes one directive; the table stays in lock-step with the shipped manifest. CEM parsed once and
+  cached in `:persistent_term` (manifests are large + immutable per version).
+
+### Database & codegen toolchain (wired 2026-08-03)
+
+The persistence layer is real and proven end to end, using two KeenMate tools:
+
+- **`../keen-docs-database`** — the SQL, applied by **debee** (a PostgreSQL migration orchestrator; env in
+  `debee.env` + `.debee.env`, run `make setup` = `debee -o fullService`). It's a copy of the
+  postgresql-permissions-model test DB: files **000–009 are the common framework** (roles, version
+  management, helpers), **010/012/013 are illustrative** auth examples. Fixed for keen-docs: recreate script
+  default → `keen_docs`, `DBDESTDB=keen_docs`, retargeted `99_fix_permissions.sql` to the `keen_docs` role
+  (deleted the duplicate `099_` — 3-digit prefixes get swept into the migration run, 2-digit don't).
+  `make setup` builds the `keen_docs` DB (role name == password == `keen_docs`) on `db-01.km8.local`.
+- **`db-gen`** (vendored in keen-docs) — connects to `keen_docs`, reads stored functions, generates the
+  Elixir wrappers via Go templates. `db-gen.json` + `db-gen/*.gotmpl` were **copied from
+  keen-auth-permissions**; retargeted to namespace `KeenDocs.Database` and output `lib/keen_docs/database/`.
+  Run `./db-gen-win.exe generate`. Has `--llm` (and `validate`/`routines`/`database-changes`).
+- **`KeenDocs.Repo`** (`lib/keen_docs/repo.ex`) — thin Postgrex wrapper; `mix compile` green; a smoke test
+  drove a generated wrapper (`check_version/2`) against the live DB and got a typed model back.
+- **Update loop:** `make setup` (in keen-docs-database) → `db-gen generate` (in keen-docs). Both need the DB
+  reachable (VPN to `db-01.km8.local`). Not yet supervised at boot — start `KeenDocs.Repo` where a live DB
+  is actually needed (the eventual Phoenix supervisor / test helper).
+
+- **keen_docs content schema (`public.*`, migration `100_docs_content.sql`)** — the first application domain,
+  authored to the **Bliss PostgreSQL guidelines** (`BlissFramework/web/docs/coding-guidelines-postgres`).
+  Main-project tables live in **`public`** (KeenMate convention), not a dedicated schema; the migration sits
+  in the 100+ range (000–099 is the borrowed permission-model framework). Singular tables with
+  `<table>_id generated always as identity` + universal audit columns (audit columns first); `nrm_` search
+  column + a generated `tsvector`; `ensure_*` idempotent upserts (`ensure` is the registry verb — not
+  "ingest"); the `search_*` two-jsonb signature (`_search_criteria` + `_search_settings`, lenient parse,
+  whitelisted `order_by`, no dynamic SQL); and the **public-API-types rule** (functions expose only stock
+  types + `jsonb`; `tsvector`/`tsquery` stay internal).
+
+  **The shape — three-level tree, kind-interpreted middle:** `doc_set → doc_variant → document`, plus a
+  content-addressed `content_blob` (the P4 dedup, in SQL — `ensure_content_blob` reports `__deduped`).
+  - **`doc_set`** = a documented *subject* (generic on purpose — a component library, a guidelines
+    collection, or an infra area — *not* a component-only "package"). `code` is the URL slug.
+    Discriminated by `kind_code` → `const.doc_set_kind` (`component`/`guide`/`infrastructure`; FK, not
+    enum). `doc_set_package` (0..n) carries registry identity (`ecosystem_code` → `const.package_ecosystem`
+    = npm/nuget/hex/go_module/cargo/executable, each with `manifest_file` + install/registry templates, and
+    a `package_name`), so an uploaded `package.json`/`*.csproj`/`mix.exs` resolves to the right docs.
+  - **`doc_variant`** = the **neutral middle partition**, its meaning set by the parent's kind:
+    *component* → a **version** (`code`='2.0.0', `applies_to` jsonb coverage ranges, `maturity_code` →
+    `const.version_maturity` so a pre-release is reachable but never "latest"); *infrastructure* → a
+    **division** (`code`='azure'/'aws', parallel, `is_default`); *guide* → a single `'main'` variant with
+    `show_in_path=false` so its URL segment is omitted (**generic guides carry no version**). Same tree,
+    one `ensure_document` path, one set of queries for all three.
+  - **`document`** = a page; bytes live once in `content_blob`, `nrm_search_data` + a generated `tsvector`.
+
+  Rendering/routing branches on `kind` (a `component` set gets CDN demos + a CEM API ref; the rest are
+  prose). Version-less guides and provider divisions were the requirements that proved the middle layer
+  must **not** be hardcoded as "version". `ensure_doc_set`'s `_kind_code` is null-means-leave-alone (and
+  the auto-create path passes null) so re-publishing a page never clobbers a deliberate kind. Functions:
+  `ensure_doc_set/ensure_doc_set_package/ensure_doc_variant/ensure_content_blob/ensure_document`,
+  `list_doc_sets/list_doc_variants/get_default_variant`, `resolve_doc_variant` (installed version →
+  covering variant via half-open semver bounds in `applies_to`, else default fallback), and
+  `search_documents` (returns `variant_code`, filters by `kind`).
+
+  **Version resolution decouples doc cadence from release cadence:** the content repo holds a *handful* of
+  folders (one per doc line, e.g. `v2.0.0/` + a `manifest.json` with `appliesTo`), never one per patch —
+  `web-multiselect@2.1.4 → v2.0.0` resolves through `applies_to: [{from:"2.0.0", to:"3.0.0"}]`, no per-patch
+  row anywhere. (`resolve_doc_variant` currently matches on semver *core* bounds — pre-release suffix
+  ignored for containment; a `semver` PG extension or Elixir `Version` swap is a localized change if tighter
+  matching is wanted. npm `^`/`~` → `{from,to}` expansion happens at publish/ingest.)
+  **This is P7 (full-text) for real:** `search_documents` ranks via `ts_rank(search_vector, websearch_to_tsquery)`
+  with a `pg_trgm` substring fallback. Proven end-to-end as the `keen_docs` role (grants via
+  `99_fix_permissions.sql`), then through the regenerated `KeenDocs.Database.*` wrappers — public-schema
+  functions generate with no prefix, e.g. `KeenDocs.DB.ensure_document/10` (jsonb maps encode via
+  `KeenDocs.PostgrexTypes` + Jason): ensure → dedup → ranked search → get. Deferred to when auth is wired:
+  publish behind an `auth.*` permission check + `public.journal` audit.
+
+  **Example content** lives in `999_examples.sql` (a swept migration, so `make setup` recreates it every
+  time via idempotent `ensure_*` calls) — sample `component`/`infrastructure`/`guide` sets. The seed/schema
+  split is deliberate: migrations ship schema + `const` lookups only; *content* (doc_sets, variants,
+  documents) is published via the eventual `keendocs` CLI, never as DDL — `999_examples.sql` just stands in
+  for the CLI until it exists. `tmp/docs_variant_demo.exs` is a read-only visualizer over the seed (nav
+  tree, URL construction, `package.json` → doc-version resolution).
 
 ## 9. Next steps
 
@@ -378,11 +480,22 @@ The HEEx/DB-content story was de-risked end to end in scratch projects (`tmp/hee
 ✅ `transform_markdown` (redefine base constructs) · ✅ HEEx target (`:::card`→`<.card>` real components) ·
 ✅ cached HEEx route (P1) · ✅ dynamic `{{vars}}` · ✅ compile-boundary safety hardening ·
 ✅ P2 island actually mounts · ✅ P3 generic data endpoint + live server-backed demo ·
-✅ P4 publish/ingest + content-hash dedup (Node `keendocs` CLI + blob-store ingest).
-Open POCs: P5 multi-version + domain routing · P6 CEM→API reference · P7 fulltext.
+✅ P4 publish/ingest + content-hash dedup (Node `keendocs` CLI + blob-store ingest) ·
+✅ P5 multi-version + domain-scoped routing (host = tenant scope; hub aggregates, subdomain scopes) ·
+✅ P6 CEM→API reference (`:::api{tag}` generates attrs/props/methods/events from custom-elements.json) ·
+✅ P7 Postgres fulltext — delivered for real (not a spike) as the `docs.*` schema; see the toolchain note.
+All planned POCs are proven.
 
-1. **Phoenix-ify**: `phx.new`, mount the renderer in a controller/LiveView route (the `Output` regions
-   map onto a layout's head/body/footer slots). The P1 spike (`tmp/keen_docs_p1`) is the template.
+1. **Phoenix-ify** — *first cut done as a minimal web layer.* `KeenDocs.Application` supervises
+   `KeenDocs.Repo` + a Bandit/Plug router (`KeenDocs.Web.Router`, port 4000; run `mix run --no-halt` or
+   `iex -S mix`). `KeenDocs.Content` (`use KeenDocs.Database`) is the data API; routes exercise every aspect
+   over the live `public.*` functions: `/` hub (all doc_sets + kind/package), `/:set` variant nav, `/:set/:variant/:slug`
+   rendered document (markdown → `KeenMarkdown.render` → head/body/footer regions), `/:set/:seg` (guide
+   pretty-URL vs variant landing, decided from `show_in_path`), `/search?q=&kind=`, and `/resolve`
+   (paste a `package.json` → matched `doc_set` + version resolution via `applies_to`, with fallback). This
+   is Plug (the substrate Phoenix runs on), so promoting to `phx.new` + LiveView is additive — the `Output`
+   regions already map onto a layout's head/body/footer slots. The P1 spike (`tmp/keen_docs_p1`) remains the
+   HEEx/LiveView template.
 2. **Tabbed code** (`:::code{tabs}` + per-tab markers, see §7) to replace the POC's `<details>` source view.
 3. **Content bundle + manifest format** (folder-per-version) — the unit `keendocs publish` ships and the app ingests.
 4. **`keendocs` CLI** (Node) — `publish` (pack + upload) mirroring `pure-admin-cli`; `init`/`dev` later.

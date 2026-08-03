@@ -1,0 +1,192 @@
+{
+  "ConnectionString": "postgresql://postgres:Password3000!!@localhost:5432/keen_docs",
+  "OutputFolder": "./lib/keen_docs/database/",
+  "GenerateModels": true,
+  "GenerateProcessors": true,
+  "GenerateDbContext": true,
+  "GenerateProcessorsForVoidReturns": false,
+  "ClearOutputFolder": false,
+  "DbContextTemplate": "./db-gen/dbcontext.gotmpl",
+  "ModelTemplate": "./db-gen/model.gotmpl",
+  "ProcessorTemplate": "./db-gen/parser.gotmpl",
+  "RoutinesFile": "./db-gen/routines.json",
+  "GeneratedFileExtension": ".ex",
+  "GeneratedFileCase": "snakeCase",
+  "ModelsFolderName": "models",
+  "ProcessorsFolderName": "parsers",
+  "Generate": [
+    {
+      "Schema": "public",
+      "AllFunctions": true
+    },
+    {
+      "Schema": "internal",
+      "AllFunctions": false,
+      "Functions": {
+        "resolve_user": {},
+        "resolve_tenant": {},
+        "resolve_group": {}
+      }
+    },
+    {
+      "Schema": "auth",
+      "AllFunctions": true,
+      "Functions": {
+        "ensure_groups_and_permissions": {
+          "Parameters": {
+            "_provider_groups": {
+              "MappedType": "list(String.t())"
+            },
+            "_provider_roles": {
+              "MappedType": "list(String.t())"
+            }
+          },
+          "Model": {
+            "__groups": {
+              "MappedType": "list(String.t())",
+              "MappingFunction": "list"
+            },
+            "__permissions": {
+              "MappedType": "list(String.t())",
+              "MappingFunction": "list"
+            }
+          }
+        },
+        "ensure_user_from_provider": {
+          "Parameters": {
+            "_user_data": {
+              "MappedType": "map()"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "Mappings": [
+    {
+      "DatabaseTypes": ["boolean", "bool"],
+      "MappedType": "boolean()",
+      "MappingFunction": "boolean"
+    },
+    {
+      "DatabaseTypes": ["smallint", "int2"],
+      "MappedType": "integer()",
+      "MappingFunction": "integer"
+    },
+    {
+      "DatabaseTypes": ["integer", "int4"],
+      "MappedType": "integer()",
+      "MappingFunction": "integer"
+    },
+    {
+      "DatabaseTypes": ["bigint", "int8"],
+      "MappedType": "integer()",
+      "MappingFunction": "integer"
+    },
+    {
+      "DatabaseTypes": ["real", "float4"],
+      "MappedType": "float()",
+      "MappingFunction": "float"
+    },
+    {
+      "DatabaseTypes": ["double precision", "float8"],
+      "MappedType": "float()",
+      "MappingFunction": "float"
+    },
+    {
+      "DatabaseTypes": ["numeric", "money"],
+      "MappedType": "Decimal.t()",
+      "MappingFunction": "decimal"
+    },
+    {
+      "DatabaseTypes": ["text", "character varying", "character", "citext", "varchar"],
+      "MappedType": "String.t()",
+      "MappingFunction": "string"
+    },
+    {
+      "DatabaseTypes": ["json", "jsonb"],
+      "MappedType": "map() | list()",
+      "MappingFunction": "json"
+    },
+    {
+      "DatabaseTypes": ["xml"],
+      "MappedType": "String.t()",
+      "MappingFunction": "string"
+    },
+    {
+      "DatabaseTypes": ["uuid"],
+      "MappedType": "String.t()",
+      "MappingFunction": "string"
+    },
+    {
+      "DatabaseTypes": ["_uuid"],
+      "MappedType": "list(String.t())",
+      "MappingFunction": "list"
+    },
+    {
+      "DatabaseTypes": ["bytea"],
+      "MappedType": "binary()",
+      "MappingFunction": "binary"
+    },
+    {
+      "DatabaseTypes": ["timestamptz", "timestamp", "timestamp with time zone", "timestamp without time zone"],
+      "MappedType": "DateTime.t()",
+      "MappingFunction": "datetime"
+    },
+    {
+      "DatabaseTypes": ["date"],
+      "MappedType": "Date.t()",
+      "MappingFunction": "date"
+    },
+    {
+      "DatabaseTypes": ["time"],
+      "MappedType": "Time.t()",
+      "MappingFunction": "time"
+    },
+    {
+      "DatabaseTypes": ["interval"],
+      "MappedType": "Postgrex.Interval.t()",
+      "MappingFunction": "interval"
+    },
+    {
+      "DatabaseTypes": ["ltree"],
+      "MappedType": "String.t()",
+      "MappingFunction": "string"
+    },
+    {
+      "DatabaseTypes": ["_ltree"],
+      "MappedType": "list(String.t())",
+      "MappingFunction": "list"
+    },
+    {
+      "DatabaseTypes": ["tsvector"],
+      "MappedType": "String.t()",
+      "MappingFunction": "string"
+    },
+    {
+      "DatabaseTypes": ["_text"],
+      "MappedType": "list(String.t())",
+      "MappingFunction": "list"
+    },
+    {
+      "DatabaseTypes": ["_int4"],
+      "MappedType": "list(integer())",
+      "MappingFunction": "list"
+    },
+    {
+      "DatabaseTypes": ["_int8"],
+      "MappedType": "list(integer())",
+      "MappingFunction": "list"
+    },
+    {
+      "DatabaseTypes": ["_jsonb", "_json"],
+      "MappedType": "list(map() | list())",
+      "MappingFunction": "list"
+    },
+    {
+      "DatabaseTypes": [],
+      "MappedType": "any()",
+      "MappingFunction": "any"
+    }
+  ]
+}

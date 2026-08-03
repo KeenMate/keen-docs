@@ -1,23 +1,24 @@
 defmodule KeenDocs.Extensions.Demo do
   @moduledoc """
-  The **live** fence roles that a docs site needs: `demo` and `run`.
+  The **live** directives a docs site needs: `:::demo` and `:::run`.
 
-  Demo-ness lives on the fence, never on the layout (DESIGN.md §5):
+  Liveness is an explicit directive, never a flag smuggled onto a code fence — the same
+  markup renders live in a `:::demo` or as plain source in a `:::code`. Both are raw-body
+  directives, so the markup/script inside is captured verbatim.
 
-    * ` ```html demo ` — mounts the markup for real and shows its source.
-    * ` ```js run ` — executes against the *preceding* demo, with `el` bound to the
-      demo's first element and `out/1` printing into the demo's output pane.
+    * `:::demo{lang=html}` — mounts the markup for real (into `.kd-demo-live`) and shows
+      its highlighted source below. `lang` defaults to `html`.
+    * `:::run{lang=js}` — executes against the *preceding* demo, with `el` bound to the
+      demo's first element and `out/1` printing into the demo's output pane. Its script is
+      contributed to the page **footer**, so the element it drives already exists when it
+      runs.
 
-  The generic ` ```lang example ` role (highlighted, copyable source that is not
-  executed) lives in `KeenMarkdown.Extensions.Example` — any content site wants it,
-  not just docs. Only the live-mounting roles are docs-specific and stay here.
+  Plain code display (`:::code`, ```` ```lang ````) is generic and lives in
+  `KeenMarkdown.Extensions.Code`; only the live-mounting directives are docs-specific and
+  stay here.
 
-  A `run` block is paired with its demo through the render context, and its script is
-  contributed to the page **footer** rather than inlined mid-body, so the element it
-  drives is guaranteed to exist by the time the module runs.
-
-  Demo ids come from a per-document counter, so the same document always renders to
-  the same bytes — see `KeenMarkdown.Context`.
+  Demo ids come from a per-document counter, so the same document always renders to the
+  same bytes — see `KeenMarkdown.Context`.
   """
 
   use KeenMarkdown.Extension
@@ -25,18 +26,15 @@ defmodule KeenDocs.Extensions.Demo do
   alias KeenMarkdown.{Context, Renderer}
 
   @impl true
-  def fences, do: ~w(demo run)
+  def directives, do: ~w(demo run)
 
   @impl true
-  def render({:fence, lang, flags, code}, ctx) do
-    cond do
-      "demo" in flags -> demo(lang, code, ctx)
-      "run" in flags -> run(code, ctx)
-      true -> {[~s(<div class="kd-code">), Renderer.highlight(code, lang, ctx), "</div>"], ctx}
-    end
-  end
+  def raw_directives, do: ~w(demo run)
 
-  defp demo(lang, code, ctx) do
+  @impl true
+  def render({:directive, "demo", attrs, children}, ctx) do
+    code = raw_text(children)
+    lang = attrs["lang"] || "html"
     {id, ctx} = Context.next_demo_id(ctx)
 
     {[
@@ -50,17 +48,30 @@ defmodule KeenDocs.Extensions.Demo do
      ], ctx}
   end
 
-  defp run(code, ctx) do
+  def render({:directive, "run", _attrs, children}, ctx) do
+    code = raw_text(children)
+
     case Context.last_demo(ctx) do
       nil ->
-        # Previously this silently bound to whatever demo was rendered last — including
-        # one from an earlier document. Surface it instead of guessing.
-        {~s(<div class="kd-demo-orphan">A <code>js run</code> block needs a <code>demo</code> fence above it.</div>),
+        # Surface a stray run rather than silently binding to some earlier demo.
+        {~s(<div class="kd-demo-orphan">A <code>:::run</code> block needs a <code>:::demo</code> above it.</div>),
          ctx}
 
       id ->
         {"", Context.put_footer(ctx, script(id, code))}
     end
+  end
+
+  # The raw body arrives as a single `{:raw, text}` child; trim only surrounding blank
+  # lines so indentation inside the markup/script is preserved.
+  defp raw_text(children) do
+    children
+    |> Enum.map_join("\n", fn
+      {:raw, text} -> text
+      {:markdown, text} -> text
+      _ -> ""
+    end)
+    |> String.trim("\n")
   end
 
   defp script(id, code) do

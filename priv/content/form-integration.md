@@ -28,32 +28,32 @@ Prose written directly inside a showcase spans the full row — it is neither dr
 nor turned into a stray grid cell.
 
 :::col{title="Demo"}
-```html demo
-<web-multiselect name="languages" value-format="json"
+:::demo
+<web-multiselect name="languages" value-format="json" data-options-format="plain"
   data-options="JavaScript,TypeScript,Python,Go,Rust,Elixir"></web-multiselect>
-```
-```js run
-el.addEventListener('change', (e) => out({ selected: e.detail, value: el.value }));
-```
+:::
+:::run
+el.addEventListener('change', (e) => out({ values: e.detail.selectedValues }));
+:::
 :::
 
 :::col{title="Controls"}
 Select items to see how the hidden input updates. On submit, the server parses one field:
 
-```js
+:::code{lang=js}
 app.post('/submit', (req, res) => {
   const langs = JSON.parse(req.body.languages);
 });
-```
+:::
 :::
 
 :::col{title="Description"}
 Creates a **single** hidden input containing a JSON array. Best for modern
 backends that expect JSON.
 
-```html
+:::code{lang=html}
 <input type="hidden" name="languages" value='["js","ts"]'>
-```
+:::
 :::
 
 :::
@@ -66,10 +66,10 @@ primitive — this is an **80/20** split, impossible with a 12-column grid:
 :::columns{cols="80/20"}
 
 :::col{title="Demo"}
-```html demo
-<web-multiselect value-format="csv"
+:::demo
+<web-multiselect value-format="csv" data-options-format="plain"
   data-options="Prague,Vienna,Berlin,Warsaw,Budapest,Bratislava,Ljubljana"></web-multiselect>
-```
+:::
 :::
 
 :::col{title="Notes"}
@@ -80,7 +80,7 @@ Typeahead search, keyboard nav, CSV value format — all from attributes.
 
 And the full source of a demo can span the whole page underneath it:
 
-```svelte example
+:::code{lang=svelte}
 <script>
   import '@keenmate/web-multiselect';
 </script>
@@ -88,20 +88,20 @@ And the full source of a demo can span the whole page underneath it:
 <web-multiselect
   value-format="csv"
   data-options="Prague,Vienna,Berlin" />
-```
+:::
 
 ## Documenting the authoring syntax itself
 
-A longer fence wraps a shorter one, so the docs can show their own markup verbatim
-without the inner fence closing the outer block:
+A `:::code` block captures its body verbatim, so the docs can show the authoring
+directives themselves — a whole `:::demo … :::` survives without ending the block early:
 
-````md example
-Wrap a demo in a fence and flag it:
+:::code{lang=md}
+Author a live demo as a directive:
 
-```html demo
-<web-multiselect data-options="a,b,c"></web-multiselect>
-```
-````
+:::demo
+<web-multiselect data-options-format="plain" data-options="a,b,c"></web-multiselect>
+:::
+:::
 
 ## How a page is rendered
 

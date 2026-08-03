@@ -28,6 +28,11 @@ keen_docs-*.tar
 # POC / generated output.
 /build/
 
+# db-gen local connection override (carries DB creds) + debug artifacts.
+# The primary db-gen.json and generated lib/keen_docs/database/ ARE committed.
+/.local.db-gen.json
+/db-gen-debug/
+
 # Editor / tooling
 /.elixir_ls/
 /.elixir-tools/

@@ -1,9 +1,20 @@
 defmodule KeenDocs.Extensions.AppTest do
-  use ExUnit.Case, async: true
+  # async: false — pins the App extension's global config for the duration, so these
+  # assertions don't depend on whatever the harness config.exs happens to set.
+  use ExUnit.Case, async: false
 
   alias KeenMarkdown.{DirectiveParser, Output, Renderer}
 
   @extensions [KeenDocs.Extensions.App]
+
+  # Neutral baseline: no standalone runtime, empty page context. Tests that need a runtime
+  # or a base context set their own.
+  setup do
+    prev = Application.get_env(:keen_docs, KeenDocs.Extensions.App)
+    Application.put_env(:keen_docs, KeenDocs.Extensions.App, base_path: "/apps", context: %{}, runtime: nil)
+    on_exit(fn -> Application.put_env(:keen_docs, KeenDocs.Extensions.App, prev) end)
+    :ok
+  end
 
   defp render(source, opts \\ []) do
     source

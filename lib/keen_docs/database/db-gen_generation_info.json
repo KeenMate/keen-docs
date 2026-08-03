@@ -1,0 +1,1323 @@
+{
+  "version": "v0.8.0-rc.4",
+  "time": "2026-08-03T22:16:30.2662684+02:00",
+  "routines": [
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "check_version(text,text)",
+      "HasOverload": false,
+      "RoutineName": "check_version",
+      "SpecificName": "",
+      "DataType": "boolean",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "bool",
+      "ParamCount": 2,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_version",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_component",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": null
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "ensure_content_blob(text,text,bytea,int8)",
+      "HasOverload": false,
+      "RoutineName": "ensure_content_blob",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 6,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_created_by",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_sha",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_content",
+          "Mode": "IN",
+          "UDTName": "bytea",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "_byte_size",
+          "Mode": "IN",
+          "UDTName": "int8",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 5,
+          "Name": "__sha",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "__deduped",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "ensure_doc_set(text,text,text,text,text,int4)",
+      "HasOverload": false,
+      "RoutineName": "ensure_doc_set",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 10,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_created_by",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_correlation_id",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "_title",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "_kind_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "_tenant_id",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 7,
+          "Name": "__doc_set_id",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "__code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 9,
+          "Name": "__kind_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 10,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "ensure_doc_set_package(text,text,text,text,text,bool,int4)",
+      "HasOverload": false,
+      "RoutineName": "ensure_doc_set_package",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 11,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_created_by",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_correlation_id",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "_ecosystem_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "_package_name",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "_is_primary",
+          "Mode": "IN",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "_tenant_id",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 8,
+          "Name": "__doc_set_package_id",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 9,
+          "Name": "__doc_set_id",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 10,
+          "Name": "__ecosystem_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 11,
+          "Name": "__package_name",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "ensure_doc_variant(text,text,text,text,text,bool,bool,int4,text,jsonb,text,int4)",
+      "HasOverload": false,
+      "RoutineName": "ensure_doc_variant",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 15,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_created_by",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_correlation_id",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "_title",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "_is_default",
+          "Mode": "IN",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "_show_in_path",
+          "Mode": "IN",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "_sort_order",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 9,
+          "Name": "_maturity_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 10,
+          "Name": "_applies_to",
+          "Mode": "IN",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 11,
+          "Name": "_content_sha",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 12,
+          "Name": "_tenant_id",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 13,
+          "Name": "__doc_variant_id",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 14,
+          "Name": "__doc_set_id",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 15,
+          "Name": "__code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "ensure_document(text,text,text,text,text,text,text,jsonb,text,text,int4)",
+      "HasOverload": false,
+      "RoutineName": "ensure_document",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 14,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_created_by",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_correlation_id",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "_variant_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "_slug",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "_title",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "_content",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "_frontmatter",
+          "Mode": "IN",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 9,
+          "Name": "_content_sha",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 10,
+          "Name": "_search_text",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 11,
+          "Name": "_tenant_id",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 12,
+          "Name": "__document_id",
+          "Mode": "OUT",
+          "UDTName": "int8",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 13,
+          "Name": "__content_sha",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 14,
+          "Name": "__deduped",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "get_default_variant(text)",
+      "HasOverload": false,
+      "RoutineName": "get_default_variant",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 4,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 2,
+          "Name": "__code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "__show_in_path",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "get_document(text,text,text)",
+      "HasOverload": false,
+      "RoutineName": "get_document",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 7,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_variant_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_slug",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 4,
+          "Name": "__slug",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "__content",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "__frontmatter",
+          "Mode": "OUT",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "get_document_index(text,text,text)",
+      "HasOverload": false,
+      "RoutineName": "get_document_index",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 7,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_variant_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_slug",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 4,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "__keywords",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "__search_text",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "__lexemes",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "list_doc_sets()",
+      "HasOverload": false,
+      "RoutineName": "list_doc_sets",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 5,
+      "FuncType": "function",
+      "InParameters": null,
+      "OutParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "__code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "__kind_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "__ecosystem_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "__package_name",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "list_doc_variants(text)",
+      "HasOverload": false,
+      "RoutineName": "list_doc_variants",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 7,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 2,
+          "Name": "__code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "__is_default",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "__show_in_path",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "__maturity_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "__applies_to",
+          "Mode": "OUT",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "resolve_doc_variant(text,text)",
+      "HasOverload": false,
+      "RoutineName": "resolve_doc_variant",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 6,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_version",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 3,
+          "Name": "__code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "__show_in_path",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "__matched",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "search_documents(text,jsonb,jsonb,int4)",
+      "HasOverload": false,
+      "RoutineName": "search_documents",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 11,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_correlation_id",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_search_criteria",
+          "Mode": "IN",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_search_settings",
+          "Mode": "IN",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "_tenant_id",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 5,
+          "Name": "__doc_set_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "__kind_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "__variant_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "__slug",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 9,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 10,
+          "Name": "__rank",
+          "Mode": "OUT",
+          "UDTName": "float4",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 11,
+          "Name": "__total_count",
+          "Mode": "OUT",
+          "UDTName": "int8",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "start_version_update(text,text,text,text)",
+      "HasOverload": false,
+      "RoutineName": "start_version_update",
+      "SpecificName": "",
+      "DataType": "USER-DEFINED",
+      "UdtTypeScheme": "public",
+      "UdtTypeName": "__version",
+      "ParamCount": 4,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_version",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_title",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_description",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "_component",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "version_id",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "component",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "version",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "description",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": true,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "execution_started",
+          "Mode": "OUT",
+          "UDTName": "timestamptz",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "execution_finished",
+          "Mode": "OUT",
+          "UDTName": "timestamptz",
+          "IsNullable": true,
+          "IsOptional": true
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "stop_version_update(text,text)",
+      "HasOverload": false,
+      "RoutineName": "stop_version_update",
+      "SpecificName": "",
+      "DataType": "USER-DEFINED",
+      "UdtTypeScheme": "public",
+      "UdtTypeName": "__version",
+      "ParamCount": 2,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_version",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_component",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "version_id",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "component",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "version",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "description",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": true,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "execution_started",
+          "Mode": "OUT",
+          "UDTName": "timestamptz",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "execution_finished",
+          "Mode": "OUT",
+          "UDTName": "timestamptz",
+          "IsNullable": true,
+          "IsOptional": true
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "internal",
+      "RoutineNameWithParams": "document_keywords(jsonb)",
+      "HasOverload": false,
+      "RoutineName": "document_keywords",
+      "SpecificName": "",
+      "DataType": "text",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "text",
+      "ParamCount": 1,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_frontmatter",
+          "Mode": "IN",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": null
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "internal",
+      "RoutineNameWithParams": "markdown_to_search_text(text)",
+      "HasOverload": false,
+      "RoutineName": "markdown_to_search_text",
+      "SpecificName": "",
+      "DataType": "text",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "text",
+      "ParamCount": 1,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_md",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": null
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "auth",
+      "RoutineNameWithParams": "get_user_random_code()",
+      "HasOverload": false,
+      "RoutineName": "get_user_random_code",
+      "SpecificName": "",
+      "DataType": "text",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "text",
+      "ParamCount": 0,
+      "FuncType": "function",
+      "InParameters": null,
+      "OutParameters": null
+    }
+  ],
+  "tables": null
+}

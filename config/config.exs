@@ -13,7 +13,7 @@ config :keen_markdown,
   extensions: [
     KeenMarkdown.Extensions.Layout,
     KeenMarkdown.Extensions.Blocks,
-    KeenMarkdown.Extensions.Example,
+    KeenMarkdown.Extensions.Code,
     KeenMarkdown.Extensions.Mermaid,
     KeenMarkdown.Extensions.OpenGraph,
     KeenDocs.Extensions.Demo,
@@ -22,9 +22,22 @@ config :keen_markdown,
   ]
 
 # keen-phoenix-svelte islands mounted by `:::app`. `base_path` mirrors
-# `KeenPhoenixSvelte.Apps.base_path/0`; `runtime` stays nil because a real Phoenix page
-# calls `mountStatic()` from its own app.js — set it only for standalone pages.
+# `KeenPhoenixSvelte.Apps.base_path/0`. This harness is a plain (non-LiveView) page, so it
+# sets `runtime` to the esbuild-bundled keen-phoenix-svelte client (served at
+# /apps_runtime.js by KeenDocs.Web.Router); the App extension emits a footer bootstrap that
+# imports it and calls mountStatic(), which mounts every island under /apps/<name>/main.mjs.
 config :keen_docs, KeenDocs.Extensions.App,
   base_path: "/apps",
-  context: %{},
-  runtime: nil
+  context: %{site: "keen-docs harness"},
+  runtime: "/apps_runtime.js"
+
+# DB connection for KeenDocs.Repo (raw Postgrex — no Ecto). Targets the `keen_docs`
+# database built by debee in ../keen-docs-database; mirrors the db-gen connection in
+# .local.db-gen.json (role name == password == "keen_docs"). Dev-targeting for now —
+# move to env-specific config (dev/runtime) when the app is Phoenix-ified.
+config :keen_docs, KeenDocs.Repo,
+  hostname: "db-01.km8.local",
+  port: 5432,
+  username: "keen_docs",
+  password: "keen_docs",
+  database: "keen_docs"
