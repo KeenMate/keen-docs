@@ -28,12 +28,15 @@ defmodule KeenDocs.Database.Parsers.EnsureDocSetParser do
     {:ok, results}
   end
 
-  defp parse_row([doc_set_id, code, kind_code, title]) do
+  defp parse_row([doc_set_id, code, kind_code, title, description, home_slug, settings]) do
     {:ok, %EnsureDocSetModel{
       doc_set_id: doc_set_id,
       code: code,
       kind_code: kind_code,
       title: title,
+      description: description,
+      home_slug: home_slug,
+      settings: settings,
     }}
   end
 

@@ -48,7 +48,7 @@ defmodule KeenDocs.Web.Router do
         <tr>
           <td><a href="/#{esc(s.code)}"><strong>#{esc(s.code)}</strong></a></td>
           <td>#{badge(s.kind_code, s.kind_code)}</td>
-          <td>#{esc(s.title || "")}</td>
+          <td>#{esc(s.title || "")}#{if s.description, do: ~s(<div class="muted hz-desc">#{esc(s.description)}</div>), else: ""}</td>
           <td>#{pkg}</td>
         </tr>
         """
@@ -135,18 +135,34 @@ defmodule KeenDocs.Web.Router do
         variant_landing(conn, set, variant)
 
       true ->
-        # no variant with that code → treat :seg as a slug in the default variant (guide)
-        case Content.one(Content.get_default_variant(set)) do
+        # not a variant code → a slug. Resolve it in the default variant (guide page), then
+        # in a hidden variant (a doc-set-wide page like /web-multiselect/changelog).
+        case resolve_page_variant(set, seg, variants) do
           nil -> not_found(conn)
-          default -> render_document(conn, set, default.code, seg)
+          vcode -> render_document(conn, set, vcode, seg)
         end
     end
   end
 
-  # ── set landing ───────────────────────────────────────────────────────────
+  # ── set landing / homepage ────────────────────────────────────────────────
+  # If the set declares a home_slug (its authored landing page), render that document;
+  # otherwise fall back to the auto-generated variant list.
   get "/:set" do
     variants = Content.rows(Content.list_doc_variants(set))
-    if variants == [], do: not_found(conn), else: set_landing(conn, set, variants)
+    docset = Content.one(Content.get_doc_set(set))
+    default = Enum.find(variants, & &1.is_default) || List.first(variants)
+
+    cond do
+      variants == [] ->
+        not_found(conn)
+
+      docset && docset.home_slug && default &&
+          Content.one(Content.get_document(set, default.code, docset.home_slug)) ->
+        render_document(conn, set, default.code, docset.home_slug, hero: true)
+
+      true ->
+        set_landing(conn, set, variants)
+    end
   end
 
   match _ do
@@ -188,7 +204,33 @@ defmodule KeenDocs.Web.Router do
       end)
 
     inner = ~s(<div class="hz-crumb"><a href="/">home</a> / #{esc(set)}</div><h1>#{esc(set)}</h1>#{blocks})
-    html(conn, View.layout(set, inner))
+    default = Enum.find(variants, & &1.is_default) || List.first(variants)
+    {docset, sidebar} = set_chrome(set, default && default.code, nil)
+    html(conn, View.layout(set, inner, docset: docset, sidebar: sidebar))
+  end
+
+  # The per-set chrome: the doc_set presentation row + the navigation sidebar rendered for
+  # the active variant (a single get_doc_nav select, already in render order). `active_slug`
+  # marks the current page in the sidebar.
+  defp set_chrome(set, active_variant, active_slug) do
+    docset = Content.one(Content.get_doc_set(set))
+    nav = Content.rows(Content.get_doc_nav(set))
+    variants = Content.rows(Content.list_doc_variants(set))
+    sidebar = View.sidebar_html(set, nav, active_variant, active_slug, variants)
+    {docset, sidebar}
+  end
+
+  # Which variant holds a bare `/:set/:slug` page: prefer the default variant, then any hidden
+  # (show_in_path=false) variant — doc-set-wide pages (changelog, migration) live in one.
+  defp resolve_page_variant(set, slug, variants) do
+    default = Enum.find(variants, & &1.is_default) || List.first(variants)
+
+    [default | Enum.filter(variants, &(&1 && not &1.show_in_path))]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.uniq_by(& &1.code)
+    |> Enum.find_value(fn v ->
+      if Content.one(Content.get_document(set, v.code, slug)), do: v.code
+    end)
   end
 
   defp variant_landing(conn, set, variant) do
@@ -210,7 +252,7 @@ defmodule KeenDocs.Web.Router do
     html(conn, View.layout("#{set} · #{variant.code}", inner))
   end
 
-  defp render_document(conn, set, variant, slug) do
+  defp render_document(conn, set, variant, slug, opts \\ []) do
     case Content.one(Content.get_document(set, variant, slug)) do
       nil ->
         not_found(conn)
@@ -218,14 +260,31 @@ defmodule KeenDocs.Web.Router do
       doc ->
         output = View.render_markdown(doc.content)
         index = Content.one(Content.get_document_index(set, variant, slug))
+        {docset, sidebar} = set_chrome(set, variant, slug)
+        hero = if opts[:hero] && docset, do: View.hero_html(docset.title, docset.description), else: ""
 
         inner = """
         <div class="hz-crumb"><a href="/">home</a> / <a href="/#{esc(set)}">#{esc(set)}</a> / #{esc(variant)} / #{esc(slug)}</div>
-        <article class="kd-page">#{View.body_html(output)}</article>
+        #{hero}<article class="kd-page">#{View.body_html(output)}</article>
         #{index_panel(index)}
         """
 
-        html(conn, View.layout(doc.title || slug, inner, head: View.head_html(output), footer: View.footer_html(output)))
+        html(conn, View.layout(doc.title || slug, inner,
+          head: View.head_html(output),
+          footer: View.footer_html(output),
+          docset: docset,
+          sidebar: sidebar,
+          canonical: canonical_url(docset, conn)))
+    end
+  end
+
+  # Per-page canonical from the set's site_url (settings) + the request path.
+  defp canonical_url(nil, _conn), do: nil
+
+  defp canonical_url(docset, conn) do
+    case get_in(docset.settings, ["site_url"]) do
+      nil -> nil
+      base -> String.trim_trailing(base, "/") <> conn.request_path
     end
   end
 

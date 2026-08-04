@@ -13,8 +13,29 @@ defmodule KeenDocs.Web.View do
   @doc "Render stored markdown to page regions via keen_markdown."
   def render_markdown(content), do: KeenMarkdown.render(content)
 
-  @doc "Full page. `opts[:head]` / `opts[:footer]` inject renderer regions for doc pages."
+  @doc """
+  Full page. `opts[:head]` / `opts[:footer]` inject renderer regions for doc pages.
+  `opts[:docset]` (a `get_doc_set` row) supplies per-set chrome — accent, header links,
+  footer. `opts[:sidebar]` (pre-rendered nav HTML) turns the body into a two-column shell.
+  """
   def layout(title, inner, opts \\ []) do
+    docset = opts[:docset]
+    sidebar = opts[:sidebar]
+
+    body_region =
+      if sidebar && sidebar != "" do
+        """
+        <div class="hz-shell">
+          <aside class="hz-side">#{sidebar}</aside>
+          <main class="hz-main hz-main--doc">
+        #{inner}
+          </main>
+        </div>
+        """
+      else
+        ~s(<main class="hz-main">\n#{inner}\n  </main>)
+      end
+
     """
     <!doctype html>
     <html lang="en">
@@ -22,23 +43,202 @@ defmodule KeenDocs.Web.View do
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>#{esc(title)} · keen-docs</title>
-      <style>#{harness_css()}#{content_css()}</style>
-    #{opts[:head] || ""}</head>
+      <style>#{harness_css()}#{content_css()}#{accent_css(docset)}</style>
+    #{docset_head(docset, opts[:canonical])}#{opts[:head] || ""}</head>
     <body>
       <nav class="hz-top">
-        <a class="hz-brand" href="/">keen-docs</a>
+        <a class="hz-brand" href="/">keen-docs</a>#{brand_suffix(docset)}
         <form class="hz-search" action="/search" method="get">
           <input name="q" placeholder="search docs…" value="#{esc(opts[:q] || "")}" />
           <button type="submit">Search</button>
         </form>
-        <a href="/resolve">Resolve package.json →</a>
+        #{header_links(docset)}<a href="/resolve">Resolve package.json →</a>
       </nav>
-      <main class="hz-main">
-    #{inner}
-      </main>
-    #{opts[:footer] || ""}</body>
+    #{body_region}
+    #{docset_footer(docset)}#{opts[:footer] || ""}</body>
     </html>
     """
+  end
+
+  @doc """
+  Pre-rendered navigation sidebar: an optional version selector (carries the current slug
+  across versions) above the nav tree from `get_doc_nav` (already in render order). Sections
+  are group headers; leaves link to their page. A leaf may pin its own `variant_code` (e.g. a
+  doc-set-wide 'shared' page) and its URL then honours THAT variant's `show_in_path`, so a
+  shared page lands at `/set/slug` while a versioned page keeps its version segment.
+  `active_slug` marks the current page. `variants` is the full `list_doc_variants` result.
+  """
+  def sidebar_html(set, nav_rows, active_variant, active_slug, variants) do
+    vmap = Map.new(variants, &{&1.code, &1.show_in_path})
+    # Un-pinned (versioned) leaves render under the active version — but when you're on a
+    # doc-set-wide page (a hidden variant), they fall back to the DEFAULT version, not this
+    # page's hidden variant, so they keep their version segment.
+    base_variant =
+      if Map.get(vmap, active_variant) == true, do: active_variant, else: default_version(variants)
+
+    selector = version_selector(set, variants, active_variant, active_slug)
+
+    items =
+      Enum.map_join(nav_rows, "", fn n ->
+        pad = "padding-left:#{(n.level - 1) * 0.85 + 0.1}rem"
+
+        if n.is_section do
+          ~s(<div class="hz-nav-sec" style="#{pad}">#{esc(n.label)}</div>)
+        else
+          v = n.variant_code || base_variant
+          show = Map.get(vmap, v, true)
+          active = if n.slug == active_slug, do: " active", else: ""
+          ~s(<a class="hz-nav-link#{active}" style="#{pad}" href="#{doc_path(set, v, n.slug, show)}">#{esc(n.label)}</a>)
+        end
+      end)
+
+    nav = if items == "", do: "", else: ~s(<nav class="hz-nav">#{items}</nav>)
+    if selector == "" and nav == "", do: "", else: selector <> nav
+  end
+
+  # The default version variant code (a shown-in-path variant): is_default first, else the first.
+  defp default_version(variants) do
+    versions = Enum.filter(variants, & &1.show_in_path)
+    v = Enum.find(versions, & &1.is_default) || List.first(versions)
+    v && v.code
+  end
+
+  # A version <select> that jumps to the same page under another version, carrying the current
+  # slug across. "Versions" are the variants shown in the path (components); a hidden 'shared'
+  # variant holding doc-set-wide pages is not a version and is skipped. Plain-page harness → a
+  # one-line onchange navigation, no framework.
+  defp version_selector(set, variants, active_variant, active_slug) do
+    versions = Enum.filter(variants, & &1.show_in_path)
+    on_version = Enum.any?(versions, &(&1.code == active_variant))
+    # carry the current slug across versions — but only when it IS a versioned page; a
+    # doc-set-wide slug has no per-version copy, so switch to that version's Overview instead.
+    slug = if on_version, do: active_slug || "index", else: "index"
+
+    if versions == [] do
+      ""
+    else
+      selected = if on_version, do: active_variant, else: default_version(variants)
+
+      opts =
+        Enum.map_join(versions, "", fn v ->
+          sel = if v.code == selected, do: " selected", else: ""
+          ~s(<option value="/#{esc(set)}/#{esc(v.code)}/#{esc(slug)}"#{sel}>#{esc(v.title || v.code)}</option>)
+        end)
+
+      ~s(<label class="hz-version-l">version<select class="hz-version" onchange="location.href=this.value">#{opts}</select></label>)
+    end
+  end
+
+  # ── per-doc_set chrome (from get_doc_set.settings) ──────────────────────────
+  defp settings(%{settings: s}) when is_map(s), do: s
+  defp settings(_), do: %{}
+
+  defp accent_css(nil), do: ""
+
+  defp accent_css(docset) do
+    case get_in(settings(docset), ["theme", "accent"]) do
+      nil -> ""
+      accent -> ":root{--kd-accent:#{esc(accent)}}"
+    end
+  end
+
+  defp brand_suffix(nil), do: ""
+
+  defp brand_suffix(docset) do
+    case docset.title do
+      nil -> ""
+      t -> ~s( <span class="hz-brand-set">/ #{esc(t)}</span>)
+    end
+  end
+
+  defp header_links(nil), do: ""
+
+  defp header_links(docset) do
+    case settings(docset)["header_links"] do
+      links when is_list(links) ->
+        Enum.map_join(links, "", fn l ->
+          ~s(<a href="#{esc(l["url"])}" target="_blank" rel="noopener">#{esc(l["label"])}</a>)
+        end)
+
+      _ ->
+        ""
+    end
+  end
+
+  defp docset_footer(nil), do: ""
+
+  defp docset_footer(docset) do
+    s = settings(docset)
+    f = s["footer"] || %{}
+    copy = f["copyright"]
+    author = s["author"]
+    site_url = s["site_url"]
+
+    # left: copyright · author (linked to site_url when present)
+    author_html =
+      cond do
+        author && site_url -> ~s( · <a href="#{esc(site_url)}" target="_blank" rel="noopener">#{esc(author)}</a>)
+        author -> ~s( · #{esc(author)})
+        true -> ""
+      end
+
+    left = "#{esc(copy || "")}#{author_html}"
+
+    # right: footer links · social handles
+    links =
+      (f["links"] || [])
+      |> Enum.map_join(" · ", fn l -> ~s(<a href="#{esc(l["url"])}">#{esc(l["label"])}</a>) end)
+
+    social =
+      (s["social"] || [])
+      |> Enum.map_join(" ", fn x ->
+        ~s(<a class="hz-social" href="#{esc(x["url"])}" target="_blank" rel="noopener" title="#{esc(x["name"] || "")}">#{esc(x["name"] || x["icon"] || "link")}</a>)
+      end)
+
+    right = [links, social] |> Enum.reject(&(&1 == "")) |> Enum.join(" · ")
+
+    if left != "" or right != "" do
+      ~s(<footer class="hz-footer"><div class="hz-footer-in"><span>#{left}</span> <span class="hz-footer-links">#{right}</span></div></footer>)
+    else
+      ""
+    end
+  end
+
+  # <head> contributions from the doc_set: author meta, per-page canonical, and the
+  # head_assets list (extra_javascript / stylesheets declared once for the whole set).
+  defp docset_head(docset, canonical) do
+    s = settings(docset)
+    author = if a = s["author"], do: ~s(  <meta name="author" content="#{esc(a)}" />\n), else: ""
+    canon = if canonical, do: ~s(  <link rel="canonical" href="#{esc(canonical)}" />\n), else: ""
+    author <> canon <> head_assets(s["head_assets"])
+  end
+
+  defp head_assets(list) when is_list(list), do: Enum.map_join(list, "", &head_asset/1)
+  defp head_assets(_), do: ""
+
+  # A string asset is classified by extension; an object carries its own rel/type.
+  defp head_asset(a) when is_binary(a) do
+    cond do
+      String.ends_with?(a, ".css") -> ~s(  <link rel="stylesheet" href="#{esc(a)}" />\n)
+      String.ends_with?(a, ".js") or String.ends_with?(a, ".mjs") -> ~s(  <script type="module" src="#{esc(a)}"></script>\n)
+      true -> ~s(  <link href="#{esc(a)}" />\n)
+    end
+  end
+
+  defp head_asset(%{"src" => src} = a),
+    do: ~s(  <script src="#{esc(src)}"#{if a["type"], do: ~s( type="#{esc(a["type"])}"), else: ""}></script>\n)
+
+  defp head_asset(%{"href" => href} = a),
+    do: ~s(  <link rel="#{esc(a["rel"] || "stylesheet")}" href="#{esc(href)}" />\n)
+
+  defp head_asset(_), do: ""
+
+  @doc "A homepage hero band: the doc_set title + its description as a tagline subtitle."
+  def hero_html(_title, nil), do: ""
+  def hero_html(_title, ""), do: ""
+
+  def hero_html(title, description) do
+    ~s(<header class="hz-hero"><h1>#{esc(title || "")}</h1><p class="hz-hero-sub">#{esc(description)}</p></header>)
   end
 
   @doc "A little pill/badge."
@@ -72,6 +272,27 @@ defmodule KeenDocs.Web.View do
     .hz-index summary{cursor:pointer;font-weight:600;color:#334155}
     .hz-index h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;color:#64748b;margin:1rem 0 .3rem}
     .hz-index pre{white-space:pre-wrap;background:#f8fafc;border:1px solid #eef1f6;border-radius:6px;padding:.6rem .8rem;font-size:.8rem;margin:0}
+    .hz-brand-set{color:#94a3b8!important;font-weight:600}
+    .hz-top>a[target]{color:#cbd5e1}
+    .hz-shell{display:grid;grid-template-columns:16rem minmax(0,1fr);gap:0;max-width:1180px;margin:0 auto;align-items:start}
+    .hz-side{position:sticky;top:3.1rem;align-self:start;max-height:calc(100vh - 3.1rem);overflow:auto;padding:1.4rem .8rem 2rem;border-right:1px solid #e5e9f0}
+    .hz-main--doc{margin:1.6rem 0;padding:0 1.6rem;max-width:820px}
+    .hz-version-l{display:flex;align-items:center;gap:.5rem;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;font-weight:700;margin:0 .1rem 1.1rem}
+    .hz-version{flex:1;padding:.35rem .5rem;border:1px solid #cbd5e1;border-radius:6px;background:#fff;font-size:.85rem;color:#1a2233;cursor:pointer}
+    .hz-nav{display:flex;flex-direction:column;gap:.05rem}
+    .hz-nav-sec{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;font-weight:700;margin:.9rem 0 .25rem}
+    .hz-nav-link{display:block;padding:.28rem .55rem;border-radius:6px;color:#334155;font-size:.9rem}
+    .hz-nav-link:hover{background:#eef2f7;text-decoration:none}
+    .hz-nav-link.active{background:var(--kd-accent,#4f46e5);color:#fff;font-weight:600}
+    .hz-footer{border-top:1px solid #e5e9f0;background:#fff;margin-top:2.5rem}
+    .hz-footer-in{max-width:1180px;margin:0 auto;padding:1rem 1.4rem;font-size:.85rem;color:#64748b;display:flex;gap:1rem;flex-wrap:wrap}
+    .hz-footer-links{margin-left:auto}
+    .hz-social{color:#64748b}
+    .hz-hero{margin:0 0 1.6rem;padding:0 0 1.2rem;border-bottom:1px solid #e5e9f0}
+    .hz-hero h1{margin:0 0 .35rem;font-size:1.9rem}
+    .hz-hero-sub{margin:0;font-size:1.05rem;color:#64748b;max-width:46rem}
+    .hz-desc{font-size:.82rem;margin-top:.15rem}
+    @media(max-width:820px){.hz-shell{grid-template-columns:1fr}.hz-side{position:static;max-height:none;border-right:0;border-bottom:1px solid #e5e9f0}}
     """
   end
 

@@ -6,6 +6,53 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Added — doc_set homepage, navigation sidebar & chrome in the harness (2026-08-04)
+
+A `doc_set` is no longer just a list of pages — it renders as one product's docs site, driven
+entirely by data (the DB changelog covers the `doc_set` presentation surface + `doc_nav` tree):
+
+- **Navigation sidebar** — `KeenDocs.Web.View.sidebar_html/5` renders `get_doc_nav/1` rows
+  (already in render order from the materialized-path tree; sections as group headers, leaves
+  linking to their page in the active variant, current page marked). `render_document` and the
+  set landing wrap the body in a two-column shell via the new `set_chrome/3`.
+- **Custom homepage** — `GET /:set` now renders the set's authored `home_slug` document when it
+  has one (`get_doc_set/1`), instead of the auto-generated variant list; the list stays the
+  fallback for sets without a homepage.
+- **Per-set chrome** — `layout/3` takes an `opts[:docset]` and paints the accent color
+  (`--kd-accent`), the set title next to the brand, header links, and a footer (copyright +
+  links) from the `settings` jsonb. Pages with no doc_set (hub / search / resolve) are unchanged.
+- Page `nav:` frontmatter is no longer the source of truth for ordering — the authored
+  `doc_nav` tree is. Requires `make db-gen` (new `get_doc_set` / `get_doc_nav` wrappers, changed
+  `ensure_doc_set` arity).
+
+### Added — Surface the rest of the doc_set settings (2026-08-04)
+
+The presentation fields already stored on `doc_set` are now rendered — closing the mkdocs
+parity bucket with no schema change:
+
+- **`description`** — on the hub card (sub-line under the title) and as the homepage **hero**
+  subtitle (`View.hero_html/2`; the homepage branch passes `hero: true`).
+- **`settings.author`** — `<meta name="author">` and a footer credit linked to `site_url`.
+- **`settings.site_url`** — a per-page `<link rel="canonical">` (`site_url` + request path).
+- **`settings.social[]`** — rendered in the footer alongside the footer links.
+- **`settings.head_assets[]`** — emitted into `<head>` (`View.head_asset/1`): a string is
+  classified by extension (`.css` → stylesheet, `.js`/`.mjs` → module script), an object
+  carries its own `rel`/`type`/`src`/`href`. Seed adds a `jsdelivr` preconnect as the example.
+
+### Added — Version selector & doc-set-wide pages (2026-08-04)
+
+- **Version selector** — a combobox at the top of the sidebar (`View.version_selector/4`)
+  listing the set's versions (the `show_in_path` variants; a hidden `shared` variant is not a
+  version). It **carries the current slug across versions** (`/web-multiselect/2.0.0/forms` →
+  `…/3.0.0-rc1/forms`); on a doc-set-wide page it targets each version's Overview instead.
+  Plain-page harness → a one-line `onchange` navigation, no framework.
+- **Doc-set-wide pages** — pages that belong to the whole set, not a version (changelog,
+  migration). They live in a hidden `shared` variant (`show_in_path=false`) so their URL omits
+  the version segment (`/web-multiselect/changelog`), and a nav leaf reaches them by pinning
+  `variant_code`. `router.ex` resolves a bare `/:set/:slug` in the default variant first, then
+  any hidden variant (`resolve_page_variant/3`). The sidebar builds each leaf's URL from *its
+  own* variant's `show_in_path`, so versioned and doc-set-wide links coexist correctly.
+
 ### Changed — Authoring model: liveness is a directive, not a fence flag (2026-08-03)
 
 The fence header used to carry two orthogonal things — *language* (`html`) and *role*

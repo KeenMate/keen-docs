@@ -56,16 +56,32 @@ defmodule KeenDocs.Database do
 
 
       @doc """
+      Calls database function public.ensure_doc_nav
+      """
+      @spec ensure_doc_nav(String.t(), String.t(), String.t(), String.t(), String.t(), String.t(), integer(), boolean(), String.t(), integer()) ::
+              {:ok, [Models.EnsureDocNavModel.t()]} | {:error, any()}
+      def ensure_doc_nav(created_by, correlation_id, doc_set_code, node_path, label, slug, sort_order, is_section, variant_code, tenant_id) do
+        Logger.debug("Calling stored procedure", procedure: "ensure_doc_nav")
+
+        query(
+          "select * from public.ensure_doc_nav($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+          [created_by, correlation_id, doc_set_code, node_path, label, slug, sort_order, is_section, variant_code, tenant_id]
+        )
+        |> Parsers.EnsureDocNavParser.parse_result()
+      end
+
+
+      @doc """
       Calls database function public.ensure_doc_set
       """
-      @spec ensure_doc_set(String.t(), String.t(), String.t(), String.t(), String.t(), integer()) ::
+      @spec ensure_doc_set(String.t(), String.t(), String.t(), String.t(), String.t(), String.t(), String.t(), map() | list(), integer()) ::
               {:ok, [Models.EnsureDocSetModel.t()]} | {:error, any()}
-      def ensure_doc_set(created_by, correlation_id, code, title, kind_code, tenant_id) do
+      def ensure_doc_set(created_by, correlation_id, code, title, kind_code, description, home_slug, settings, tenant_id) do
         Logger.debug("Calling stored procedure", procedure: "ensure_doc_set")
 
         query(
-          "select * from public.ensure_doc_set($1, $2, $3, $4, $5, $6)",
-          [created_by, correlation_id, code, title, kind_code, tenant_id]
+          "select * from public.ensure_doc_set($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+          [created_by, correlation_id, code, title, kind_code, description, home_slug, settings, tenant_id]
         )
         |> Parsers.EnsureDocSetParser.parse_result()
       end
@@ -132,6 +148,38 @@ defmodule KeenDocs.Database do
           [doc_set_code]
         )
         |> Parsers.GetDefaultVariantParser.parse_result()
+      end
+
+
+      @doc """
+      Calls database function public.get_doc_nav
+      """
+      @spec get_doc_nav(String.t()) ::
+              {:ok, [Models.GetDocNavModel.t()]} | {:error, any()}
+      def get_doc_nav(doc_set_code) do
+        Logger.debug("Calling stored procedure", procedure: "get_doc_nav")
+
+        query(
+          "select * from public.get_doc_nav($1)",
+          [doc_set_code]
+        )
+        |> Parsers.GetDocNavParser.parse_result()
+      end
+
+
+      @doc """
+      Calls database function public.get_doc_set
+      """
+      @spec get_doc_set(String.t()) ::
+              {:ok, [Models.GetDocSetModel.t()]} | {:error, any()}
+      def get_doc_set(doc_set_code) do
+        Logger.debug("Calling stored procedure", procedure: "get_doc_set")
+
+        query(
+          "select * from public.get_doc_set($1)",
+          [doc_set_code]
+        )
+        |> Parsers.GetDocSetParser.parse_result()
       end
 
 

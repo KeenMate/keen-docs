@@ -10,11 +10,12 @@ defmodule KeenDocs.Database.Models.ListDocSetsModel do
     code: String.t(),
     kind_code: String.t(),
     title: String.t(),
+    description: String.t(),
     ecosystem_code: String.t(),
     package_name: String.t()
   }
 
-  @fields [:code, :kind_code, :title, :ecosystem_code, :package_name]
+  @fields [:code, :kind_code, :title, :description, :ecosystem_code, :package_name]
 
   @enforce_keys @fields
   defstruct @fields

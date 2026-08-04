@@ -1,6 +1,6 @@
 {
   "version": "v0.8.0-rc.4",
-  "time": "2026-08-03T22:16:30.2662684+02:00",
+  "time": "2026-08-04T13:26:12.3190002+02:00",
   "routines": [
     {
       "RowNumber": 1,
@@ -102,14 +102,143 @@
     {
       "RowNumber": 1,
       "RoutineSchema": "public",
-      "RoutineNameWithParams": "ensure_doc_set(text,text,text,text,text,int4)",
+      "RoutineNameWithParams": "ensure_doc_nav(text,text,text,text,text,text,int4,bool,text,int4)",
+      "HasOverload": false,
+      "RoutineName": "ensure_doc_nav",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 14,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_created_by",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_correlation_id",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "_node_path",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "_label",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "_slug",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "_sort_order",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "_is_section",
+          "Mode": "IN",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 9,
+          "Name": "_variant_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 10,
+          "Name": "_tenant_id",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 11,
+          "Name": "__doc_nav_id",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 12,
+          "Name": "__node_path",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 13,
+          "Name": "__full_title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 14,
+          "Name": "__has_children",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "ensure_doc_set(text,text,text,text,text,text,text,jsonb,int4)",
       "HasOverload": false,
       "RoutineName": "ensure_doc_set",
       "SpecificName": "",
       "DataType": "record",
       "UdtTypeScheme": "pg_catalog",
       "UdtTypeName": "record",
-      "ParamCount": 10,
+      "ParamCount": 16,
       "FuncType": "function",
       "InParameters": [
         {
@@ -154,6 +283,30 @@
         },
         {
           "OrdinalPosition": 6,
+          "Name": "_description",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "_home_slug",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "_settings",
+          "Mode": "IN",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 9,
           "Name": "_tenant_id",
           "Mode": "IN",
           "UDTName": "int4",
@@ -163,7 +316,7 @@
       ],
       "OutParameters": [
         {
-          "OrdinalPosition": 7,
+          "OrdinalPosition": 10,
           "Name": "__doc_set_id",
           "Mode": "OUT",
           "UDTName": "int4",
@@ -171,7 +324,7 @@
           "IsOptional": false
         },
         {
-          "OrdinalPosition": 8,
+          "OrdinalPosition": 11,
           "Name": "__code",
           "Mode": "OUT",
           "UDTName": "text",
@@ -179,7 +332,7 @@
           "IsOptional": false
         },
         {
-          "OrdinalPosition": 9,
+          "OrdinalPosition": 12,
           "Name": "__kind_code",
           "Mode": "OUT",
           "UDTName": "text",
@@ -187,10 +340,34 @@
           "IsOptional": false
         },
         {
-          "OrdinalPosition": 10,
+          "OrdinalPosition": 13,
           "Name": "__title",
           "Mode": "OUT",
           "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 14,
+          "Name": "__description",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 15,
+          "Name": "__home_slug",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 16,
+          "Name": "__settings",
+          "Mode": "OUT",
+          "UDTName": "jsonb",
           "IsNullable": false,
           "IsOptional": false
         }
@@ -619,6 +796,184 @@
     {
       "RowNumber": 1,
       "RoutineSchema": "public",
+      "RoutineNameWithParams": "get_doc_nav(text)",
+      "HasOverload": false,
+      "RoutineName": "get_doc_nav",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 9,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 2,
+          "Name": "__level",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "__node_path",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "__label",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "__full_title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "__slug",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "__variant_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "__is_section",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 9,
+          "Name": "__has_children",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "get_doc_set(text)",
+      "HasOverload": false,
+      "RoutineName": "get_doc_set",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 9,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 2,
+          "Name": "__code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "__kind_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "__description",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "__home_slug",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "__settings",
+          "Mode": "OUT",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "__ecosystem_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 9,
+          "Name": "__package_name",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
       "RoutineNameWithParams": "get_document(text,text,text)",
       "HasOverload": false,
       "RoutineName": "get_document",
@@ -772,7 +1127,7 @@
       "DataType": "record",
       "UdtTypeScheme": "pg_catalog",
       "UdtTypeName": "record",
-      "ParamCount": 5,
+      "ParamCount": 6,
       "FuncType": "function",
       "InParameters": null,
       "OutParameters": [
@@ -802,7 +1157,7 @@
         },
         {
           "OrdinalPosition": 4,
-          "Name": "__ecosystem_code",
+          "Name": "__description",
           "Mode": "OUT",
           "UDTName": "text",
           "IsNullable": false,
@@ -810,6 +1165,14 @@
         },
         {
           "OrdinalPosition": 5,
+          "Name": "__ecosystem_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
           "Name": "__package_name",
           "Mode": "OUT",
           "UDTName": "text",
