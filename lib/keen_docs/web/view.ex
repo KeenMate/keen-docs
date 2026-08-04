@@ -44,7 +44,9 @@ defmodule KeenDocs.Web.View do
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>#{esc(title)} · keen-docs</title>
-      <style>#{harness_css()}#{content_css()}#{accent_css(docset)}</style>
+      <link rel="stylesheet" href="/vendor/pure-css/grid.css" />
+      <link rel="stylesheet" href="/vendor/pure-css/utilities.css" />
+      <style>#{base_vars_css()}#{theme_css(docset)}#{harness_css()}#{content_css()}</style>
     #{docset_head(docset, opts[:canonical])}#{opts[:head] || ""}</head>
     <body>
       <nav class="hz-top">
@@ -183,14 +185,55 @@ defmodule KeenDocs.Web.View do
   defp settings(%{settings: s}) when is_map(s), do: s
   defp settings(_), do: %{}
 
-  defp accent_css(nil), do: ""
+  # The @keenmate/pure-css `--base-*` defaults, inlined once per page so the chrome (which
+  # reads var(--base-*)) has no FOUC and needs no extra request. Read at compile time from the
+  # vendored artifact so it's deterministic and the file is the single source of truth.
+  @base_vars_css (case File.read("priv/web/vendor/pure-css/base.css") do
+                    {:ok, css} -> css
+                    _ -> ""
+                  end)
+  defp base_vars_css, do: @base_vars_css
 
-  defp accent_css(docset) do
-    case get_in(settings(docset), ["theme", "accent"]) do
-      nil -> ""
-      accent -> ":root{--kd-accent:#{esc(accent)}}"
+  # Per-doc_set theme: overrides `--base-*` from `settings.theme`, layered after the defaults so
+  # it wins. `accent` sets --base-accent-color and re-derives hover/active/light at runtime via
+  # color-mix (the SCSS build derives them, but a live override can't run Sass). `theme.vars` is
+  # an escape hatch: any `{"page-bg" => "#…"}` becomes `--base-page-bg: #…`. Because every
+  # consumer — the chrome, the kd-* content, and embedded web/svelte components — reads the same
+  # variables, this one block re-themes all of them, including a mounted <web-multiselect>.
+  defp theme_css(nil), do: ""
+
+  defp theme_css(docset) do
+    case theme_decls(settings(docset)["theme"]) do
+      "" -> ""
+      decls -> ":root{#{decls}}"
     end
   end
+
+  defp theme_decls(theme) when is_map(theme) do
+    accent_decls(theme["accent"]) <> var_decls(theme["vars"])
+  end
+
+  defp theme_decls(_), do: ""
+
+  defp accent_decls(nil), do: ""
+
+  defp accent_decls(accent) do
+    a = esc(to_string(accent))
+
+    "--base-accent-color:#{a};" <>
+      "--base-accent-color-hover:color-mix(in srgb, #{a} 88%, #fff);" <>
+      "--base-accent-color-active:color-mix(in srgb, #{a} 76%, #fff);" <>
+      "--base-accent-color-light:color-mix(in srgb, #{a} 8%, transparent);" <>
+      "--base-focus-ring-color:#{a};"
+  end
+
+  defp var_decls(vars) when is_map(vars) do
+    Enum.map_join(vars, "", fn {k, v} ->
+      "--base-#{esc(to_string(k))}:#{esc(to_string(v))};"
+    end)
+  end
+
+  defp var_decls(_), do: ""
 
   defp brand_suffix(nil), do: ""
 
@@ -294,63 +337,68 @@ defmodule KeenDocs.Web.View do
   @doc "A little pill/badge."
   def badge(text, class \\ ""), do: ~s(<span class="hz-badge #{class}">#{esc(text)}</span>)
 
+  # Site chrome. Colours come from the @keenmate/pure-css `--base-*` contract so a doc_set's
+  # theme (theme_css/1) restyles the harness too. Fallbacks keep it sane if base.css is absent.
+  # The top bar is deliberately the inverse surface; the shades layered ON the dark bar
+  # (search field, on-bar hovers) stay literal so they read regardless of theme. Category
+  # badges are semantic chips, not theme colours, so they stay literal too.
   defp harness_css do
     """
-    *{box-sizing:border-box} body{margin:0;font:15px/1.5 system-ui,sans-serif;color:#1a2233;background:#f6f8fb}
-    a{color:#2563eb;text-decoration:none} a:hover{text-decoration:underline}
-    .hz-top{display:flex;align-items:center;gap:1.2rem;padding:.7rem 1.2rem;background:#0f172a;color:#fff;position:sticky;top:0}
+    *{box-sizing:border-box} body{margin:0;font:15px/1.5 var(--base-font-family,system-ui,sans-serif);color:var(--base-text-color-1,#1a2233);background:var(--base-page-bg,#f6f8fb)}
+    a{color:var(--base-accent-color,#2563eb);text-decoration:none} a:hover{text-decoration:underline}
+    .hz-top{display:flex;align-items:center;gap:1.2rem;padding:.7rem 1.2rem;background:var(--base-inverse-bg,#0f172a);color:#fff;position:sticky;top:0}
     .hz-top a{color:#cbd5e1} .hz-brand{font-weight:700;color:#fff!important;font-size:1.05rem}
     .hz-topnav{display:flex;align-items:center;gap:.2rem;margin-left:.8rem}
     .hz-top-link,.hz-dd-btn{color:#cbd5e1;background:none;border:0;font:inherit;cursor:pointer;padding:.35rem .6rem;border-radius:6px}
-    .hz-top-link:hover,.hz-dd-btn:hover{background:#1e293b;color:#fff;text-decoration:none}
+    .hz-top-link:hover,.hz-dd-btn:hover{background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
     .hz-dd{position:relative}
-    .hz-dd-menu{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid #e5e9f0;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);min-width:12rem;padding:.3rem;z-index:30}
+    .hz-dd-menu{display:none;position:absolute;top:100%;left:0;background:var(--base-main-bg,#fff);border:1px solid var(--base-border-color,#e5e9f0);border-radius:8px;box-shadow:0 8px 24px var(--base-shadow-color,rgba(0,0,0,.14));min-width:12rem;padding:.3rem;z-index:30}
     .hz-dd:hover .hz-dd-menu{display:block}
-    .hz-dd-item{display:block;padding:.4rem .6rem;border-radius:6px;color:#334155;font-size:.9rem}
-    .hz-dd-item:hover{background:#eef2f7;text-decoration:none}
+    .hz-dd-item{display:block;padding:.4rem .6rem;border-radius:6px;color:var(--base-text-color-1,#334155);font-size:.9rem}
+    .hz-dd-item:hover{background:var(--base-hover-bg,#eef2f7);text-decoration:none}
     .hz-search{margin-left:auto;display:flex;gap:.4rem}
     .hz-search input{padding:.35rem .6rem;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#fff;width:16rem}
-    .hz-search button,.hz-form button{padding:.35rem .8rem;border-radius:6px;border:0;background:#2563eb;color:#fff;cursor:pointer}
+    .hz-search button,.hz-form button{padding:.35rem .8rem;border-radius:6px;border:0;background:var(--base-accent-color,#2563eb);color:var(--base-text-color-on-accent,#fff);cursor:pointer}
     .hz-main{max-width:960px;margin:1.6rem auto;padding:0 1.2rem}
     h1{font-size:1.5rem;margin:.2rem 0 1rem} h2{font-size:1.15rem;margin:1.6rem 0 .6rem}
-    .hz-card{background:#fff;border:1px solid #e5e9f0;border-radius:10px;padding:1rem 1.2rem;margin:.8rem 0}
+    .hz-card{background:var(--base-main-bg,#fff);border:1px solid var(--base-border-color,#e5e9f0);border-radius:10px;padding:1rem 1.2rem;margin:.8rem 0}
     .hz-badge{display:inline-block;font-size:.72rem;padding:.1rem .5rem;border-radius:999px;background:#e2e8f0;color:#334155;font-weight:600}
     .hz-badge.component{background:#dbeafe;color:#1d4ed8} .hz-badge.infrastructure{background:#dcfce7;color:#15803d}
     .hz-badge.guide{background:#fef9c3;color:#854d0e} .hz-badge.rc{background:#fee2e2;color:#b91c1c}
     .hz-badge.default{background:#e0e7ff;color:#4338ca} .hz-badge.hidden{background:#f1f5f9;color:#64748b}
-    table{border-collapse:collapse;width:100%} td,th{padding:.45rem .6rem;text-align:left;border-bottom:1px solid #eef1f6}
-    th{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:#64748b}
-    code{background:#eef1f6;padding:.05rem .35rem;border-radius:4px;font-size:.9em}
-    .hz-variant{border-left:3px solid #cbd5e1;padding-left:.9rem;margin:1rem 0}
-    .hz-docs li{margin:.15rem 0} .muted{color:#64748b}
-    .hz-form textarea{width:100%;min-height:12rem;font-family:ui-monospace,monospace;font-size:.85rem;padding:.7rem;border-radius:8px;border:1px solid #cbd5e1}
-    .hz-crumb{font-size:.85rem;color:#64748b;margin-bottom:.6rem}
-    .hz-hit{padding:.5rem 0;border-bottom:1px solid #eef1f6}
-    .hz-index{margin:2rem 0 0;border:1px dashed #cbd5e1;border-radius:8px;padding:.6rem 1rem;background:#fff}
-    .hz-index summary{cursor:pointer;font-weight:600;color:#334155}
-    .hz-index h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;color:#64748b;margin:1rem 0 .3rem}
-    .hz-index pre{white-space:pre-wrap;background:#f8fafc;border:1px solid #eef1f6;border-radius:6px;padding:.6rem .8rem;font-size:.8rem;margin:0}
+    table{border-collapse:collapse;width:100%} td,th{padding:.45rem .6rem;text-align:left;border-bottom:1px solid var(--base-border-color,#eef1f6)}
+    th{font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:var(--base-text-color-2,#64748b)}
+    code{background:var(--base-subtle-bg,#eef1f6);padding:.05rem .35rem;border-radius:4px;font-size:.9em}
+    .hz-variant{border-left:3px solid var(--base-border-color,#cbd5e1);padding-left:.9rem;margin:1rem 0}
+    .hz-docs li{margin:.15rem 0} .muted{color:var(--base-text-color-2,#64748b)}
+    .hz-form textarea{width:100%;min-height:12rem;font-family:var(--base-font-family-mono,ui-monospace,monospace);font-size:.85rem;padding:.7rem;border-radius:8px;border:1px solid var(--base-border-color,#cbd5e1)}
+    .hz-crumb{font-size:.85rem;color:var(--base-text-color-2,#64748b);margin-bottom:.6rem}
+    .hz-hit{padding:.5rem 0;border-bottom:1px solid var(--base-border-color,#eef1f6)}
+    .hz-index{margin:2rem 0 0;border:1px dashed var(--base-border-color,#cbd5e1);border-radius:8px;padding:.6rem 1rem;background:var(--base-main-bg,#fff)}
+    .hz-index summary{cursor:pointer;font-weight:600;color:var(--base-text-color-1,#334155)}
+    .hz-index h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;color:var(--base-text-color-2,#64748b);margin:1rem 0 .3rem}
+    .hz-index pre{white-space:pre-wrap;background:var(--base-page-bg,#f8fafc);border:1px solid var(--base-border-color,#eef1f6);border-radius:6px;padding:.6rem .8rem;font-size:.8rem;margin:0}
     .hz-brand-set{color:#94a3b8!important;font-weight:600}
     .hz-top>a[target]{color:#cbd5e1}
     .hz-shell{display:grid;grid-template-columns:16rem minmax(0,1fr);gap:0;max-width:1180px;margin:0 auto;align-items:start}
-    .hz-side{position:sticky;top:3.1rem;align-self:start;max-height:calc(100vh - 3.1rem);overflow:auto;padding:1.4rem .8rem 2rem;border-right:1px solid #e5e9f0}
+    .hz-side{position:sticky;top:3.1rem;align-self:start;max-height:calc(100vh - 3.1rem);overflow:auto;padding:1.4rem .8rem 2rem;border-right:1px solid var(--base-border-color,#e5e9f0)}
     .hz-main--doc{margin:1.6rem 0;padding:0 1.6rem;max-width:820px}
-    .hz-version-l{display:flex;align-items:center;gap:.5rem;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;font-weight:700;margin:0 .1rem 1.1rem}
-    .hz-version{flex:1;padding:.35rem .5rem;border:1px solid #cbd5e1;border-radius:6px;background:#fff;font-size:.85rem;color:#1a2233;cursor:pointer}
+    .hz-version-l{display:flex;align-items:center;gap:.5rem;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--base-text-color-3,#94a3b8);font-weight:700;margin:0 .1rem 1.1rem}
+    .hz-version{flex:1;padding:.35rem .5rem;border:1px solid var(--base-border-color,#cbd5e1);border-radius:6px;background:var(--base-main-bg,#fff);font-size:.85rem;color:var(--base-text-color-1,#1a2233);cursor:pointer}
     .hz-nav{display:flex;flex-direction:column;gap:.05rem}
-    .hz-nav-sec{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;font-weight:700;margin:.9rem 0 .25rem}
-    .hz-nav-link{display:block;padding:.28rem .55rem;border-radius:6px;color:#334155;font-size:.9rem}
-    .hz-nav-link:hover{background:#eef2f7;text-decoration:none}
-    .hz-nav-link.active{background:var(--kd-accent,#4f46e5);color:#fff;font-weight:600}
-    .hz-footer{border-top:1px solid #e5e9f0;background:#fff;margin-top:2.5rem}
-    .hz-footer-in{max-width:1180px;margin:0 auto;padding:1rem 1.4rem;font-size:.85rem;color:#64748b;display:flex;gap:1rem;flex-wrap:wrap}
+    .hz-nav-sec{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--base-text-color-3,#94a3b8);font-weight:700;margin:.9rem 0 .25rem}
+    .hz-nav-link{display:block;padding:.28rem .55rem;border-radius:6px;color:var(--base-text-color-1,#334155);font-size:.9rem}
+    .hz-nav-link:hover{background:var(--base-hover-bg,#eef2f7);text-decoration:none}
+    .hz-nav-link.active{background:var(--base-accent-color,#4f46e5);color:var(--base-text-color-on-accent,#fff);font-weight:600}
+    .hz-footer{border-top:1px solid var(--base-border-color,#e5e9f0);background:var(--base-main-bg,#fff);margin-top:2.5rem}
+    .hz-footer-in{max-width:1180px;margin:0 auto;padding:1rem 1.4rem;font-size:.85rem;color:var(--base-text-color-2,#64748b);display:flex;gap:1rem;flex-wrap:wrap}
     .hz-footer-links{margin-left:auto}
-    .hz-social{color:#64748b}
-    .hz-hero{margin:0 0 1.6rem;padding:0 0 1.2rem;border-bottom:1px solid #e5e9f0}
+    .hz-social{color:var(--base-text-color-2,#64748b)}
+    .hz-hero{margin:0 0 1.6rem;padding:0 0 1.2rem;border-bottom:1px solid var(--base-border-color,#e5e9f0)}
     .hz-hero h1{margin:0 0 .35rem;font-size:1.9rem}
-    .hz-hero-sub{margin:0;font-size:1.05rem;color:#64748b;max-width:46rem}
+    .hz-hero-sub{margin:0;font-size:1.05rem;color:var(--base-text-color-2,#64748b);max-width:46rem}
     .hz-desc{font-size:.82rem;margin-top:.15rem}
-    @media(max-width:820px){.hz-shell{grid-template-columns:1fr}.hz-side{position:static;max-height:none;border-right:0;border-bottom:1px solid #e5e9f0}}
+    @media(max-width:820px){.hz-shell{grid-template-columns:1fr}.hz-side{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--base-border-color,#e5e9f0)}}
     """
   end
 

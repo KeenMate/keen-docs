@@ -43,7 +43,7 @@ defmodule KeenDocs.POC do
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>#{HTML.esc(title)}</title>
       <meta name="description" content="#{HTML.esc(description)}" />
-    #{Output.head_html(output)}  <style>#{File.read!("priv/web/keendocs.css")}</style>
+    #{Output.head_html(output)}  <style>#{File.read!("priv/web/vendor/pure-css/base.css")}#{File.read!("priv/web/keendocs.css")}</style>
     </head>
     <body#{body_class(output)}>
       <main class="kd-page">

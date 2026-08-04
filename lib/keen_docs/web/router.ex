@@ -36,6 +36,14 @@ defmodule KeenDocs.Web.Router do
     send_js(conn, Path.join(["apps", name, "main.mjs"]))
   end
 
+  # ── vendored CSS foundation (@keenmate/pure-css) ──────────────────────────
+  # base.css is inlined into the page <style> (FOUC-free --base-*); grid.css and
+  # utilities.css are linked from here so authored content can use .pure-u-*/.m-* etc.
+  # Declared before the greedy /:set/... routes so /vendor/... isn't read as a document.
+  get "/vendor/pure-css/:file" do
+    send_css(conn, Path.join(["vendor", "pure-css", file]))
+  end
+
   # ── hub ───────────────────────────────────────────────────────────────────
   # The hub renders its authored homepage (the 'hub' site's home_slug page); if none is set,
   # it falls back to the auto-generated doc_set table.
@@ -445,6 +453,17 @@ defmodule KeenDocs.Web.Router do
 
     if File.exists?(path) do
       conn |> put_resp_content_type("text/javascript") |> send_resp(200, File.read!(path))
+    else
+      send_resp(conn, 404, "missing asset: #{rel}")
+    end
+  end
+
+  # Serve a CSS asset from priv/web. `rel` is a repo-relative path — no traversal.
+  defp send_css(conn, rel) do
+    path = Path.join([File.cwd!(), "priv", "web", rel])
+
+    if File.exists?(path) do
+      conn |> put_resp_content_type("text/css") |> send_resp(200, File.read!(path))
     else
       send_resp(conn, 404, "missing asset: #{rel}")
     end

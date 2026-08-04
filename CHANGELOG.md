@@ -6,6 +6,30 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Changed — theming on the `@keenmate/pure-css` `--base-*` foundation (2026-08-04)
+
+The harness and rendered content now derive every colour/font from the KeenMate `--base-*` custom
+properties (the theming contract shared with pure-admin and every web/svelte component), instead of
+the old bespoke `--kd-*` palette and hardcoded hex. One consequence is the headline win: an embedded
+`<web-multiselect>` demo now inherits the doc's theme, because it reads the same `--base-*` variables.
+
+- **New sibling package `@keenmate/pure-css`** (`../pure-css`) — the CSS foundation (`--base-*`
+  variables + PureCSS grid + utilities + `.font-family-*`) extracted from `pure-admin-core` so
+  docs/portals can consume it without the component library. keen-docs vendors its **built** CSS
+  (`priv/web/vendor/pure-css/{base,grid,utilities}.css`) — no Sass toolchain here.
+- **Delivery** — `base.css` (the `:root{--base-*}` defaults, 94 vars) is **inlined** into every page's
+  `<style>` (FOUC-free, read at compile time from the vendored file); `grid.css` + `utilities.css` are
+  **linked** (`GET /vendor/pure-css/:file`, served `text/css`) so authored content can use
+  `.pure-u-*`/`.m-*`. The standalone POC (`KeenDocs.POC`) inlines `base.css` too.
+- **Per-doc_set theme** — `accent_css/1` (which only set `--kd-accent`) is replaced by `theme_css/1`:
+  it reads `settings.theme` and emits a `:root` override *after* the defaults. `theme.accent` sets
+  `--base-accent-color` and re-derives hover/active/light at runtime via `color-mix()`; `theme.vars`
+  is an escape hatch (`{"page-bg" => "#…"}` → `--base-page-bg`). The seeded web-multiselect accent
+  (`#4f46e5`) and hub accent (`#0ea5e9`) now actually drive the whole page — no re-seed needed.
+- `harness_css` and `keendocs.css` rewritten onto `var(--base-*, <fallback>)`; the `--kd-*` names
+  survive as a thin semantic alias layer sourced from `--base-*`. The dark top-bar's on-bar shades
+  and the categorical badge colours stay literal on purpose.
+
 ### Added — doc_set homepage, navigation sidebar & chrome in the harness (2026-08-04)
 
 A `doc_set` is no longer just a list of pages — it renders as one product's docs site, driven

@@ -218,6 +218,16 @@ still passes with `unsafe: true`; sanitize (ammonia / `unsafe: false`) if conten
 - **Content variables** use mustache `{{a.b}}` → whitelisted `Vars.get(assigns, "a.b")` (read-only, not code).
 - **Compile-boundary safety = trust separation** (sentinel → neutralize → swap): only trusted tokens are
   compiled, so author `{…}`/`<%…%>`/`<.component>` can't execute (RCE-safe). XSS remains a separate policy.
+- **Styling is theme-driven off the `@keenmate/pure-css` `--base-*` foundation.** The engine still ships
+  no CSS (emits classed HTML + inline-styled code); the *consumer's* styling reads the KeenMate `--base-*`
+  custom properties — the same contract pure-admin, its themes, and every web/svelte component derive from.
+  `../pure-css` (`@keenmate/pure-css`) is that foundation (variables + PureCSS grid + utilities), extracted
+  from `pure-admin-core` so a docs site consumes it without the component library. keen-docs vendors the
+  **built** CSS (`priv/web/vendor/pure-css/`), inlines `base.css` for FOUC-free vars, and links grid/utils.
+  A **theme is a `--base-*` override** (per `doc_set` from `settings.theme`, emitted after the defaults);
+  because everything reads `--base-*`, one override re-themes the chrome, the `kd-*` content, *and* an
+  embedded `<web-multiselect>` at once. Same model as `../pure-admin-themes`, so the same publish CLI/infra
+  applies. (De-duping `pure-admin-core` to import `pure-css` is a planned follow-up, not yet done.)
 - Layout is generic (`columns`/`col`); `showcase` is a preset; `col` = labelled (no chrome), `card` = boxed.
 - Width shorthand: `cols="80/20"`; demos load from CDN pinned to version.
 - **Trust model: content is trusted**, because it ships through the API-keyed publish CLI. Therefore
