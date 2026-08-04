@@ -26,9 +26,9 @@ defmodule KeenDocs.Web.View do
     body_region =
       if sidebar && sidebar != "" do
         """
-        <div class="hz-shell">
-          <aside class="hz-side">#{sidebar}</aside>
-          <main class="hz-main hz-main--doc">
+        <div class="hz-shell d-flex align-items-start">
+          <aside class="hz-side wr-16 flex-shrink-0">#{sidebar}</aside>
+          <main class="hz-main--doc flex-fill">
         #{inner}
           </main>
         </div>
@@ -50,10 +50,10 @@ defmodule KeenDocs.Web.View do
       <script>#{mode_init_js()}</script>
     #{docset_head(docset, opts[:canonical])}#{opts[:head] || ""}</head>
     <body>
-      <nav class="hz-top">
+      <nav class="hz-top d-flex align-items-center gap-5">
         <a class="hz-brand" href="/">keen-docs</a>#{brand_suffix(docset)}
         #{top_nav_html()}
-        <form class="hz-search" action="/search" method="get">
+        <form class="hz-search d-flex gap-2 ml-auto" action="/search" method="get">
           <input name="q" placeholder="search docs…" value="#{esc(opts[:q] || "")}" />
           <button type="submit">Search</button>
         </form>
@@ -98,7 +98,7 @@ defmodule KeenDocs.Web.View do
         end
       end)
 
-    nav = if items == "", do: "", else: ~s(<nav class="hz-nav">#{items}</nav>)
+    nav = if items == "", do: "", else: ~s(<nav class="d-flex flex-column">#{items}</nav>)
     if selector == "" and nav == "", do: "", else: selector <> nav
   end
 
@@ -131,7 +131,7 @@ defmodule KeenDocs.Web.View do
           ~s(<option value="/#{esc(set)}/#{esc(v.code)}/#{esc(slug)}"#{sel}>#{esc(v.title || v.code)}</option>)
         end)
 
-      ~s(<label class="hz-version-l">version<select class="hz-version" onchange="location.href=this.value">#{opts}</select></label>)
+      ~s(<label class="hz-version-l d-flex align-items-center gap-2">version<select class="hz-version" onchange="location.href=this.value">#{opts}</select></label>)
     end
   end
 
@@ -160,7 +160,7 @@ defmodule KeenDocs.Web.View do
             end
           end)
 
-        ~s(<div class="hz-topnav">#{items}</div>)
+        ~s(<div class="d-flex align-items-center gap-1">#{items}</div>)
     end
   end
 
@@ -321,7 +321,7 @@ defmodule KeenDocs.Web.View do
     right = [links, social] |> Enum.reject(&(&1 == "")) |> Enum.join(" · ")
 
     if left != "" or right != "" do
-      ~s(<footer class="hz-footer"><div class="hz-footer-in"><span>#{left}</span> <span class="hz-footer-links">#{right}</span></div></footer>)
+      ~s(<footer class="hz-footer"><div class="hz-footer-in d-flex gap-4 flex-wrap"><span>#{left}</span> <span class="ml-auto">#{right}</span></div></footer>)
     else
       ""
     end
@@ -376,9 +376,11 @@ defmodule KeenDocs.Web.View do
     """
     *{box-sizing:border-box} body{margin:0;font:15px/1.5 var(--base-font-family,system-ui,sans-serif);color:var(--base-text-color-1,#1a2233);background:var(--base-page-bg,#f6f8fb)}
     a{color:var(--base-accent-color,#2563eb);text-decoration:none} a:hover{text-decoration:underline}
-    .hz-top{display:flex;align-items:center;gap:1.2rem;padding:.7rem 1.2rem;background:var(--base-inverse-bg,#0f172a);color:#fff;position:sticky;top:0}
+    /* Layout scaffolding (flex/grid/gap/spacing/width) is done with pure-css utility classes in
+       the markup; the rules below are only the irreducible bits utilities can't express —
+       themed surfaces/borders, sticky positioning, and component behaviour. */
+    .hz-top{padding:.7rem 1.2rem;background:var(--base-inverse-bg,#0f172a);color:#fff;position:sticky;top:0;z-index:20}
     .hz-top a{color:#cbd5e1} .hz-brand{font-weight:700;color:#fff!important;font-size:1.05rem}
-    .hz-topnav{display:flex;align-items:center;gap:.2rem;margin-left:.8rem}
     .hz-top-link,.hz-dd-btn{color:#cbd5e1;background:none;border:0;font:inherit;cursor:pointer;padding:.35rem .6rem;border-radius:6px}
     .hz-top-link:hover,.hz-dd-btn:hover{background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
     .hz-dd{position:relative}
@@ -386,7 +388,6 @@ defmodule KeenDocs.Web.View do
     .hz-dd:hover .hz-dd-menu{display:block}
     .hz-dd-item{display:block;padding:.4rem .6rem;border-radius:6px;color:var(--base-text-color-1,#334155);font-size:.9rem}
     .hz-dd-item:hover{background:var(--base-hover-bg,#eef2f7);text-decoration:none}
-    .hz-search{margin-left:auto;display:flex;gap:.4rem}
     .hz-search input{padding:.35rem .6rem;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#fff;width:16rem}
     .hz-search button,.hz-form button{padding:.35rem .8rem;border-radius:6px;border:0;background:var(--base-accent-color,#2563eb);color:var(--base-text-color-on-accent,#fff);cursor:pointer}
     .hz-mode{background:rgba(255,255,255,.1);color:#fff;border:0;border-radius:6px;padding:.3rem .55rem;font-size:1rem;line-height:1;cursor:pointer}
@@ -412,25 +413,23 @@ defmodule KeenDocs.Web.View do
     .hz-index pre{white-space:pre-wrap;background:var(--base-page-bg,#f8fafc);border:1px solid var(--base-border-color,#eef1f6);border-radius:6px;padding:.6rem .8rem;font-size:.8rem;margin:0}
     .hz-brand-set{color:#94a3b8!important;font-weight:600}
     .hz-top>a[target]{color:#cbd5e1}
-    .hz-shell{display:grid;grid-template-columns:16rem minmax(0,1fr);gap:0;max-width:1180px;margin:0 auto;align-items:start}
-    .hz-side{position:sticky;top:3.1rem;align-self:start;max-height:calc(100vh - 3.1rem);overflow:auto;padding:1.4rem .8rem 2rem;border-right:1px solid var(--base-border-color,#e5e9f0)}
-    .hz-main--doc{margin:1.6rem 0;padding:0 1.6rem;max-width:820px}
-    .hz-version-l{display:flex;align-items:center;gap:.5rem;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--base-text-color-3,#94a3b8);font-weight:700;margin:0 .1rem 1.1rem}
+    .hz-shell{max-width:1180px;margin:0 auto}
+    .hz-side{position:sticky;top:3.1rem;max-height:calc(100vh - 3.1rem);overflow:auto;padding:1.4rem .8rem 2rem;border-right:1px solid var(--base-border-color,#e5e9f0)}
+    .hz-main--doc{margin:1.6rem 0;padding:0 1.6rem;max-width:820px;min-width:0}
+    .hz-version-l{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--base-text-color-3,#94a3b8);font-weight:700;margin:0 .1rem 1.1rem}
     .hz-version{flex:1;padding:.35rem .5rem;border:1px solid var(--base-border-color,#cbd5e1);border-radius:6px;background:var(--base-main-bg,#fff);font-size:.85rem;color:var(--base-text-color-1,#1a2233);cursor:pointer}
-    .hz-nav{display:flex;flex-direction:column;gap:.05rem}
     .hz-nav-sec{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--base-text-color-3,#94a3b8);font-weight:700;margin:.9rem 0 .25rem}
     .hz-nav-link{display:block;padding:.28rem .55rem;border-radius:6px;color:var(--base-text-color-1,#334155);font-size:.9rem}
     .hz-nav-link:hover{background:var(--base-hover-bg,#eef2f7);text-decoration:none}
     .hz-nav-link.active{background:var(--base-accent-color,#4f46e5);color:var(--base-text-color-on-accent,#fff);font-weight:600}
     .hz-footer{border-top:1px solid var(--base-border-color,#e5e9f0);background:var(--base-main-bg,#fff);margin-top:2.5rem}
-    .hz-footer-in{max-width:1180px;margin:0 auto;padding:1rem 1.4rem;font-size:.85rem;color:var(--base-text-color-2,#64748b);display:flex;gap:1rem;flex-wrap:wrap}
-    .hz-footer-links{margin-left:auto}
+    .hz-footer-in{max-width:1180px;margin:0 auto;padding:1rem 1.4rem;font-size:.85rem;color:var(--base-text-color-2,#64748b)}
     .hz-social{color:var(--base-text-color-2,#64748b)}
     .hz-hero{margin:0 0 1.6rem;padding:0 0 1.2rem;border-bottom:1px solid var(--base-border-color,#e5e9f0)}
     .hz-hero h1{margin:0 0 .35rem;font-size:1.9rem}
     .hz-hero-sub{margin:0;font-size:1.05rem;color:var(--base-text-color-2,#64748b);max-width:46rem}
     .hz-desc{font-size:.82rem;margin-top:.15rem}
-    @media(max-width:820px){.hz-shell{grid-template-columns:1fr}.hz-side{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--base-border-color,#e5e9f0)}}
+    @media(max-width:820px){.hz-shell{flex-direction:column}.hz-side{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--base-border-color,#e5e9f0);width:auto!important}}
     """
   end
 

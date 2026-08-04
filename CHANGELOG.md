@@ -6,6 +6,32 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Changed — harness chrome lays out with pure-css utilities (2026-08-04)
+
+The `hz-*` chrome classes stopped hand-rolling layout: the two-column shell, top nav, search,
+sidebar nav, version label and footer now use `@keenmate/pure-css` utility/grid classes
+(`d-flex`, `flex-column`, `align-items-*`, `gap-*`, `wr-16`, `flex-fill`, `ml-auto`). Fully-layout
+classes (`hz-topnav`, `hz-nav`, `hz-footer-links`) were deleted; the rest slimmed to the bits
+utilities can't express (themed surfaces/borders, `position: sticky`, component behaviour). Needed
+one addition to the foundation — `gap-*`/`gap-x-*`/`gap-y-*` (see the pure-css changelog) — re-vendored.
+
+### Changed — content vocabulary is now the engine's `km-*` (keen-docs owns only `kd-*`) (2026-08-04)
+
+keen_markdown stopped hardcoding class names (see its changelog: presentation **profiles**, default
+BEM `km-*`). keen-docs **adopts the engine default profile** — so rendered content is `km-card`,
+`km-callout`, `km-columns`, `km-col__header--blue`, `km-code`, … — and the `kd-*` prefix now means
+*only* keen-docs' own things.
+
+- `priv/web/keendocs.css` — the generic content selectors were renamed to the engine's BEM `km-*`
+  (`.km-card`/`.km-card__header`/`.km-card__body`, `.km-callout--warning`, `.km-columns`/
+  `.km-columns__span`, `.km-col`/`.km-col__header--blue`, `.km-showcase__title`, `.km-code`). They're
+  still styled off the `--base-*` contract, so theming/dark-mode are unaffected.
+- **`kd-*` is now purely keen-docs'** — its extensions (`kd-demo`, `kd-app`, `kd-out`), the POC page
+  shell (`kd-page`, `kd-toc`) and its CSS vars (`--kd-*`). No cross-repo leak: the engine's default is
+  its own `km-*`, and keen-docs could override to any vocabulary via a profile if it wanted.
+- No `:profile` config — keen-docs rides the default. A pure-admin / cafeindustrial consumer would
+  set one (Level-1 class map or Level-2 structure) to get its own markup from the same documents.
+
 ### Added — dark mode (2026-08-04)
 
 A site-wide dark theme, proving the `--base-*` foundation: one class flip re-themes the chrome, the

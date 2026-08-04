@@ -1,12 +1,15 @@
 /* keen-docs POC styles.
  *
- * keen_markdown emits classed HTML (kd-columns, kd-card, kd-callout, …) and
- * inline-styled code (Lumis html_inline — no stylesheet needed for highlighting). How
- * those classes *look* is a presentation concern owned by the consuming app, so all of
- * it lives here, not in the engine. A different consumer (e.g. a non-KeenMate portal)
- * ships its own. */
+ * Two vocabularies live here, matching their owners:
+ *   - km-*  : keen_markdown's engine default (BEM) — km-card, km-callout, km-columns,
+ *             km-col__header--blue, km-code, … keen-docs adopts the engine default profile,
+ *             so these are what the content renders to. Styling them is the consumer's job.
+ *   - kd-*  : keen-docs' OWN additions — its extensions (kd-demo, kd-app, kd-out), the POC
+ *             page shell (kd-page, kd-toc) and its CSS vars (--kd-*). keen-docs owns these.
+ * Highlighting needs no stylesheet (Lumis html_inline emits inline styles). A different
+ * consumer (a pure-admin page, cafeindustrial.cz) supplies its own profile + CSS. */
 
-/* The kd-* names are kept as a thin semantic layer, but sourced from the
+/* The kd-* CSS vars are a thin semantic layer, sourced from the
    @keenmate/pure-css --base-* contract so a doc_set's theme drives them (with the
    original KeenMate values as fallbacks when base.css isn't loaded, e.g. the POC). */
 :root {
@@ -37,38 +40,38 @@ body {
 .kd-page-desc { color: var(--kd-muted); margin-top: 0; }
 
 /* ---- columns / col (KeenMarkdown.Extensions.Layout) ---- */
-.kd-columns { display: grid; gap: 1.5rem; margin: 1.25rem 0; align-items: start; }
-@media (max-width: 768px) { .kd-columns { grid-template-columns: 1fr !important; } }
+.km-columns { display: grid; gap: 1.5rem; margin: 1.25rem 0; align-items: start; }
+@media (max-width: 768px) { .km-columns { grid-template-columns: 1fr !important; } }
 
-.kd-col { min-width: 0; }
-.kd-col-header { font-weight: 600; font-size: .95rem; margin-bottom: .5rem; color: var(--kd-secondary); }
-.kd-accent-blue  { color: var(--kd-accent-blue); }
-.kd-accent-green { color: var(--kd-accent-green); }
-.kd-accent-cyan  { color: var(--kd-accent-cyan); }
+.km-col { min-width: 0; }
+.km-col__header { font-weight: 600; font-size: .95rem; margin-bottom: .5rem; color: var(--kd-secondary); }
+.km-col__header--blue  { color: var(--kd-accent-blue); }
+.km-col__header--green { color: var(--kd-accent-green); }
+.km-col__header--cyan  { color: var(--kd-accent-cyan); }
 
 /* Children of a columns/showcase block that are not :::col — prose written between or
    above the columns. They keep their place in source order instead of being dropped or
    consuming a grid track. */
-.kd-span { grid-column: 1 / -1; min-width: 0; }
-.kd-span > :first-child { margin-top: 0; }
-.kd-span > :last-child { margin-bottom: 0; }
+.km-columns__span { grid-column: 1 / -1; min-width: 0; }
+.km-columns__span > :first-child { margin-top: 0; }
+.km-columns__span > :last-child { margin-bottom: 0; }
 
 /* ---- showcase preset ---- */
-.kd-showcase { border: 1px solid var(--kd-border); border-radius: .5rem; padding: 1.25rem; margin: 1.5rem 0; background: var(--kd-bg); }
-.kd-showcase-title { margin: 0 0 .1rem; color: var(--kd-secondary); }
-.kd-showcase-sub { margin: 0 0 1rem; color: var(--kd-muted); font-size: .9rem; }
+.km-showcase { border: 1px solid var(--kd-border); border-radius: .5rem; padding: 1.25rem; margin: 1.5rem 0; background: var(--kd-bg); }
+.km-showcase__title { margin: 0 0 .1rem; color: var(--kd-secondary); }
+.km-showcase__subtitle { margin: 0 0 1rem; color: var(--kd-muted); font-size: .9rem; }
 
 /* ---- card / callout (KeenMarkdown.Extensions.Blocks) ---- */
-.kd-card { border: 1px solid var(--kd-border); border-radius: .5rem; overflow: hidden; background: var(--kd-bg); }
-.kd-card-header { background: var(--kd-secondary); color: #fff; padding: .6rem 1rem; font-weight: 600; }
-.kd-card-body { padding: 1rem; }
+.km-card { border: 1px solid var(--kd-border); border-radius: .5rem; overflow: hidden; background: var(--kd-bg); }
+.km-card__header { background: var(--kd-secondary); color: #fff; padding: .6rem 1rem; font-weight: 600; }
+.km-card__body { padding: 1rem; }
 
-.kd-callout { border-left: 4px solid var(--base-info-color, var(--kd-primary)); border-radius: .375rem; padding: .9rem 1rem; margin: 1.25rem 0; background: var(--base-info-bg-light, #e7f6fc); }
-.kd-callout-title { font-weight: 600; margin-bottom: .25rem; }
-.kd-callout-warning { border-left-color: var(--base-warning-color, #ffc107); background: var(--base-warning-bg-light, #fff8e6); }
-.kd-callout-danger  { border-left-color: var(--base-danger-color, #dc3545); background: var(--base-danger-bg-light, #fdecee); }
-.kd-callout-body > :first-child { margin-top: 0; }
-.kd-callout-body > :last-child { margin-bottom: 0; }
+.km-callout { border-left: 4px solid var(--base-info-color, var(--kd-primary)); border-radius: .375rem; padding: .9rem 1rem; margin: 1.25rem 0; background: var(--base-info-bg-light, #e7f6fc); }
+.km-callout__title { font-weight: 600; margin-bottom: .25rem; }
+.km-callout--warning { border-left-color: var(--base-warning-color, #ffc107); background: var(--base-warning-bg-light, #fff8e6); }
+.km-callout--danger  { border-left-color: var(--base-danger-color, #dc3545); background: var(--base-danger-bg-light, #fdecee); }
+.km-callout__body > :first-child { margin-top: 0; }
+.km-callout__body > :last-child { margin-bottom: 0; }
 
 /* ---- demo live region (KeenDocs.Extensions.Demo) ---- */
 .kd-demo { }
@@ -100,7 +103,7 @@ h1 > a.anchor::after, h2 > a.anchor::after, h3 > a.anchor::after, h4 > a.anchor:
 h1:hover > a.anchor, h2:hover > a.anchor, h3:hover > a.anchor, h4:hover > a.anchor { opacity: 1; }
 
 /* ---- code blocks (MDEx inline-styled <pre>; this only adds chrome, not colours) ---- */
-.kd-code pre, pre { border-radius: .5rem; padding: 1rem; overflow: auto; font-size: .85rem; border: 1px solid var(--kd-border); }
+.km-code pre, pre { border-radius: .5rem; padding: 1rem; overflow: auto; font-size: .85rem; border: 1px solid var(--kd-border); }
 :not(pre) > code { background: var(--base-subtle-bg, #eef1f4); padding: .1rem .35rem; border-radius: .25rem; font-size: .85em; }
 
 table { border-collapse: collapse; width: 100%; margin: 1rem 0; }

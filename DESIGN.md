@@ -225,9 +225,14 @@ still passes with `unsafe: true`; sanitize (ammonia / `unsafe: false`) if conten
   from `pure-admin-core` so a docs site consumes it without the component library. keen-docs vendors the
   **built** CSS (`priv/web/vendor/pure-css/`), inlines `base.css` for FOUC-free vars, and links grid/utils.
   A **theme is a `--base-*` override** (per `doc_set` from `settings.theme`, emitted after the defaults);
-  because everything reads `--base-*`, one override re-themes the chrome, the `kd-*` content, *and* an
+  because everything reads `--base-*`, one override re-themes the chrome, the `km-*` content, *and* an
   embedded `<web-multiselect>` at once. Same model as `../pure-admin-themes`, so the same publish CLI/infra
   applies. (De-duping `pure-admin-core` to import `pure-css` is a planned follow-up, not yet done.)
+- **The generated content vocabulary is consumer-owned (`KeenMarkdown.Profile`), not the engine's brand.**
+  The engine's generic extensions render to a default BEM `km-*` vocabulary, swappable per consumer at two
+  levels — Level 1 a class map, Level 2 whole-markup functions (foreign DOM / HEEx components). keen-docs
+  adopts the default; `kd-*` now denotes *only* keen-docs' own additions (its extensions, page shell, CSS
+  vars). A pure-admin or cafeindustrial consumer sets its own profile to get its markup from the same docs.
 - Layout is generic (`columns`/`col`); `showcase` is a preset; `col` = labelled (no chrome), `card` = boxed.
 - Width shorthand: `cols="80/20"`; demos load from CDN pinned to version.
 - **Trust model: content is trusted**, because it ships through the API-keyed publish CLI. Therefore
@@ -287,21 +292,28 @@ Built on **Elixir 1.20.2 / OTP 29**; `mix.exs` still declares `~> 1.15` and noth
 keen-docs consumes it via `{:keen_markdown, path: "../keen-markdown"}` and adds only its docs-specific
 extensions. Work on the parser/renderer/behaviour happens in that repo.
 
-In `../keen-markdown` (`KeenMarkdown.*`, 56 tests):
+In `../keen-markdown` (`KeenMarkdown.*`, 67 tests):
 - `frontmatter.ex` — YAML front-matter split (`yaml_elixir`).
 - `directive_parser.ex` — **core**: pure Elixir, code-fence-aware nested `:::` block tree.
 - `renderer.ex` — node tree → `Output`; dispatch loop, plain markdown, fallbacks, `transform_markdown` hook.
 - `output.ex` / `context.ex` / `extension.ex` / `html.ex` — regions, per-render state, behaviour, escaping.
+- `profile.ex` — **presentation profile**: the class/markup vocabulary the generic extensions render to
+  is consumer-owned, not baked in. Two levels (both optional, merged over the default): Level 1 `classes`
+  (slot → class string), Level 2 `components` (slot → whole-markup function — different element, BEM, HEEx).
+  Default is BEM `km-*`; resolve order `render(:profile)` ▸ `config :keen_markdown, :profile` ▸ default.
 - `keen_markdown.ex` — public API (`KeenMarkdown.render/2` → `Output`).
 - generic extensions: `layout` (columns/col/showcase), `blocks` (card/callout), `example`
-  (highlighted copyable source), `mermaid`, `open_graph`. **Ships no CSS** — emits classed HTML + inline-styled code; the consumer owns styling.
+  (highlighted copyable source), `mermaid`, `open_graph`. **Ships no CSS** — renders classed HTML through
+  the profile (default BEM `km-*`) + inline-styled code; the consumer owns both the vocabulary and its CSS.
 
 In keen-docs (the first consumer, 29 tests):
 - `lib/keen_docs/extensions/` — `demo` (live `demo`/`run` fences), `cdn_package` (jsdelivr, pinned),
   `app` (keen-phoenix-svelte islands).
 - `lib/keen_docs/poc.ex` — renders `priv/content/form-integration.md` → standalone `build/poc.html`.
 - `priv/content/form-integration.md` — sample exercising every feature.
-- `priv/web/keendocs.css` — all POC styling (page shell + `kd-*` component classes the engine emits + demo/island); the engine ships none.
+- `priv/web/keendocs.css` — all POC styling. keen-docs adopts the engine's default profile, so content
+  is the engine's BEM `km-*` (styled off `--base-*`); `kd-*` is now keen-docs' own only (page shell,
+  demo/island, CSS vars). The engine ships no CSS.
 - The full vocabulary is assembled in `config :keen_markdown, :extensions` = generic set ++ keen-docs' three.
 
 **Run:** `mix test` (here **and** in `../keen-markdown`), then `mix run -e "KeenDocs.POC.build()"` and open `build/poc.html`.
