@@ -68,7 +68,7 @@ defmodule KeenDocs.Web.Router do
         <tr>
           <td><a href="/#{esc(s.code)}"><strong>#{esc(s.code)}</strong></a></td>
           <td>#{badge(s.kind_code, s.kind_code)}</td>
-          <td>#{esc(s.title || "")}#{if s.description, do: ~s(<div class="muted hz-desc">#{esc(s.description)}</div>), else: ""}</td>
+          <td>#{esc(s.title || "")}#{if s.description, do: ~s(<div class="muted kd-desc">#{esc(s.description)}</div>), else: ""}</td>
           <td>#{pkg}</td>
         </tr>
         """
@@ -76,7 +76,7 @@ defmodule KeenDocs.Web.Router do
 
     inner = """
     <h1>Documented subjects</h1>
-    <div class="hz-card"><table>
+    <div class="kd-card"><table>
       <tr><th>doc_set</th><th>kind</th><th>title</th><th>package</th></tr>
       #{rows}
     </table></div>
@@ -130,7 +130,7 @@ defmodule KeenDocs.Web.Router do
         hits ->
           Enum.map_join(hits, "", fn h ->
             """
-            <div class="hz-hit">
+            <div class="kd-hit">
               <a href="/#{esc(h.doc_set_code)}/#{esc(h.variant_code)}/#{esc(h.slug)}">#{esc(h.title || h.slug)}</a>
               #{badge(h.kind_code, h.kind_code)}
               <span class="muted"> #{esc(h.doc_set_code)}/#{esc(h.variant_code)} · rank #{Float.round(h.rank, 3)}</span>
@@ -240,15 +240,15 @@ defmodule KeenDocs.Web.Router do
         applies = if v.applies_to, do: ~s(<div class="muted">applies to: <code>#{esc(Jason.encode!(v.applies_to))}</code></div>), else: ""
 
         """
-        <div class="hz-variant">
+        <div class="kd-variant">
           <h2>#{esc(v.title || v.code)} <span class="muted">code=#{esc(v.code)}</span> #{tag} #{hidden}</h2>
           #{applies}
-          <ul class="hz-docs">#{items}</ul>
+          <ul class="kd-docs">#{items}</ul>
         </div>
         """
       end)
 
-    inner = ~s(<div class="hz-crumb"><a href="/">home</a> / #{esc(set)}</div><h1>#{esc(set)}</h1>#{blocks})
+    inner = ~s(<div class="kd-crumb"><a href="/">home</a> / #{esc(set)}</div><h1>#{esc(set)}</h1>#{blocks})
     default = Enum.find(variants, & &1.is_default) || List.first(variants)
     {docset, sidebar} = set_chrome(set, default && default.code, nil)
     html(conn, View.layout(set, inner, docset: docset, sidebar: sidebar))
@@ -289,9 +289,9 @@ defmodule KeenDocs.Web.Router do
       end)
 
     inner = """
-    <div class="hz-crumb"><a href="/">home</a> / <a href="/#{esc(set)}">#{esc(set)}</a> / #{esc(variant.code)}</div>
+    <div class="kd-crumb"><a href="/">home</a> / <a href="/#{esc(set)}">#{esc(set)}</a> / #{esc(variant.code)}</div>
     <h1>#{esc(variant.title || variant.code)}</h1>
-    <ul class="hz-docs">#{items}</ul>
+    <ul class="kd-docs">#{items}</ul>
     """
 
     html(conn, View.layout("#{set} · #{variant.code}", inner))
@@ -309,7 +309,7 @@ defmodule KeenDocs.Web.Router do
         hero = if opts[:hero] && docset, do: View.hero_html(docset.title, docset.description), else: ""
 
         inner = """
-        <div class="hz-crumb"><a href="/">home</a> / <a href="/#{esc(set)}">#{esc(set)}</a> / #{esc(variant)} / #{esc(slug)}</div>
+        <div class="kd-crumb"><a href="/">home</a> / <a href="/#{esc(set)}">#{esc(set)}</a> / #{esc(variant)} / #{esc(slug)}</div>
         #{hero}<article class="kd-page">#{View.body_html(output)}</article>
         #{index_panel(index)}
         """
@@ -341,7 +341,7 @@ defmodule KeenDocs.Web.Router do
 
   defp index_panel(index) do
     """
-    <details class="hz-index">
+    <details class="kd-index">
       <summary>🔍 search index — how this page is indexed</summary>
       <p class="muted">Front-matter keywords (weight B) and the extracted prose (weight C).
       Directive syntax, fenced code and HTML are dropped — the raw markdown is never indexed.</p>
@@ -397,7 +397,7 @@ defmodule KeenDocs.Web.Router do
           ""
 
         :bad_json ->
-          ~s(<div class="hz-card" style="border-color:#fca5a5"><strong>Could not parse JSON.</strong></div>)
+          ~s(<div class="kd-card" style="border-color:#fca5a5"><strong>Could not parse JSON.</strong></div>)
 
         rows ->
           body =
@@ -410,14 +410,14 @@ defmodule KeenDocs.Web.Router do
               end
             end)
 
-          ~s(<div class="hz-card"><table><tr><th>package</th><th>version</th><th>docs</th><th>link</th></tr>#{body}</table></div>)
+          ~s(<div class="kd-card"><table><tr><th>package</th><th>version</th><th>docs</th><th>link</th></tr>#{body}</table></div>)
       end
 
     """
     <h1>Resolve a project's dependencies</h1>
     <p class="muted">Paste a <code>package.json</code>; we match each dependency to a
     <code>doc_set</code> and resolve its version through <code>applies_to</code>.</p>
-    <form class="hz-form" action="/resolve" method="post">
+    <form class="kd-form" action="/resolve" method="post">
       <textarea name="package_json">#{esc(text)}</textarea>
       <p><button type="submit">Resolve</button></p>
     </form>

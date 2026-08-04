@@ -6,6 +6,21 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Changed — harness chrome renamed `hz-*` → `kd-*`; more pure-css utilities (2026-08-04)
+
+Now that `kd-*` denotes keen-docs' own vocabulary (content is the engine's `km-*`), the harness
+chrome moved off the cryptic `hz-` ("harness") prefix onto `kd-*` — `kd-top`, `kd-side`,
+`kd-nav-link`, `kd-card`, `kd-hero`, `kd-dd-menu`, … (a straight rename in `view.ex` + `router.ex`;
+no collisions with keen-docs' existing `kd-page`/`kd-toc`/`kd-demo`/`kd-app`).
+
+- **Border utilities enabled and used.** pure-css's `.border`/`.border-top`/`.rounded` reference
+  framework aliases (`--border-color`/`--border-radius`) the lean vendored `base.css` doesn't emit;
+  keendocs.css now points those at `--base-*`, so the standard border utilities are usable *and*
+  theme-aware. Applied to the footer (`.border-top`), hero (`.border-bottom`) and nav dropdown
+  (`.border .rounded`), dropping the equivalent custom rules.
+- Themed backgrounds/text-colours stay custom `var(--base-*)` — pure-css has no `bg-*` utilities and
+  its colour utilities depend on framework vars the lean bundle doesn't carry.
+
 ### Changed — harness chrome lays out with pure-css utilities (2026-08-04)
 
 The `hz-*` chrome classes stopped hand-rolling layout: the two-column shell, top nav, search,

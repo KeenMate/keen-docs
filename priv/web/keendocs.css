@@ -21,6 +21,12 @@
   --kd-accent-blue: var(--base-accent-color, #0d6efd);
   --kd-accent-green: var(--base-success-color, #198754);
   --kd-accent-cyan: var(--base-info-color, #0dcaf0);
+
+  /* pure-css's border/radius utilities (.border, .border-top, .rounded, …) reference these
+     framework aliases, which the lean vendored base.css doesn't emit. Point them at the
+     --base-* contract so those standard utilities are usable AND theme-aware. */
+  --border-color: var(--base-border-color, #dee2e6);
+  --border-radius: 8px;
 }
 
 * { box-sizing: border-box; }
