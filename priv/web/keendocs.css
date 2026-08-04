@@ -56,7 +56,10 @@ body {
 
 /* ---- card / callout (KeenMarkdown.Extensions.Blocks) ---- */
 .km-card { border: 1px solid var(--kd-border); border-radius: .5rem; overflow: hidden; background: var(--kd-bg); }
-.km-card__header { background: var(--kd-secondary); color: #fff; padding: .6rem 1rem; font-weight: 600; }
+/* Filled header — use the INVERSE surface (dark in both light & dark themes), not a text
+   colour. `--kd-secondary` is `--base-text-color-1`, which flips light in dark mode → white
+   text on a light bar. `--base-inverse-bg` stays dark, so white text always reads. */
+.km-card__header { background: var(--base-inverse-bg, #003459); color: #fff; padding: .6rem 1rem; font-weight: 600; }
 .km-card__body { padding: 1rem; }
 
 .km-callout { border-left: 4px solid var(--base-info-color, var(--kd-primary)); border-radius: .375rem; padding: .9rem 1rem; margin: 1.25rem 0; background: var(--base-info-bg-light, #e7f6fc); }
@@ -72,12 +75,12 @@ body {
 .kd-demo-source { margin-top: .5rem; font-size: .85rem; }
 .kd-demo-source summary { cursor: pointer; color: var(--kd-muted); }
 .kd-out { margin-top: .75rem; padding: .6rem .8rem; background: #0d1117; color: #c9d1d9; border-radius: .375rem; font-size: .8rem; white-space: pre-wrap; }
-.kd-demo-orphan { border-left: 4px solid #dc3545; background: #fdecee; padding: .75rem 1rem; border-radius: .375rem; font-size: .9rem; }
+.kd-demo-orphan { border-left: 4px solid var(--base-danger-color, #dc3545); background: var(--base-danger-bg-light, #fdecee); padding: .75rem 1rem; border-radius: .375rem; font-size: .9rem; }
 
 /* ---- keen-phoenix-svelte islands (KeenDocs.Extensions.App) ---- */
 [data-app] { min-height: 3rem; }
 [data-app]:empty { border: 1px dashed var(--kd-border); border-radius: .375rem; }
-.kd-app-error { border-left: 4px solid #dc3545; background: #fdecee; padding: .75rem 1rem; border-radius: .375rem; font-size: .9rem; }
+.kd-app-error { border-left: 4px solid var(--base-danger-color, #dc3545); background: var(--base-danger-bg-light, #fdecee); padding: .75rem 1rem; border-radius: .375rem; font-size: .9rem; }
 
 /* ---- mermaid (renders into the <pre> in place) ---- */
 pre.mermaid { border: 1px solid var(--kd-border); border-radius: .5rem; padding: 1rem; background: var(--kd-bg); text-align: center; }

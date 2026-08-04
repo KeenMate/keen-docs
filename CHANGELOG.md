@@ -6,6 +6,15 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Fixed — dark-mode readability: card headers & error blocks (2026-08-04)
+
+Card headers were white-on-light (unreadable) in dark mode: `.km-card__header` used
+`background: var(--kd-secondary)` — but that's `--base-text-color-1`, a *text* colour, which flips
+light in dark mode (a filled bar sourced from a text colour). Switched to `--base-inverse-bg` (dark
+in both themes → white text always reads). Same class of bug fixed on `.kd-demo-orphan` /
+`.kd-app-error` (hardcoded light `#fdecee` → `--base-danger-bg-light` / `--base-danger-color`). The
+`.kd-badge` category chips keep their literal colours on purpose (self-contained pills).
+
 ### Added — content columns render on pure-css `pa-grid` (`KeenDocs.Markup` profile) (2026-08-04)
 
 keen-docs now ships a `KeenMarkdown.Profile` (`KeenDocs.Markup`, wired via
