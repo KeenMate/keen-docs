@@ -100,8 +100,11 @@ A site-wide dark theme, proving the `--base-*` foundation: one class flip re-the
 - **Toggle + FOUC-free init** — a top-bar `◑` button (`View.mode_toggle_html/0`) toggles the class and
   persists to `localStorage`; a tiny `<head>` script (`mode_init_js/0`) sets the initial mode before
   paint (explicit choice wins, else OS `prefers-color-scheme`). No framework, no re-render.
-- Known gap: fenced-code highlighting is lumis **inline** styles (light bg), so code blocks stay
-  light-themed in dark mode — a dark highlight-theme swap is a separate task.
+- **Code blocks follow the mode too** — keen_markdown now highlights code once for both themes via
+  `light-dark()` (its `:dark_theme` / multi-themes formatter), so `.pa-mode-dark`'s `color-scheme: dark`
+  flips fenced code (tokens + background) to `github_dark` with no extra work here. (Closes the earlier
+  "code stays light in dark mode" gap — see the keen-markdown changelog.) `github_light`/`github_dark`
+  are the defaults; overridable via `config :keen_markdown, :theme` / `:dark_theme`.
 
 ### Changed — theming on the `@keenmate/pure-css` `--base-*` foundation (2026-08-04)
 
