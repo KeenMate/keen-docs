@@ -39,22 +39,15 @@ body {
 .kd-page-head h1 { color: var(--kd-secondary); margin-bottom: .25rem; }
 .kd-page-desc { color: var(--kd-muted); margin-top: 0; }
 
-/* ---- columns / col (KeenMarkdown.Extensions.Layout) ---- */
-.km-columns { display: grid; gap: 1.5rem; margin: 1.25rem 0; align-items: start; }
-@media (max-width: 768px) { .km-columns { grid-template-columns: 1fr !important; } }
-
-.km-col { min-width: 0; }
+/* ---- col label + body (KeenDocs.Markup profile renders the grid itself on pa-grid:
+   :::columns -> .pa-row, :::col -> .pa-col-* — sizing/gutters/responsive come from
+   pure-css grid.css; only the column's label + body chrome live here) ---- */
 .km-col__header { font-weight: 600; font-size: .95rem; margin-bottom: .5rem; color: var(--kd-secondary); }
 .km-col__header--blue  { color: var(--kd-accent-blue); }
 .km-col__header--green { color: var(--kd-accent-green); }
 .km-col__header--cyan  { color: var(--kd-accent-cyan); }
-
-/* Children of a columns/showcase block that are not :::col — prose written between or
-   above the columns. They keep their place in source order instead of being dropped or
-   consuming a grid track. */
-.km-columns__span { grid-column: 1 / -1; min-width: 0; }
-.km-columns__span > :first-child { margin-top: 0; }
-.km-columns__span > :last-child { margin-bottom: 0; }
+.km-col__body > :first-child { margin-top: 0; }
+.km-col__body > :last-child { margin-bottom: 0; }
 
 /* ---- showcase preset ---- */
 .km-showcase { border: 1px solid var(--kd-border); border-radius: .5rem; padding: 1.25rem; margin: 1.5rem 0; background: var(--kd-bg); }

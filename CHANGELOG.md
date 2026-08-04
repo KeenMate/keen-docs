@@ -6,6 +6,23 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Added — content columns render on pure-css `pa-grid` (`KeenDocs.Markup` profile) (2026-08-04)
+
+keen-docs now ships a `KeenMarkdown.Profile` (`KeenDocs.Markup`, wired via
+`config :keen_markdown, :profile`) that overrides the layout slots (Level-2 structure): `:::columns`
+→ `.pa-row`, each `:::col` → `.pa-col-<width>`, a non-column child → `.pa-col-100`. So content
+columns use pure-css's native grid — gutters, container-query responsiveness and mobile auto-stack
+come for free — and share one grid vocabulary with pure-admin pages. Other blocks keep the engine's
+default `km-*`.
+
+- Column width comes from the engine's new `:col` `width` assign (`{part, total}`); it maps to an
+  **exact** `pa-col` fraction when the ratio reduces to one pa-grid ships (`80/20` →
+  `.pa-col-4-5`/`.pa-col-1-5`, thirds → `.pa-col-1-3`), else the nearest 5% column. A standalone
+  `:::col` is an auto `.pa-col`.
+- Dropped the now-dead `.km-columns` / `.km-columns__span` / `.km-col` grid rules from keendocs.css
+  (content no longer emits them); the column label/body chrome (`.km-col__header--*`, `.km-col__body`)
+  stays.
+
 ### Fixed — stale vendored grid (dead Yahoo `.pure-*`) (2026-08-04)
 
 pure-css replaced its legacy Yahoo PureCSS grid (`.pure-g`/`.pure-u-*`) with the native flexbox

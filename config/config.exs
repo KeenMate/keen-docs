@@ -19,7 +19,11 @@ config :keen_markdown,
     KeenDocs.Extensions.Demo,
     KeenDocs.Extensions.CdnPackage,
     KeenDocs.Extensions.App
-  ]
+  ],
+  # keen-docs' presentation profile: renders content columns on pure-css's pa-grid
+  # (`:::columns` -> `.pa-row`, `:::col` -> `.pa-col-*`); other blocks keep the engine's
+  # default BEM `km-*`. See `KeenDocs.Markup`.
+  profile: KeenDocs.Markup
 
 # keen-phoenix-svelte islands mounted by `:::app`. `base_path` mirrors
 # `KeenPhoenixSvelte.Apps.base_path/0`. This harness is a plain (non-LiveView) page, so it
