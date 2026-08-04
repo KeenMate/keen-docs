@@ -6,6 +6,24 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Added — dark mode (2026-08-04)
+
+A site-wide dark theme, proving the `--base-*` foundation: one class flip re-themes the chrome, the
+`kd-*` content, and embedded components together.
+
+- **`priv/web/dark-theme.css`** — a lean `--base-*` override scoped to `html.pa-mode-dark`, using
+  pure-admin's dark palette (`#1a1a1a`/`#242424`/`#333` surfaces, `#f2f2f2`/`#b8b8b8` text, `#404040`
+  borders) and its `.pa-mode-dark` + `color-scheme: dark` dual-mode convention. Inlined into the page
+  `<style>` (compile-time module attr) so the toggle flips with no flash.
+- **Brand accent preserved across modes** — `theme_css/1` now also publishes the doc's raw accent as
+  `--kd-doc-accent`; dark mode *brightens* it (`color-mix`) for contrast on dark surfaces instead of
+  replacing it, falling back to pure-admin's dark blue on pages without a doc theme.
+- **Toggle + FOUC-free init** — a top-bar `◑` button (`View.mode_toggle_html/0`) toggles the class and
+  persists to `localStorage`; a tiny `<head>` script (`mode_init_js/0`) sets the initial mode before
+  paint (explicit choice wins, else OS `prefers-color-scheme`). No framework, no re-render.
+- Known gap: fenced-code highlighting is lumis **inline** styles (light bg), so code blocks stay
+  light-themed in dark mode — a dark highlight-theme swap is a separate task.
+
 ### Changed — theming on the `@keenmate/pure-css` `--base-*` foundation (2026-08-04)
 
 The harness and rendered content now derive every colour/font from the KeenMate `--base-*` custom

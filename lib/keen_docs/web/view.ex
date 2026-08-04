@@ -46,7 +46,8 @@ defmodule KeenDocs.Web.View do
       <title>#{esc(title)} · keen-docs</title>
       <link rel="stylesheet" href="/vendor/pure-css/grid.css" />
       <link rel="stylesheet" href="/vendor/pure-css/utilities.css" />
-      <style>#{base_vars_css()}#{theme_css(docset)}#{harness_css()}#{content_css()}</style>
+      <style>#{base_vars_css()}#{dark_theme_css()}#{theme_css(docset)}#{harness_css()}#{content_css()}</style>
+      <script>#{mode_init_js()}</script>
     #{docset_head(docset, opts[:canonical])}#{opts[:head] || ""}</head>
     <body>
       <nav class="hz-top">
@@ -57,6 +58,7 @@ defmodule KeenDocs.Web.View do
           <button type="submit">Search</button>
         </form>
         #{header_links(docset)}<a href="/resolve">Resolve package.json →</a>
+        #{mode_toggle_html()}
       </nav>
     #{body_region}
     #{docset_footer(docset)}#{opts[:footer] || ""}</body>
@@ -194,6 +196,31 @@ defmodule KeenDocs.Web.View do
                   end)
   defp base_vars_css, do: @base_vars_css
 
+  # Dark mode: a --base-* override scoped to `html.pa-mode-dark`, inlined so the toggle
+  # flips instantly with no flash. Read once at compile time (single source: dark-theme.css).
+  @dark_theme_css (case File.read("priv/web/dark-theme.css") do
+                     {:ok, css} -> css
+                     _ -> ""
+                   end)
+  defp dark_theme_css, do: @dark_theme_css
+
+  # Applied in <head> before the body paints, so the initial mode is set with no FOUC: an
+  # explicit choice in localStorage wins, otherwise follow the OS `prefers-color-scheme`.
+  defp mode_init_js do
+    "(function(){try{var m=localStorage.getItem('kd-mode');" <>
+      "if(m==='dark'||(!m&&matchMedia('(prefers-color-scheme:dark)').matches))" <>
+      "document.documentElement.classList.add('pa-mode-dark');}catch(e){}})();"
+  end
+
+  # Top-bar button that toggles the dark class and persists the choice.
+  defp mode_toggle_html do
+    onclick =
+      "var d=document.documentElement.classList.toggle('pa-mode-dark');" <>
+        "try{localStorage.setItem('kd-mode',d?'dark':'light');}catch(e){}"
+
+    ~s(<button type="button" class="hz-mode" onclick="#{onclick}" title="Toggle dark mode" aria-label="Toggle dark mode">◑</button>)
+  end
+
   # Per-doc_set theme: overrides `--base-*` from `settings.theme`, layered after the defaults so
   # it wins. `accent` sets --base-accent-color and re-derives hover/active/light at runtime via
   # color-mix (the SCSS build derives them, but a live override can't run Sass). `theme.vars` is
@@ -220,7 +247,10 @@ defmodule KeenDocs.Web.View do
   defp accent_decls(accent) do
     a = esc(to_string(accent))
 
-    "--base-accent-color:#{a};" <>
+    # Also publish the raw accent so dark mode (.pa-mode-dark) can brighten it for
+    # contrast on dark surfaces while keeping the doc's brand hue (see dark-theme.css).
+    "--kd-doc-accent:#{a};" <>
+      "--base-accent-color:#{a};" <>
       "--base-accent-color-hover:color-mix(in srgb, #{a} 88%, #fff);" <>
       "--base-accent-color-active:color-mix(in srgb, #{a} 76%, #fff);" <>
       "--base-accent-color-light:color-mix(in srgb, #{a} 8%, transparent);" <>
@@ -359,6 +389,8 @@ defmodule KeenDocs.Web.View do
     .hz-search{margin-left:auto;display:flex;gap:.4rem}
     .hz-search input{padding:.35rem .6rem;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#fff;width:16rem}
     .hz-search button,.hz-form button{padding:.35rem .8rem;border-radius:6px;border:0;background:var(--base-accent-color,#2563eb);color:var(--base-text-color-on-accent,#fff);cursor:pointer}
+    .hz-mode{background:rgba(255,255,255,.1);color:#fff;border:0;border-radius:6px;padding:.3rem .55rem;font-size:1rem;line-height:1;cursor:pointer}
+    .hz-mode:hover{background:rgba(255,255,255,.2)}
     .hz-main{max-width:960px;margin:1.6rem auto;padding:0 1.2rem}
     h1{font-size:1.5rem;margin:.2rem 0 1rem} h2{font-size:1.15rem;margin:1.6rem 0 .6rem}
     .hz-card{background:var(--base-main-bg,#fff);border:1px solid var(--base-border-color,#e5e9f0);border-radius:10px;padding:1rem 1.2rem;margin:.8rem 0}

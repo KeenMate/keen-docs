@@ -1,0 +1,63 @@
+/* Dark mode for keen-docs.
+ *
+ * A --base-* override layered over @keenmate/pure-css, using pure-admin's dark
+ * palette and its `.pa-mode-dark` dual-mode convention (color-scheme: dark so
+ * native scrollbars/controls adapt). Because the chrome, the kd-* content and
+ * embedded web/svelte components all read --base-*, toggling this one class on
+ * <html> re-themes the whole page at once.
+ *
+ * The per-doc brand accent is preserved: theme_css/1 publishes the raw accent as
+ * --kd-doc-accent, and here we brighten it for contrast on dark surfaces instead
+ * of replacing it (falling back to pure-admin's dark blue when a page has no
+ * doc theme). Higher specificity than :root, so it wins over the light defaults
+ * and the doc's :root accent override in dark mode. */
+html.pa-mode-dark {
+  color-scheme: dark;
+
+  /* surfaces */
+  --base-page-bg: #1a1a1a;
+  --base-main-bg: #242424;
+  --base-subtle-bg: #333333;
+  --base-elevated-bg: #2e2e2e;
+  --base-inverse-bg: #0d0d0d;
+  --base-overlay-bg: rgba(0, 0, 0, 0.6);
+  --base-shadow-color: rgba(0, 0, 0, 0.5);
+  --base-hover-bg: #353535;
+  --base-active-bg: #3f3f3f;
+  --base-disabled-bg: #333333;
+
+  /* text hierarchy */
+  --base-text-color-1: #f2f2f2;
+  --base-text-color-2: #b8b8b8;
+  --base-text-color-3: #8a8a8a;
+  --base-text-color-4: #6a6a6a;
+  --base-text-color-on-accent: #0d1117;
+
+  /* borders */
+  --base-border-color: #404040;
+  --base-border: 1px solid #404040;
+
+  /* inputs / dropdowns / tooltip */
+  --base-input-bg: #2e2e2e;
+  --base-input-color: #f2f2f2;
+  --base-input-border: 1px solid #4a4a4a;
+  --base-input-border-hover: 1px solid #5a5a5a;
+  --base-input-placeholder-color: #7a7a7a;
+  --base-dropdown-bg: #242424;
+  --base-dropdown-border: 1px solid #404040;
+  --base-dropdown-box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  --base-tooltip-bg: #0d0d0d;
+
+  /* brand accent, brightened for dark; keeps the doc's hue via --kd-doc-accent */
+  --base-accent-color:        color-mix(in srgb, var(--kd-doc-accent, #4dabf7) 60%, #fff);
+  --base-accent-color-hover:  color-mix(in srgb, var(--kd-doc-accent, #4dabf7) 72%, #fff);
+  --base-accent-color-active: color-mix(in srgb, var(--kd-doc-accent, #4dabf7) 84%, #fff);
+  --base-accent-color-light:  color-mix(in srgb, var(--kd-doc-accent, #4dabf7) 16%, transparent);
+  --base-focus-ring-color:    var(--kd-doc-accent, #4dabf7);
+
+  /* contextual tints a touch stronger so callouts read on dark */
+  --base-success-bg-light: rgba(34, 197, 94, 0.16);
+  --base-warning-bg-light: rgba(249, 115, 22, 0.16);
+  --base-danger-bg-light:  rgba(239, 68, 68, 0.16);
+  --base-info-bg-light:    rgba(23, 162, 184, 0.16);
+}
