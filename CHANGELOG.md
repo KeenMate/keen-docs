@@ -25,6 +25,24 @@ entirely by data (the DB changelog covers the `doc_set` presentation surface + `
   `doc_nav` tree is. Requires `make db-gen` (new `get_doc_set` / `get_doc_nav` wrappers, changed
   `ensure_doc_set` arity).
 
+### Added — Global (hub) homepage, pages & cross-set navigation (2026-08-04)
+
+The hub is now its own site, not just an auto-generated index (backed by the new `site` /
+`site_page` / `site_nav` domain — see the DB changelog):
+
+- **Global top-nav** — `View.top_nav_html/0` renders `get_site_nav("hub")` site-wide in the
+  header: level-1 items, a level-1 section becomes a hover dropdown of its children. Each leaf
+  targets a doc_set (→ its homepage), an internal `site_page`, or an external URL — that union
+  is the cross-set navigation.
+- **Hub homepage** — `GET /` renders the hub site's authored `home_slug` page (with a hero from
+  the site title + description) instead of the doc_set table; the table remains the fallback
+  (`hub_index_table/1`) when no homepage is set.
+- **Global standalone pages** — a bare `/:slug` that is not a doc_set resolves to a hub
+  `site_page` (`/about`); `render_site_page/3` renders it full-width (the top-nav is its
+  navigation, no doc_set sidebar), reusing the same footer/accent/head chrome as a doc_set.
+- Authoring convention: a homepage rendered with a hero must not repeat the title as an `# H1`
+  (the hero supplies it) — the seeded hub homepage was corrected to start straight with content.
+
 ### Added — Surface the rest of the doc_set settings (2026-08-04)
 
 The presentation fields already stored on `doc_set` are now rendered — closing the mkdocs

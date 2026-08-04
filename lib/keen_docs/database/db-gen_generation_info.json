@@ -1,6 +1,6 @@
 {
   "version": "v0.8.0-rc.4",
-  "time": "2026-08-04T13:26:12.3190002+02:00",
+  "time": "2026-08-04T16:55:01.0101932+02:00",
   "routines": [
     {
       "RowNumber": 1,
@@ -747,6 +747,393 @@
     {
       "RowNumber": 1,
       "RoutineSchema": "public",
+      "RoutineNameWithParams": "ensure_site(text,text,text,text,text,text,jsonb,int4)",
+      "HasOverload": false,
+      "RoutineName": "ensure_site",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 14,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_created_by",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_correlation_id",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "_title",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "_description",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "_home_slug",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "_settings",
+          "Mode": "IN",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "_tenant_id",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 9,
+          "Name": "__site_id",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 10,
+          "Name": "__code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 11,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 12,
+          "Name": "__description",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 13,
+          "Name": "__home_slug",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 14,
+          "Name": "__settings",
+          "Mode": "OUT",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "ensure_site_nav(text,text,text,text,text,text,text,text,int4,bool,int4)",
+      "HasOverload": false,
+      "RoutineName": "ensure_site_nav",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 15,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_created_by",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_correlation_id",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_site_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "_node_path",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "_label",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "_slug",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "_doc_set_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "_url",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 9,
+          "Name": "_sort_order",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 10,
+          "Name": "_is_section",
+          "Mode": "IN",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 11,
+          "Name": "_tenant_id",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 12,
+          "Name": "__site_nav_id",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 13,
+          "Name": "__node_path",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 14,
+          "Name": "__full_title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 15,
+          "Name": "__has_children",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "ensure_site_page(text,text,text,text,text,text,jsonb,text,text,int4)",
+      "HasOverload": false,
+      "RoutineName": "ensure_site_page",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 13,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_created_by",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_correlation_id",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "_site_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "_slug",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "_title",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "_content",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "_frontmatter",
+          "Mode": "IN",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "_content_sha",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 9,
+          "Name": "_search_text",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": true
+        },
+        {
+          "OrdinalPosition": 10,
+          "Name": "_tenant_id",
+          "Mode": "IN",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": true
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 11,
+          "Name": "__site_page_id",
+          "Mode": "OUT",
+          "UDTName": "int8",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 12,
+          "Name": "__content_sha",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 13,
+          "Name": "__deduped",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
       "RoutineNameWithParams": "get_default_variant(text)",
       "HasOverload": false,
       "RoutineName": "get_default_variant",
@@ -1112,6 +1499,233 @@
           "Name": "__lexemes",
           "Mode": "OUT",
           "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "get_site(text)",
+      "HasOverload": false,
+      "RoutineName": "get_site",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 6,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 2,
+          "Name": "__code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "__description",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "__home_slug",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "__settings",
+          "Mode": "OUT",
+          "UDTName": "jsonb",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "get_site_nav(text)",
+      "HasOverload": false,
+      "RoutineName": "get_site_nav",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 10,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_site_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 2,
+          "Name": "__level",
+          "Mode": "OUT",
+          "UDTName": "int4",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 3,
+          "Name": "__node_path",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "__label",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "__full_title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "__slug",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 7,
+          "Name": "__doc_set_code",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 8,
+          "Name": "__url",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 9,
+          "Name": "__is_section",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 10,
+          "Name": "__has_children",
+          "Mode": "OUT",
+          "UDTName": "bool",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ]
+    },
+    {
+      "RowNumber": 1,
+      "RoutineSchema": "public",
+      "RoutineNameWithParams": "get_site_page(text,text)",
+      "HasOverload": false,
+      "RoutineName": "get_site_page",
+      "SpecificName": "",
+      "DataType": "record",
+      "UdtTypeScheme": "pg_catalog",
+      "UdtTypeName": "record",
+      "ParamCount": 6,
+      "FuncType": "function",
+      "InParameters": [
+        {
+          "OrdinalPosition": 1,
+          "Name": "_site_code",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 2,
+          "Name": "_slug",
+          "Mode": "IN",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        }
+      ],
+      "OutParameters": [
+        {
+          "OrdinalPosition": 3,
+          "Name": "__slug",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 4,
+          "Name": "__title",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 5,
+          "Name": "__content",
+          "Mode": "OUT",
+          "UDTName": "text",
+          "IsNullable": false,
+          "IsOptional": false
+        },
+        {
+          "OrdinalPosition": 6,
+          "Name": "__frontmatter",
+          "Mode": "OUT",
+          "UDTName": "jsonb",
           "IsNullable": false,
           "IsOptional": false
         }

@@ -2,6 +2,7 @@ defmodule KeenDocs.Web.View do
   @moduledoc "HTML building for the test harness — layout chrome + small helpers."
 
   alias KeenMarkdown.{HTML, Output}
+  alias KeenDocs.Content
 
   @doc "HTML-escape."
   defdelegate esc(s), to: HTML
@@ -48,6 +49,7 @@ defmodule KeenDocs.Web.View do
     <body>
       <nav class="hz-top">
         <a class="hz-brand" href="/">keen-docs</a>#{brand_suffix(docset)}
+        #{top_nav_html()}
         <form class="hz-search" action="/search" method="get">
           <input name="q" placeholder="search docs…" value="#{esc(opts[:q] || "")}" />
           <button type="submit">Search</button>
@@ -127,6 +129,54 @@ defmodule KeenDocs.Web.View do
 
       ~s(<label class="hz-version-l">version<select class="hz-version" onchange="location.href=this.value">#{opts}</select></label>)
     end
+  end
+
+  @doc """
+  The global (hub) top navigation, shown site-wide. Level-1 nodes render as top-bar items;
+  a level-1 section with children becomes a hover dropdown of its level-2 links. Each leaf
+  targets a doc_set (→ its homepage), an internal site_page, or an external URL.
+  """
+  def top_nav_html do
+    case hub_nav() do
+      [] ->
+        ""
+
+      rows ->
+        tops = Enum.filter(rows, &(&1.level == 1))
+
+        items =
+          Enum.map_join(tops, "", fn n ->
+            kids = Enum.filter(rows, &(&1.level == 2 and String.starts_with?(&1.node_path, n.node_path <> ".")))
+
+            if n.is_section and kids != [] do
+              menu = Enum.map_join(kids, "", &nav_link(&1, "hz-dd-item"))
+              ~s(<div class="hz-dd"><button type="button" class="hz-dd-btn">#{esc(n.label)} ▾</button><div class="hz-dd-menu">#{menu}</div></div>)
+            else
+              nav_link(n, "hz-top-link")
+            end
+          end)
+
+        ~s(<div class="hz-topnav">#{items}</div>)
+    end
+  end
+
+  defp hub_nav do
+    Content.rows(Content.get_site_nav("hub"))
+  rescue
+    _ -> []
+  end
+
+  defp nav_link(n, class) do
+    {href, external?} =
+      cond do
+        n.doc_set_code -> {"/#{n.doc_set_code}", false}
+        n.slug -> {"/#{n.slug}", false}
+        n.url -> {n.url, true}
+        true -> {"#", false}
+      end
+
+    tgt = if external?, do: ~s( target="_blank" rel="noopener"), else: ""
+    ~s(<a class="#{class}" href="#{esc(href)}"#{tgt}>#{esc(n.label)}</a>)
   end
 
   # ── per-doc_set chrome (from get_doc_set.settings) ──────────────────────────
@@ -250,6 +300,14 @@ defmodule KeenDocs.Web.View do
     a{color:#2563eb;text-decoration:none} a:hover{text-decoration:underline}
     .hz-top{display:flex;align-items:center;gap:1.2rem;padding:.7rem 1.2rem;background:#0f172a;color:#fff;position:sticky;top:0}
     .hz-top a{color:#cbd5e1} .hz-brand{font-weight:700;color:#fff!important;font-size:1.05rem}
+    .hz-topnav{display:flex;align-items:center;gap:.2rem;margin-left:.8rem}
+    .hz-top-link,.hz-dd-btn{color:#cbd5e1;background:none;border:0;font:inherit;cursor:pointer;padding:.35rem .6rem;border-radius:6px}
+    .hz-top-link:hover,.hz-dd-btn:hover{background:#1e293b;color:#fff;text-decoration:none}
+    .hz-dd{position:relative}
+    .hz-dd-menu{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid #e5e9f0;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);min-width:12rem;padding:.3rem;z-index:30}
+    .hz-dd:hover .hz-dd-menu{display:block}
+    .hz-dd-item{display:block;padding:.4rem .6rem;border-radius:6px;color:#334155;font-size:.9rem}
+    .hz-dd-item:hover{background:#eef2f7;text-decoration:none}
     .hz-search{margin-left:auto;display:flex;gap:.4rem}
     .hz-search input{padding:.35rem .6rem;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#fff;width:16rem}
     .hz-search button,.hz-form button{padding:.35rem .8rem;border-radius:6px;border:0;background:#2563eb;color:#fff;cursor:pointer}

@@ -136,6 +136,54 @@ defmodule KeenDocs.Database do
 
 
       @doc """
+      Calls database function public.ensure_site
+      """
+      @spec ensure_site(String.t(), String.t(), String.t(), String.t(), String.t(), String.t(), map() | list(), integer()) ::
+              {:ok, [Models.EnsureSiteModel.t()]} | {:error, any()}
+      def ensure_site(created_by, correlation_id, code, title, description, home_slug, settings, tenant_id) do
+        Logger.debug("Calling stored procedure", procedure: "ensure_site")
+
+        query(
+          "select * from public.ensure_site($1, $2, $3, $4, $5, $6, $7, $8)",
+          [created_by, correlation_id, code, title, description, home_slug, settings, tenant_id]
+        )
+        |> Parsers.EnsureSiteParser.parse_result()
+      end
+
+
+      @doc """
+      Calls database function public.ensure_site_nav
+      """
+      @spec ensure_site_nav(String.t(), String.t(), String.t(), String.t(), String.t(), String.t(), String.t(), String.t(), integer(), boolean(), integer()) ::
+              {:ok, [Models.EnsureSiteNavModel.t()]} | {:error, any()}
+      def ensure_site_nav(created_by, correlation_id, site_code, node_path, label, slug, doc_set_code, url, sort_order, is_section, tenant_id) do
+        Logger.debug("Calling stored procedure", procedure: "ensure_site_nav")
+
+        query(
+          "select * from public.ensure_site_nav($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+          [created_by, correlation_id, site_code, node_path, label, slug, doc_set_code, url, sort_order, is_section, tenant_id]
+        )
+        |> Parsers.EnsureSiteNavParser.parse_result()
+      end
+
+
+      @doc """
+      Calls database function public.ensure_site_page
+      """
+      @spec ensure_site_page(String.t(), String.t(), String.t(), String.t(), String.t(), String.t(), map() | list(), String.t(), String.t(), integer()) ::
+              {:ok, [Models.EnsureSitePageModel.t()]} | {:error, any()}
+      def ensure_site_page(created_by, correlation_id, site_code, slug, title, content, frontmatter, content_sha, search_text, tenant_id) do
+        Logger.debug("Calling stored procedure", procedure: "ensure_site_page")
+
+        query(
+          "select * from public.ensure_site_page($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+          [created_by, correlation_id, site_code, slug, title, content, frontmatter, content_sha, search_text, tenant_id]
+        )
+        |> Parsers.EnsureSitePageParser.parse_result()
+      end
+
+
+      @doc """
       Calls database function public.get_default_variant
       """
       @spec get_default_variant(String.t()) ::
@@ -212,6 +260,54 @@ defmodule KeenDocs.Database do
           [doc_set_code, variant_code, slug]
         )
         |> Parsers.GetDocumentIndexParser.parse_result()
+      end
+
+
+      @doc """
+      Calls database function public.get_site
+      """
+      @spec get_site(String.t()) ::
+              {:ok, [Models.GetSiteModel.t()]} | {:error, any()}
+      def get_site(code) do
+        Logger.debug("Calling stored procedure", procedure: "get_site")
+
+        query(
+          "select * from public.get_site($1)",
+          [code]
+        )
+        |> Parsers.GetSiteParser.parse_result()
+      end
+
+
+      @doc """
+      Calls database function public.get_site_nav
+      """
+      @spec get_site_nav(String.t()) ::
+              {:ok, [Models.GetSiteNavModel.t()]} | {:error, any()}
+      def get_site_nav(site_code) do
+        Logger.debug("Calling stored procedure", procedure: "get_site_nav")
+
+        query(
+          "select * from public.get_site_nav($1)",
+          [site_code]
+        )
+        |> Parsers.GetSiteNavParser.parse_result()
+      end
+
+
+      @doc """
+      Calls database function public.get_site_page
+      """
+      @spec get_site_page(String.t(), String.t()) ::
+              {:ok, [Models.GetSitePageModel.t()]} | {:error, any()}
+      def get_site_page(site_code, slug) do
+        Logger.debug("Calling stored procedure", procedure: "get_site_page")
+
+        query(
+          "select * from public.get_site_page($1, $2)",
+          [site_code, slug]
+        )
+        |> Parsers.GetSitePageParser.parse_result()
       end
 
 

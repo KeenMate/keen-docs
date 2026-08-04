@@ -37,7 +37,19 @@ defmodule KeenDocs.Web.Router do
   end
 
   # ── hub ───────────────────────────────────────────────────────────────────
+  # The hub renders its authored homepage (the 'hub' site's home_slug page); if none is set,
+  # it falls back to the auto-generated doc_set table.
   get "/" do
+    site = Content.one(Content.get_site("hub"))
+
+    if site && site.home_slug && Content.one(Content.get_site_page("hub", site.home_slug)) do
+      render_site_page(conn, site.home_slug, hero: true)
+    else
+      hub_index_table(conn)
+    end
+  end
+
+  defp hub_index_table(conn) do
     sets = Content.rows(Content.list_doc_sets())
 
     rows =
@@ -60,11 +72,33 @@ defmodule KeenDocs.Web.Router do
       <tr><th>doc_set</th><th>kind</th><th>title</th><th>package</th></tr>
       #{rows}
     </table></div>
-    <p class="muted">The middle layer is a <code>doc_variant</code> — a version for components,
-    a division (azure/aws) for infrastructure, a hidden <code>main</code> for guides.</p>
     """
 
     html(conn, View.layout("Home", inner))
+  end
+
+  # Render a global standalone page (a hub site_page) — no doc_set sidebar; the global
+  # top-nav is its navigation. `opts[:hero]` shows the site title + description band.
+  defp render_site_page(conn, slug, opts \\ []) do
+    case Content.one(Content.get_site_page("hub", slug)) do
+      nil ->
+        not_found(conn)
+
+      page ->
+        site = Content.one(Content.get_site("hub"))
+        output = View.render_markdown(page.content)
+        hero = if opts[:hero] && site, do: View.hero_html(site.title, site.description), else: ""
+
+        inner = """
+        #{hero}<article class="kd-page">#{View.body_html(output)}</article>
+        """
+
+        html(conn, View.layout(page.title || slug, inner,
+          head: View.head_html(output),
+          footer: View.footer_html(output),
+          docset: site,
+          canonical: canonical_url(site, conn)))
+    end
   end
 
   # ── search ────────────────────────────────────────────────────────────────
@@ -153,8 +187,11 @@ defmodule KeenDocs.Web.Router do
     default = Enum.find(variants, & &1.is_default) || List.first(variants)
 
     cond do
+      # not a doc_set → maybe a global standalone page (a hub site_page like /about)
       variants == [] ->
-        not_found(conn)
+        if Content.one(Content.get_site_page("hub", set)),
+          do: render_site_page(conn, set),
+          else: not_found(conn)
 
       docset && docset.home_slug && default &&
           Content.one(Content.get_document(set, default.code, docset.home_slug)) ->
