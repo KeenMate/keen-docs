@@ -190,6 +190,9 @@ defmodule KeenDocs.Web.View do
   # The @keenmate/pure-css `--base-*` defaults, inlined once per page so the chrome (which
   # reads var(--base-*)) has no FOUC and needs no extra request. Read at compile time from the
   # vendored artifact so it's deterministic and the file is the single source of truth.
+  # @external_resource so `mix` recompiles this module when the vendored/inlined CSS changes
+  # (a bare compile-time File.read is invisible to the recompile tracker → stale inlined CSS).
+  @external_resource "priv/web/vendor/pure-css/base.css"
   @base_vars_css (case File.read("priv/web/vendor/pure-css/base.css") do
                     {:ok, css} -> css
                     _ -> ""
@@ -198,6 +201,7 @@ defmodule KeenDocs.Web.View do
 
   # Dark mode: a --base-* override scoped to `html.pa-mode-dark`, inlined so the toggle
   # flips instantly with no flash. Read once at compile time (single source: dark-theme.css).
+  @external_resource "priv/web/dark-theme.css"
   @dark_theme_css (case File.read("priv/web/dark-theme.css") do
                      {:ok, css} -> css
                      _ -> ""

@@ -115,7 +115,7 @@
   --pa-link-color: var(--pa-accent);
   --pa-link-color-hover: color-mix(in srgb, var(--pa-link-color), currentColor 50%);
   --pa-link-color-visited: var(--pa-link-color);
-  --pa-border-color: #e1e5e9;
+  --pa-border-color: var(--base-border-color, #e1e5e9);
   --pa-success: #22c55e;
   --pa-warning: #f97316;
   --pa-danger: #ef4444;

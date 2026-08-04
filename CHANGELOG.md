@@ -13,11 +13,14 @@ chrome moved off the cryptic `hz-` ("harness") prefix onto `kd-*` — `kd-top`, 
 `kd-nav-link`, `kd-card`, `kd-hero`, `kd-dd-menu`, … (a straight rename in `view.ex` + `router.ex`;
 no collisions with keen-docs' existing `kd-page`/`kd-toc`/`kd-demo`/`kd-app`).
 
-- **Border utilities enabled and used.** pure-css's `.border`/`.border-top`/`.rounded` reference
-  framework aliases (`--border-color`/`--border-radius`) the lean vendored `base.css` doesn't emit;
-  keendocs.css now points those at `--base-*`, so the standard border utilities are usable *and*
-  theme-aware. Applied to the footer (`.border-top`), hero (`.border-bottom`) and nav dropdown
-  (`.border .rounded`), dropping the equivalent custom rules.
+- **Border utilities used** on the footer (`.border-top`), hero (`.border-bottom`) and nav dropdown
+  (`.border .rounded`), dropping the equivalent custom rules. (These were briefly enabled via a
+  keendocs.css `--border-color`/`--border-radius` shim; that shim was **removed** once pure-css was
+  fixed to make the border/rounded utilities self-sufficient and runtime-themeable — see the pure-css
+  changelog. Re-vendored `base.css`/`utilities.css`.)
+- **`@external_resource`** added for the inlined `base.css` + `dark-theme.css` in `view.ex`, so `mix`
+  recompiles the view when they change (a bare compile-time `File.read` is invisible to the recompile
+  tracker, which had silently inlined a stale `base.css`).
 - Themed backgrounds/text-colours stay custom `var(--base-*)` — pure-css has no `bg-*` utilities and
   its colour utilities depend on framework vars the lean bundle doesn't carry.
 
