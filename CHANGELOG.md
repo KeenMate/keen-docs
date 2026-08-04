@@ -23,6 +23,15 @@ default `km-*`.
   (content no longer emits them); the column label/body chrome (`.km-col__header--*`, `.km-col__body`)
   stays.
 
+### Changed — vendored pure-css now tracks the published npm release (2026-08-04)
+
+`@keenmate/pure-css` is published (`1.0.0-rc01`), so the vendored CSS tracks a pinned **release**
+instead of a local working-copy build — the registry is the single source of truth, which is what
+prevents drift like the stale-grid bug below. New `make vendor-css` `npm pack`s the pinned version
+(`PURE_CSS_VERSION` in the Makefile) and copies its `dist/css` into `priv/web/vendor/pure-css`;
+provenance README rewritten (it was itself stale, still describing `.pure-*`). Current bytes are
+byte-identical to `1.0.0-rc01`.
+
 ### Fixed — stale vendored grid (dead Yahoo `.pure-*`) (2026-08-04)
 
 pure-css replaced its legacy Yahoo PureCSS grid (`.pure-g`/`.pure-u-*`) with the native flexbox
