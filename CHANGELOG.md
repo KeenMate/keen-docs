@@ -6,6 +6,15 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Fixed — stale vendored grid (dead Yahoo `.pure-*`) (2026-08-04)
+
+pure-css replaced its legacy Yahoo PureCSS grid (`.pure-g`/`.pure-u-*`) with the native flexbox
+`pa-grid` (`.pa-row` / `.pa-col-{n}` 5% increments + `.pa-col-{x}-{y}` fractions + container-query
+responsive + auto-stack). keen-docs' vendored `grid.css` was never updated — it still shipped 462
+dead `.pure-*` rules and zero `.pa-*`. Re-vendored all three (`base`/`grid`/`utilities`) from the
+current pure-css build; fixed a stale `.pure-u-*` comment in `router.ex`. (Nothing rendered a grid
+class, so no visual change — it was dead weight served to every page.)
+
 ### Changed — harness chrome renamed `hz-*` → `kd-*`; more pure-css utilities (2026-08-04)
 
 Now that `kd-*` denotes keen-docs' own vocabulary (content is the engine's `km-*`), the harness
