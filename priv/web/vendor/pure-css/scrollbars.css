@@ -1,0 +1,32 @@
+/* Webkit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--pa-main-bg);
+  border-radius: var(--pa-border-radius-sm);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--pa-border-color);
+  border-radius: var(--pa-border-radius-sm);
+  border: 1px solid var(--pa-main-bg);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--pa-accent);
+}
+*::-webkit-scrollbar-thumb:active {
+  background: var(--pa-accent-hover);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--pa-main-bg);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--pa-border-color) var(--pa-main-bg);
+}

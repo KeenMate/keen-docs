@@ -1,0 +1,312 @@
+/* ============================================================================
+   pa-profile-panel — slide-in user panel (header + tabs + nav + favorites + footer).
+   VENDORED from @keenmate/pure-admin-core (packages/core/dist/css/main.css): the
+   self-contained `.pa-profile-panel*` block, plus the few generic rules it leans on
+   (`.pa-tabs__panel` show/hide, `.pa-scroll-lock`) and a SLIM `.pa-btn`/`.pa-badge`
+   shim (only the variants the panel uses) so we don't vendor the 250-line button
+   component. All colours are --pa-* (→ --base-*), so it themes per doc_set.
+   DO NOT hand-edit the panel block; re-extract on pure-admin core rebuild.
+   ============================================================================ */
+
+.pa-profile-panel {
+  position: fixed;
+  top: 0;
+  inset-inline-end: 0;
+  height: 100vh;
+  z-index: 5000;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease-out, visibility 0.25s ease-out;
+}
+.pa-profile-panel--open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
+.pa-profile-panel--open .pa-profile-panel__content {
+  transform: translateX(0);
+}
+.pa-profile-panel__overlay {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--pa-profile-overlay-bg);
+  cursor: pointer;
+}
+.pa-profile-panel__content {
+  position: absolute;
+  top: 0;
+  inset-inline-end: 0;
+  height: 100vh;
+  background-color: var(--pa-card-bg);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  transform: translateX(100%);
+  transition: transform 0.25s ease-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+[dir=rtl] .pa-profile-panel__content {
+  transform: translateX(-100%);
+}
+.pa-profile-panel__header {
+  padding: 2.4rem;
+  background-color: var(--pa-header-bg);
+  border-bottom: 1px solid var(--pa-border-color);
+  display: flex;
+  align-items: flex-start;
+  gap: 1.6rem;
+  position: relative;
+}
+.pa-profile-panel__header--no-avatar .pa-profile-panel__avatar {
+  display: none;
+}
+.pa-profile-panel__avatar {
+  width: 6.4rem;
+  height: 6.4rem;
+  background-color: var(--pa-accent-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pa-profile-panel__avatar-icon {
+  font-size: 3.2rem;
+  color: var(--pa-accent);
+}
+.pa-profile-panel__info {
+  flex: 1;
+  min-width: 0;
+  padding-inline-end: 3.2rem;
+}
+.pa-profile-panel__name {
+  margin: 0 0 0.4rem 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--pa-header-profile-name-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pa-profile-panel__email {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.4rem;
+  color: var(--pa-header-profile-name-color);
+  opacity: 0.75;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pa-profile-panel__close {
+  position: absolute;
+  top: 1.6rem;
+  inset-inline-end: 1.6rem;
+  width: 3.2rem;
+  height: 3.2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pa-text-color-2);
+  border-radius: var(--pa-border-radius);
+  transition: background-color 0.1s ease-out, color 0.1s ease-out;
+}
+.pa-profile-panel__close:hover {
+  background-color: var(--pa-accent-light);
+  color: var(--pa-accent);
+}
+.pa-profile-panel__close:focus {
+  outline: 2px solid var(--pa-accent);
+  outline-offset: 2px;
+}
+.pa-profile-panel__body {
+  flex: 1;
+  padding: 2.4rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3.2rem;
+  overflow-y: auto;
+}
+.pa-profile-panel__nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pa-profile-panel__nav li {
+  margin-bottom: 0.8rem;
+}
+.pa-profile-panel__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 0.8rem 1.6rem;
+  color: var(--pa-text-color-1);
+  text-decoration: none;
+  border-radius: var(--pa-border-radius);
+  transition: background-color 0.1s ease-out, color 0.1s ease-out;
+  font-weight: 500;
+}
+.pa-profile-panel__nav-item:hover {
+  background-color: var(--pa-accent-light);
+  color: var(--pa-accent);
+}
+.pa-profile-panel__nav-item:focus {
+  outline: 2px solid var(--pa-accent);
+  outline-offset: 2px;
+}
+.pa-profile-panel__nav-icon {
+  font-size: 1.6rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pa-profile-panel__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-top: auto;
+  padding: 0 1.6rem;
+}
+.pa-profile-panel__footer {
+  flex-shrink: 0;
+  padding: 2.4rem;
+  border-top: 1px solid var(--pa-border-color);
+  background-color: var(--pa-card-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.pa-profile-panel__tabs {
+  padding: 0 1.6rem;
+  border-bottom: 1px solid var(--pa-border-color);
+  background-color: var(--pa-header-bg);
+}
+.pa-profile-panel__tabs .pa-tabs {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+.pa-profile-panel__tabs .pa-tabs__item {
+  color: var(--pa-header-profile-name-color);
+  opacity: 0.6;
+  border-bottom-color: transparent;
+}
+.pa-profile-panel__tabs .pa-tabs__item:hover {
+  opacity: 0.85;
+  background-color: color-mix(in srgb, var(--pa-header-profile-name-color) 10%, transparent);
+}
+.pa-profile-panel__tabs .pa-tabs__item--active {
+  opacity: 1;
+  border-bottom-color: var(--pa-accent);
+}
+.pa-profile-panel__tabs--icon-only .pa-profile-panel__tab-text {
+  display: none;
+}
+.pa-profile-panel__favorites ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pa-profile-panel__favorites li {
+  margin-bottom: 0.8rem;
+}
+.pa-profile-panel__favorite-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 0.8rem 1.6rem;
+  color: var(--pa-text-color-1);
+  text-decoration: none;
+  border-radius: var(--pa-border-radius);
+  cursor: pointer;
+  transition: background-color 0.1s ease-out, color 0.1s ease-out;
+  font-weight: 500;
+}
+.pa-profile-panel__favorite-item:hover {
+  background-color: var(--pa-accent-light);
+  color: var(--pa-accent);
+}
+.pa-profile-panel__favorite-item:focus {
+  outline: 2px solid var(--pa-accent);
+  outline-offset: 2px;
+}
+.pa-profile-panel__favorite-icon {
+  font-size: 1.6rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pa-profile-panel__favorite-label {
+  flex: 1;
+}
+.pa-profile-panel__favorite-remove {
+  opacity: 0;
+  margin-inline-start: auto;
+  background: none;
+  border: none;
+  padding: 0.4rem;
+  color: var(--pa-text-color-2);
+  cursor: pointer;
+  border-radius: var(--pa-border-radius);
+  font-size: 1.4rem;
+  line-height: 1;
+  transition: opacity 0.1s ease-out, color 0.1s ease-out, background-color 0.1s ease-out;
+}
+.pa-profile-panel__favorite-remove:hover {
+  color: var(--pa-danger-bg);
+  background-color: var(--pa-danger-bg-light);
+}
+.pa-profile-panel__favorite-item:hover .pa-profile-panel__favorite-remove {
+  opacity: 1;
+}
+.pa-profile-panel__favorites-add {
+  margin-top: auto;
+  padding: 1.2rem 1.6rem 0;
+}
+
+@media (max-width: 768px) {
+  .pa-profile-panel__content {
+    width: 85vw;
+    max-width: 40rem;
+  }
+  .pa-header__profile-name {
+    display: none;
+  }
+}
+
+/* --- generic bits the panel depends on (from pa-tabs, utilities) --- */
+.pa-tabs__panel { display: none; padding-top: 0.8rem; }
+.pa-tabs__panel--active { display: block; }
+.pa-scroll-lock { overflow-y: scroll !important; }
+
+/* --- slim pa-btn / pa-badge shim (only the variants the panel uses) --- */
+.pa-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.8rem;
+  vertical-align: middle; height: 3.5rem; padding: 0.8rem 1.2rem;
+  border: 1px solid transparent; border-radius: var(--pa-border-radius);
+  font-size: 1.4rem; font-weight: 500; text-align: center; text-decoration: none;
+  cursor: pointer; transition: all 0.1s ease-out; background: none; color: var(--pa-text-color-1);
+}
+.pa-btn--sm { height: 3.3rem; padding: 0.8rem 1rem; font-size: 1.4rem; }
+.pa-btn--block { width: 100%; display: flex; }
+.pa-btn--secondary { background-color: transparent; border-color: var(--pa-border-color); color: var(--pa-text-color-1); }
+.pa-btn--secondary:hover { background-color: var(--pa-main-bg); border-color: var(--pa-accent); }
+.pa-btn--danger { background-color: var(--pa-btn-danger-bg); border-color: var(--pa-btn-danger-bg); color: var(--pa-btn-danger-text); }
+.pa-btn--danger:hover { background-color: var(--pa-btn-danger-bg-hover); border-color: var(--pa-btn-danger-bg-hover); }
+.pa-btn--outline-secondary { background-color: transparent; border-color: var(--pa-btn-secondary-outline-color); color: var(--pa-btn-secondary-outline-color); }
+.pa-btn--outline-secondary:hover { background-color: var(--pa-btn-secondary-bg); color: var(--pa-btn-secondary-text); }
+.pa-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.8rem;
+  background-color: var(--pa-btn-secondary-bg); color: var(--pa-btn-secondary-text);
+  font-size: 1.2rem; line-height: 1; white-space: nowrap; border-radius: var(--pa-border-radius);
+  border: 1px solid transparent;
+}

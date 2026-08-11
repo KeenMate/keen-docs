@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>keen-docs · design directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel-2:#1c2230; --border:#2a3140;
+    --text:#e6edf3; --muted:#8b949e; --accent:#22d3ee; --accent-2:#7c5cff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,sans-serif;background:
+       radial-gradient(1200px 600px at 80% -10%, rgba(124,92,255,.20), transparent 60%),
+       radial-gradient(1000px 500px at 0% 0%, rgba(34,211,238,.16), transparent 55%),
+       var(--bg);
+       color:var(--text);min-height:100vh}
+  .wrap{max-width:1180px;margin:0 auto;padding:3.5rem 1.5rem 5rem}
+  header.hero{margin-bottom:2.5rem}
+  .kicker{font-size:.75rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 .7rem}
+  h1{font-size:2.5rem;line-height:1.1;margin:0 0 .6rem;font-weight:800;letter-spacing:-.02em}
+  h1 span{background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:1.05rem;color:var(--muted);max-width:44rem;margin:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.4rem;margin-top:2.4rem}
+  .card{position:relative;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--panel-2),var(--panel));
+        border:1px solid var(--border);border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;
+        transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease}
+  .card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--accent) 60%,var(--border));
+        box-shadow:0 18px 44px rgba(0,0,0,.45)}
+  .swatch{height:150px;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+  .swatch .mock{position:absolute;inset:0;padding:14px;display:flex;gap:8px}
+  .mock .side{width:32%;border-radius:8px}
+  .mock .main{flex:1;border-radius:8px;display:flex;flex-direction:column;gap:7px;padding:10px}
+  .mock .bar{height:9px;border-radius:4px}
+  .mock .wide{height:26px;border-radius:6px}
+  .body{padding:1.1rem 1.2rem 1.3rem}
+  .name{display:flex;align-items:center;gap:.55rem;font-size:1.12rem;font-weight:700;margin:0 0 .3rem}
+  .tag{font-size:.66rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
+       border:1px solid var(--border);border-radius:999px;padding:.12rem .5rem}
+  .desc{font-size:.9rem;color:var(--muted);margin:.2rem 0 1rem;line-height:1.55}
+  .open{display:inline-flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:600;color:var(--accent)}
+  .card:hover .open{gap:.65rem}
+  footer{margin-top:3rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);padding-top:1.4rem}
+  code{background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:.08rem .4rem;font-size:.85em}
+
+  /* per-swatch palettes */
+  .s-aurora{background:linear-gradient(135deg,#eef2ff,#ffffff 55%,#f5f0ff)}
+  .s-aurora .side{background:#f5f7fb;border:1px solid #e6e8ef}
+  .s-aurora .main{background:#fff;border:1px solid #eef0f5}
+  .s-aurora .wide{background:linear-gradient(90deg,#007bff,#7c5cff)}
+  .s-aurora .bar{background:#e6e9f2}.s-aurora .bar.a{background:#cdd7ff;width:60%}
+
+  .s-terminal{background:#0b0f17}
+  .s-terminal .side{background:#0d1117;border:1px solid #232a35}
+  .s-terminal .main{background:#0d1117;border:1px solid #232a35}
+  .s-terminal .wide{background:linear-gradient(90deg,#22d3ee,#3fb950);box-shadow:0 0 14px rgba(34,211,238,.5)}
+  .s-terminal .bar{background:#1e2632}.s-terminal .bar.a{background:#134e4a;width:55%;box-shadow:0 0 8px rgba(34,211,238,.4)}
+
+  .s-editorial{background:#fbfbfa}
+  .s-editorial .side{background:#fff;border:1px solid #eceef1}
+  .s-editorial .main{background:#fff;border:1px solid #eceef1}
+  .s-editorial .wide{background:#1f2937;width:70%}
+  .s-editorial .bar{background:#eef0f3}.s-editorial .bar.a{background:#cfe0ff;width:45%}
+
+  .s-brand{background:linear-gradient(135deg,#00a7e1,#007bff 70%)}
+  .s-brand .side{background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.6)}
+  .s-brand .main{background:#fff;border:1px solid rgba(255,255,255,.6)}
+  .s-brand .wide{background:linear-gradient(90deg,#00a7e1,#007bff)}
+  .s-brand .bar{background:#e6eef7}.s-brand .bar.a{background:#bfe3f5;width:58%}
+
+  .s-glass{background:
+     radial-gradient(400px 220px at 15% 20%, rgba(34,211,238,.55), transparent 60%),
+     radial-gradient(420px 240px at 85% 15%, rgba(124,92,255,.55), transparent 60%),
+     radial-gradient(380px 260px at 60% 95%, rgba(23,162,184,.5), transparent 60%),
+     #0d1220}
+  .s-glass .side{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px)}
+  .s-glass .main{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px)}
+  .s-glass .wide{background:linear-gradient(90deg,#22d3ee,#7c5cff)}
+  .s-glass .bar{background:rgba(255,255,255,.18)}.s-glass .bar.a{background:rgba(255,255,255,.4);width:55%}
+
+  /* DHL */
+  .s-dhl{background:#FFCC00}
+  .s-dhl .side{background:#fff;border:1px solid #f0e2a0}
+  .s-dhl .main{background:#fff;border:1px solid #f0e2a0}
+  .s-dhl .wide{background:#D40511}
+  .s-dhl .bar{background:#eef0f3}.s-dhl .bar.a{background:#ffe08a;width:58%;box-shadow:inset 0 0 0 1px #D40511}
+  .s-dhlp{background:#12151c}
+  .s-dhlp .side{background:#fff;border:1px solid #e3e5ea}
+  .s-dhlp .main{background:#fff;border:1px solid #e3e5ea}
+  .s-dhlp .wide{background:#D40511}
+  .s-dhlp .bar{background:#eef0f3}.s-dhlp .bar.a{background:#fff;width:52%;box-shadow:inset 3px 0 0 #FFCC00, inset 0 0 0 1px #eee}
+
+  /* section heading + full-width badge */
+  .section-h{grid-column:1/-1;margin:2.6rem 0 .2rem;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .fw{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));color:var(--accent)}
+  .logo-badge{position:absolute;top:10px;left:12px;font:900 italic 20px/1 'Arial Black',Arial,sans-serif;color:#D40511;letter-spacing:-1px;
+     background:#FFCC00;padding:3px 8px;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .s-dhlp .logo-badge{top:10px;left:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">keen-docs · visual exploration</p>
+    <h1>Eight directions for a <span>more professional</span> docs site</h1>
+    <p class="lede">Each mockup renders the <em>same real page</em> — the <code>web-multiselect</code> “Form Integration”
+       guide, with its live-demo showcase, 80/20 layout, code blocks, callouts, table and card — so you're comparing
+       pure aesthetics, not content. The second row shows <strong>full-width</strong> 3-pane layouts, including two
+       <strong>DHL-branded</strong> imaginings of <em>docs.dhl.com</em>. Click any card to open it full-screen, then tell me
+       which one (or which mix of ideas) to build into the real harness.</p>
+  </header>
+
+  <div class="grid">
+    <p class="section-h">Contained column · original set</p>
+    <a class="card" href="aurora.html">
+      <div class="swatch s-aurora"><div class="mock"><div class="side"></div><div class="main">
+        <div class="wide"></div><div class="bar a"></div><div class="bar"></div><div class="bar"></div></div></div></div>
+      <div class="body">
+        <p class="name">Aurora <span class="tag">light · saas</span></p>
+        <p class="desc">Airy modern-SaaS look — Inter, soft layered shadows, subtle blue→violet gradient accents. Calm, premium, Linear/Stripe-adjacent.</p>
+        <span class="open">Open mockup →</span>
+      </div>
+    </a>
+
+    <a class="card" href="terminal.html">
+      <div class="swatch s-terminal"><div class="mock"><div class="side"></div><div class="main">
+        <div class="wide"></div><div class="bar a"></div><div class="bar"></div><div class="bar"></div></div></div></div>
+      <div class="body">
+        <p class="name">Midnight Terminal <span class="tag">dark · devtool</span></p>
+        <p class="desc">Dark-first developer-tool vibe — deep bg, neon cyan/green accents, monospace UI, glowing focus. Warp/Railway energy.</p>
+        <span class="open">Open mockup →</span>
+      </div>
+    </a>
+
+    <a class="card" href="editorial.html">
+      <div class="swatch s-editorial"><div class="mock"><div class="side"></div><div class="main">
+        <div class="wide"></div><div class="bar a"></div><div class="bar"></div><div class="bar"></div></div></div></div>
+      <div class="body">
+        <p class="name">Editorial <span class="tag">light · reading</span></p>
+        <p class="desc">Content-first and typographic — Fraunces headings + Inter body, hairline borders, one restrained accent. Tailwind/Vercel-docs calm.</p>
+        <span class="open">Open mockup →</span>
+      </div>
+    </a>
+
+    <a class="card" href="brand.html">
+      <div class="swatch s-brand"><div class="mock"><div class="side"></div><div class="main">
+        <div class="wide"></div><div class="bar a"></div><div class="bar"></div><div class="bar"></div></div></div></div>
+      <div class="body">
+        <p class="name">KeenMate Bold <span class="tag">light · branded</span></p>
+        <p class="desc">Confident brand presence — gradient hero band, colored card-header bars, punchy KeenMate blue. Energetic but readable.</p>
+        <span class="open">Open mockup →</span>
+      </div>
+    </a>
+
+    <a class="card" href="glass.html">
+      <div class="swatch s-glass"><div class="mock"><div class="side"></div><div class="main">
+        <div class="wide"></div><div class="bar a"></div><div class="bar"></div><div class="bar"></div></div></div></div>
+      <div class="body">
+        <p class="name">Glass / Neo <span class="tag">dark · glassmorphism</span></p>
+        <p class="desc">Flashy gradient-mesh background with frosted <code>backdrop-blur</code> panels. Modern, futuristic — kept high-contrast for readability.</p>
+        <span class="open">Open mockup →</span>
+      </div>
+    </a>
+
+    <p class="section-h">Full-width · 3-pane app shell</p>
+
+    <a class="card" href="dhl.html">
+      <div class="swatch s-dhl"><span class="logo-badge">DHL</span><div class="mock" style="padding-top:34px"><div class="side"></div><div class="main">
+        <div class="wide"></div><div class="bar a"></div><div class="bar"></div><div class="bar"></div></div></div></div>
+      <div class="body">
+        <p class="name">DHL Corporate <span class="tag fw">full-width · dhl</span></p>
+        <p class="desc"><em>docs.dhl.com</em> imagined — signature DHL yellow top bar with the red logo, red accents, Archivo headings. Full-width enterprise 3-pane shell.</p>
+        <span class="open">Open mockup →</span>
+      </div>
+    </a>
+
+    <a class="card" href="dhl-portal.html">
+      <div class="swatch s-dhlp"><span class="logo-badge">DHL</span><div class="mock" style="padding-top:34px"><div class="side"></div><div class="main">
+        <div class="wide"></div><div class="bar a"></div><div class="bar"></div><div class="bar"></div></div></div></div>
+      <div class="body">
+        <p class="name">DHL Developer Portal <span class="tag fw">full-width · dhl</span></p>
+        <p class="desc"><em>developer.dhl.com</em> — restrained Stripe/Twilio-grade dev portal in DHL colors: white chrome, a slim yellow accent stripe, red emphasis. Technical & precise.</p>
+        <span class="open">Open mockup →</span>
+      </div>
+    </a>
+
+    <a class="card" href="aurora-wide.html">
+      <div class="swatch s-aurora"><div class="mock"><div class="side" style="width:24%"></div><div class="main">
+        <div class="wide"></div><div class="bar a"></div><div class="bar"></div><div class="bar"></div></div><div class="side" style="width:18%"></div></div></div>
+      <div class="body">
+        <p class="name">Aurora — Wide <span class="tag fw">full-width · saas</span></p>
+        <p class="desc">The Aurora look stretched into a spacious full-width dashboard shell — left nav, fluid content, right “On this page” TOC. Same calm premium feel, more room.</p>
+        <span class="open">Open mockup →</span>
+      </div>
+    </a>
+
+    <p class="section-h">Rebuilt on the real pure-css / keen-docs structure</p>
+
+    <a class="card" href="aurora-real.html">
+      <div class="swatch s-aurora"><div class="mock"><div class="side"></div><div class="main">
+        <div class="wide"></div><div class="bar a"></div><div class="bar"></div><div class="bar"></div></div><div class="side" style="width:18%"></div></div></div>
+      <div class="body">
+        <p class="name">Aurora — real <span class="tag fw">live DOM · pa-*/kd-*</span></p>
+        <p class="desc">The Aurora look re-authored as an <strong>override on <code>core.css</code></strong>, skinning the <em>actual</em> DOM the app renders (captured live from <code>/web-multiselect/…/form-integration</code>). No invented markup — this is what a real theme produces.</p>
+        <span class="open">Open mockup →</span>
+      </div>
+    </a>
+
+    <a class="card" href="dhl-pure.html">
+      <div class="swatch s-dhl"><span class="logo-badge">DHL</span><div class="mock" style="padding-top:34px"><div class="side"></div><div class="main">
+        <div class="wide"></div><div class="bar a"></div><div class="bar"></div><div class="bar"></div></div><div class="side" style="width:18%"></div></div></div>
+      <div class="body">
+        <p class="name">DHL Corporate — real <span class="tag fw">live DOM · pa-*/kd-*</span></p>
+        <p class="desc">DHL identity as an override on <code>core.css</code> over the real structure — yellow navbar, red accents, Archivo, dark footer. Compare directly with the fantasy <code>dhl.html</code>.</p>
+        <span class="open">Open mockup →</span>
+      </div>
+    </a>
+  </div>
+
+  <footer>
+    Standalone mockups — open directly in a browser, no server needed. The live component is drawn as a static facsimile.
+    Once you pick, I'll port the winning direction into the real <code>KeenDocs.Web.View</code> chrome + <code>keendocs.css</code>.
+  </footer>
+</div>
+</body>
+</html>

@@ -6,6 +6,212 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Added — reader settings panel (pure-admin offcanvas), sidebar-resize as a setting (2026-08-11)
+
+Ported pure-admin's floating **settings panel** — the gear-tab offcanvas drawer, styled entirely by
+the already-vendored `core.css` (`.pa-settings-panel*` + `.pa-checkbox`), so this is markup + JS +
+wiring with no new CSS. Scoped to the preferences keen-docs actually supports (no theme-manifest
+fetch / container-width / RTL / profile options from pure-admin's demo panel — the theme stays
+server-resolved per doc_set / config).
+
+- **Controls** — Appearance (Auto/Light/Dark), Font size (rescales the `<html>` rem base via core's
+  `.font-size-*`; default 10px = keen-docs' base), Font family (`--base-font-family` override, Google
+  fonts pulled on demand), Sidebar (Docked/Hidden + a Resizable checkbox), and Reset to defaults. All
+  persist to `kd-*` `localStorage` and apply **without a reload**.
+- **Sidebar resize is now a setting** — the aside no longer hardcodes `pa-layout__sidebar--resizable`;
+  the panel adds/removes it (default **on**, preserving prior behavior) and (re)inits or strips the
+  vendored `sidebar-resize.js` handle. "Hidden" toggles `body.sidebar-hidden` (core collapses the
+  docked sidebar to reclaim reading width; independent of the mobile `sidebar-visible` burger overlay).
+- **No-flash restore** — `pref_init_js` (renamed from `mode_init_js`) now restores **both** the colour
+  mode and the font-size class in the `<head>` pre-paint, since both toggle a class on `<html>` and
+  restoring them from the end-of-body panel script would reflow. The panel only reflects these into its
+  controls; font-family + sidebar states (which don't reflow) are restored by the panel script.
+- **Serving** — the panel driver is keen-docs' own `priv/web/keendocs/settings-panel.js` (its control
+  set differs from pure-admin's demo, so it's *not* vendored), served via a new `/keendocs/:file` route.
+- Verified end-to-end (Playwright): open/close (toggle + outside-click), each control's effect + its
+  `localStorage` key, pre-paint mode/font-size restoration on reload, panel reflecting persisted state,
+  and the resizable-off setting suppressing the handle across a reload.
+
+### Fixed — adopted pure-admin's real app-shell sidebar; killed the navbar overlap (2026-08-10)
+
+Three navbar/sidebar defects surfaced together (thin sidebar, sidebar not reaching the footer,
+navbar items overlapping the search). All three were keen-docs *diverging* from pure-admin's own
+layout rather than using it — so the fix was to converge, again.
+
+- **Full-height sidebar (app-shell)** — switched the page to pure-admin's **sticky layout mode**
+  (`<body class="pa-layout--sticky">`). The aside is now a stretched flex child spanning
+  header→footer with its own internal scroll (verified: aside bottom = footer top at every width);
+  the footer stays pinned. Removed the harness override (`.pa-layout__sidebar{position:sticky;
+  align-self:flex-start;max-height}`) whose `align-self:flex-start` was collapsing the sidebar to its
+  content height. **Behavioural note:** content now scrolls inside `.pa-layout__content`, not the
+  window — the faithful pure-admin admin-shell model.
+- **Resizable sidebar + real width** — the aside carries `pa-layout__sidebar--resizable` and we
+  vendored pure-admin's `sidebar-resize.js` (drag handle, min 18rem / max 50rem, `localStorage`,
+  double-click reset; writes `--pa-local-sidebar-width`). The harness now pins the width to that var
+  so it beats core's `@media(769–1024px){width:16rem}` tablet reduction — which was the "very thin"
+  (160px) sidebar. Core's ≤768 auto-hide (burger overlay) still wins on specificity.
+- **Navbar overlap → honest collapse** — the top-nav *was* collapsing by real measurement, but the
+  search still overlapped items by 37–66px. Root cause: the search's `min-width:18rem` sat on the
+  input (a grandchild), so flexbox only reserved `.pa-header__center`'s own `min-width:0`, let center
+  grow to a sliver, and the search overflowed onto `start`/`end` — a deficit `navbar-collapse.js`
+  couldn't see (it measures the nav's slot, which never shrank). Fix: move the reserve onto the
+  **flex item** (`.pa-header__center{min-width:18rem}`, search `min-width:0`). Now flex shrinks
+  `start` → the nav's slot shrinks → the collapse folds items into the sidebar until the search fits.
+  Result: a clean 16px gap on both sides across 561–1400px, search keeps 186–252px, nav folds
+  5→4→3→2→1 as space tightens. Also shed the ~190px stacked brand wordmark to the logo alone below
+  1150px (`@media(max-width:1150px){.kd-brand-label{display:none}}`) so the fold has room before it
+  starts.
+- **Vendoring** — `make vendor-pa-core` now also copies `navbar-collapse.js` and `sidebar-resize.js`
+  from `../pure-admin`, so the three vendored artifacts re-sync together (README updated).
+
+### Changed — converged navbar/sidebar onto pure-admin rc09 (navbar-collapse.js), dropping our hand-rolled overflow (2026-08-08)
+
+pure-admin rc09 shipped a first-class version of exactly what we'd hand-rolled (*"responsive navbar
+collapse + nav active state + sidebar section"*), and it even uses the class names we'd invented. Rather
+than maintain two implementations, we adopted pure-admin's as-is — the navbar/sidebar are now **one
+implementation**, not a parallel keen-docs copy.
+
+- **Baseline bump** — re-vendored `core.css` from pure-admin **2.9.0-rc11** (`make vendor-pa-core`),
+  which brings `.pa-header__nav-item--active` (a currentColor pill), `.pa-sidebar__section`,
+  `.pa-sidebar__divider`, and the `data-pa-nav-collapse` layout contract (nav `overflow:visible` +
+  shrinkable `pa-header__start`).
+- **Vendored `navbar-collapse.js`** (rc09, self-contained vanilla JS, `ResizeObserver`, auto-init,
+  `window.PaNavCollapse`) → `priv/web/vendor/pure-admin/`, served by `/vendor/pure-admin/:file` (now
+  content-type-by-extension) and `<script>`-loaded at body end. It's progressive enhancement: the SSR
+  output is unchanged/deterministic; the JS only reflows client-side by viewport.
+- **Priority-driven overflow → sidebar** — the top-nav carries `data-pa-nav-collapse="sidebar"` +
+  `data-pa-nav-collapse-target="#kd-nav-overflow"`; as the header narrows the JS folds the
+  lowest-priority items into the sidebar under a "Browse" `.pa-sidebar__section` (leaves → links,
+  dropdowns → collapsible toggle groups), and restores them as it widens. Replaces our all-or-nothing
+  CSS breakpoint with real per-item measurement. rc11 dropped the old auto-pin of the active item, so we
+  pin it ourselves — `top_nav_html` emits `data-pa-nav-priority="100"` on the current section, keeping it
+  on the bar while the rest collapse first.
+- **Sidebar everywhere** — `layout/3` always renders a sidebar host containing the overflow target, so
+  even sidebar-less pages (the hub) receive the fold-in. The empty host and an otherwise-empty aside
+  self-hide via `:has()`, so the hub reads full-width until items actually overflow, then *grows* a
+  sidebar. (Answers the standing point that pure-admin assumes a sidebar exists.)
+- **Injected-block polish** — the folded-in "Browse" items now match the doc-nav look: no bullet icons
+  (`data-pa-nav-collapse-icon=""`), the dropdown caret is a CSS `::after` (not text) so rc11's `labelOf()`
+  can't copy it into the rebuilt label (was showing our ▾ *and* the sidebar chevron — a double toggle),
+  toggle rows share the link padding token, and the populated overflow host gets `margin-bottom` so it
+  isn't crammed against the version pill. Also aligned a folded group's toggle label with the leaf links:
+  the DHL theme moves the active bar to `border-inline-start` on `.pa-sidebar__link` (a 3px left inset)
+  but not `.pa-sidebar__toggle`, so the toggle label sat 3px left — DHL now applies the same border to
+  both. Doc-nav section headings are native `.pa-sidebar__section` (DHL restyled from the old `kd-nav-section`).
+- **Removed** the hand-rolled `sidebar_hubnav_html`/`hub_target`, the `kd-sidebar-hubnav` +
+  `kd-nav-section` CSS, the custom `.pa-header__nav-item--active` rule, and the `@media` that hid
+  `.pa-header__nav` — all superseded by the native mechanism. Doc-nav section headings are now native
+  `.pa-sidebar__section`.
+
+
+### Changed — navbar rebuilt on pure-admin's own components + declarative `header` block (2026-08-06)
+
+The navbar was the least pure-admin-native part of the chrome (bespoke `kd-topnav`/`kd-dd`/`kd-search`
+in pure-admin's slots). Rebuilt it on pure-admin's **own** components and made its composition
+theme-declarative (DHL stress-test gap #2). See `docs/theme-stress-test-dhl.md`.
+
+- **Native nav** — `top_nav_html` now emits `pa-header__nav > ul > li > a` with a nested
+  `ul.pa-header__dropdown` for sections; the dropdown reveals on hover via pure-admin's CSS, **no JS**.
+  Removed the `kd-topnav`/`kd-top-link`/`kd-dd*` widgets and their harness CSS.
+- **Native search** — the header search is now pure-admin's `.pa-navbar-search` box (icon · input · `/`
+  kbd). Bend: a real submittable `<input>` sits where its placeholder span would (`.pa-navbar-search__input`).
+- **`header` render-block** (contract v1.0) — chooses what occupies the bar: `nav` (`hub`|`off`),
+  `links` (`show`|`off`), `resolve`/`modeToggle`/`profile` bools, and `cta: {label, url, icon, style}`
+  (a `pa-btn--<style>` call-to-action). `View.header_end_html/2` composes `pa-header__end` from it.
+- **Active top-nav** (DHL gap #3) — `top_nav_html/1` marks the current doc_set's top node
+  `pa-header__nav-item--active` (a leaf matches its own `doc_set_code`; a section matches when a child
+  does, so "Components" lights up under web-multiselect). Styled accent-underline + bold, themeable via
+  `--pa-accent`/`--pa-header-text` (DHL → red underline).
+- **Finding** — pure-admin's header is a fixed 3-slot flex with `flex-shrink:0` start/end, so too many
+  items crush the centred search; the fix is compositional (the `header` block), not CSS. DHL sets
+  `links:off, resolve:false, cta:GitHub` → the search is no longer squished.
+
+### Changed — responsive navbar: stacked brand + navbar→sidebar overflow (2026-08-06)
+
+Follow-up to the navbar rebuild, making the bar hold up as it narrows (it was cramming ~940px).
+
+- **Stacked brand** — the wordmark is now the theme label over a small doc_set line (`kd-brand-label` >
+  `kd-brand-set`), divided from the logo by a left rule (matches the DHL mockup). Sizes tunable via
+  `--pa-brand-label-size` / `--pa-brand-set-size` / `--pa-brand-divider` (defaults 12px / 10px).
+- **Navbar→sidebar overflow** — instead of the hub nav just vanishing at narrow widths, it renders a
+  second time as the sidebar's first block (`kd-sidebar-hubnav`, a "Browse" group), hidden at wide
+  widths and CSS-revealed at ≤1024px — the same breakpoint where `pa-header__nav` hides. So the items
+  **move into the sidebar** rather than becoming unreachable. Deterministic (both copies are SSR'd; CSS
+  chooses which shows) — no JS overflow measurement. `View.sidebar_hubnav_html/1`.
+- **Progressive shedding** — as the bar narrows it drops least-important-first: `≤1200px` utility links
+  (Resolve/`header_links`), `≤1024px` the top nav (→ sidebar) + CTA label (→ icon only), `≤560px` the
+  centred search + brand suffix. Widths are tunable; the *order* is the design.
+- **Note** — this is the answer to "pure-admin was never designed to work *without* a sidebar": keen-docs
+  pairs navbar + sidebar and treats the sidebar as the navbar's overflow surface.
+
+### Added — DHL theme driven to 1:1: render extensions + spacing tokens (2026-08-06)
+
+A stress-test — reproduce the hand-drawn `design/dhl.html` mockup **on the real render system** (theme
+= overlay skinning the actual `pa-*`/`kd-*`/`km-*` DOM) — to find what the theming/render system must
+expose. Iterated with a Playwright screenshot+computed-style loop (`tmp/pw/`, gitignored). Catalogued in
+**`docs/theme-stress-test-dhl.md`**. New capabilities, all render-block-declarative:
+
+- **Brand slot** — `keendocs.brand: {logo, label}` → `View.brand_html/2` renders a theme logo (a theme
+  asset served at `/themes/<id>/assets/…`) + label in place of the hardcoded `keen-docs` wordmark. DHL
+  ships `dhl-logo.svg` + "Developer Docs".
+- **`versionControl` render block** — a theme can render the version switcher as a live
+  `<web-multiselect multiple="false">` instead of a native `<select>` (dogfooding): `{type, module,
+  style, label}`. `View.version_selector/5` emits the package pill + component; the module/style load in
+  the head (before the theme CSS so the theme's palette wins); navigate-on-change in `layout_js`.
+- **Sidebar spacing-token layer** — the systemic finding: the `--pa-*`/`--base-*` contract covered
+  colours but **hardcoded spacing** as literals, forcing selector overrides. `harness_css` now drives
+  sidebar layout off `--pa-sidebar-*` tokens (padding, nav-padding, item-gap, link-padding/font-size,
+  section-margin/indent/font-size) with defaults in the `var()` fallbacks. A theme tunes layout by
+  setting a few tokens (DHL sets 3) instead of overriding selectors; every theme gets the fixed defaults
+  (proper padding, aligned section headers, no core `.pa-sidebar__nav` top gap).
+- **Sidebar nav alignment** — `View.sidebar_html` no longer indents section-grouped leaves per level
+  (level-2 leaves aligned with ungrouped level-1 like "Overview"); only genuine level-3+ nesting indents.
+- **web-multiselect nav reorder** — the example doc_set's nav now leads with a `Project` section holding
+  Overview + the doc-set-wide changelog/migration (edited `999_examples.sql` `ensure_doc_nav` calls +
+  applied surgically to the live DB). Confirms section names/order are **per-doc_set seed data**, never
+  hardcoded.
+- Findings logged for follow-up: an embedded `<web-multiselect>` **writes `--base-*` onto `:root`** on
+  upgrade (clobbers the theme accent — dodged via `--pa-accent`); and a **stray `*/` inside a CSS comment**
+  silently truncates a rule (bit us twice — a lint belongs in the future keendocs CLI's contract check).
+
+### Added — keen-docs themes (Aurora, DHL) as override-on-core skins (2026-08-05)
+
+keen-docs' own themes are the **design directions** in `design/*.html` (aurora, brand, editorial,
+terminal, glass, dhl…), authored as **overlays on the vendored `core.css`** — a `theme.json` with
+`"base": "core"` + a `dist/<id>.css` that reskins the *real* DOM via `--pa-*`/`--base-*` overrides +
+`html.pa-mode-dark`, no SCSS build. (The copied pure-admin bundles — nato/dracula/corporate — were only
+to prove the mechanism; they're **standalone** bundles that replace `core.css`. `KeenDocs.Themes.overlay?/1`
+picks the delivery per theme.) Aurora (airy modern-SaaS) and DHL (yellow/red, Archivo) both ship live;
+`design/aurora.css` + the static `aurora-real.html`/`dhl-pure.html` were the authoring previews (built by
+capturing the real rendered DOM and skinning it, so they never diverge from real markup).
+
+### Added — Declarative theme render layer (the `keendocs` render block) (2026-08-05)
+
+Beyond CSS, a theme carries a small **declarative** page-assembly block (contract v1.0) that `View.layout/3`
+interprets — no theme-supplied code (keeps the deterministic/no-RCE invariants). `KeenDocs.Themes.render_block/1`
+deep-merges baseline defaults ← `keendocs.json` per-theme block ← the theme's own `theme.json` `keendocs`.
+Vocabulary: `pageHead` (hero/crumbs/badges), `toc` (off/inline/right-rail, from the doc's headings),
+`regions` (sidebar/footer/search toggles), `layout` variant class, `fonts` (`<link>` + `--base-font-family*`),
+`brand`, `versionControl`. Defaults reproduce the baseline exactly (a themeless page is byte-identical).
+Router migrated its `hero:` callers to `page:` + `toc:` data — the doc supplies *what*, the theme decides
+*how*. Full vocabulary table in `docs/themes.md`.
+
+### Added — Theme bundles: pure-admin's theme mechanism, keendocs-flavoured (2026-08-05)
+
+keen-docs replicates pure-admin's whole theming mechanism. Baseline is the single vendored **`core.css`**
+framework bundle (`make vendor-pa-core`, served at `/vendor/pure-admin/:file`) — it carries the 10px rem
+base, reset, grid, utilities, all `pa-*` chrome and a baked light palette, so `View.styles/1` links one
+sheet instead of the old hand-extracted `layout.css`/`profile-panel.css` fragments (now unreferenced,
+pending removal). Themes are declared in **`keendocs.json`** (`themesDir` + `source` + `themes`), installed
+under `priv/web/vendor/themes/<id>/` (`theme.json` + `dist/<id>.css` + `assets/`), served at
+`/themes/:id/dist/:file` + `/themes/:id/assets/*`. **`KeenDocs.Themes`** answers which themes exist/where
+(`declared`/`installed?`/`overlay?`/`local?`/`read`/`render_block`) and `seed_from/1` (+ `make seed-themes`)
+copies the pure-admin sample bundles from `../pure-admin-themes` (writing `keendocs.lock.json`). Selection:
+`config :keen_docs, :theme` globally, overridable per doc_set via `settings["theme"]["id"]` (which also
+carries the existing `accent`/`vars` micro-override); `nil`/uninstalled → the core baseline. Modes work
+theme-agnostically (bundles scope dark as a bare `.pa-mode-dark`, toggled on `<html>`). The plan of record
+lives in **`docs/themes.md`** (Phases 1–3 done; 4 = the keendocs CLI, 5 = cleanup).
+
 ### Fixed — dark-mode readability: card headers & error blocks (2026-08-04)
 
 Card headers were white-on-light (unreadable) in dark mode: `.km-card__header` used

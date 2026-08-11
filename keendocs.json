@@ -1,0 +1,24 @@
+{
+  "$comment": "keen-docs theme manifest — mirrors pure-admin's pureadmin.json. Declares which pure-admin theme bundles keen-docs installs and where. `make seed-themes` (the manual stand-in for the future `keendocs themes install`) copies each declared theme's bundle from ../pure-admin-themes into themesDir and writes keendocs.lock.json. A doc_set selects one via settings.theme.id; the global default is config :keen_docs, :theme. No selection → the vendored pure-admin core.css baseline.",
+  "themesDir": "priv/web/vendor/themes",
+  "source": "../pure-admin-themes",
+  "themes": {
+    "aurora": {
+      "local": true
+    },
+    "nato": {
+      "keendocs": {
+        "contract": "1.0",
+        "toc": {
+          "show": true,
+          "placement": "right-rail"
+        }
+      }
+    },
+    "dracula": {},
+    "corporate": {},
+    "dhl": {
+      "local": true
+    }
+  }
+}

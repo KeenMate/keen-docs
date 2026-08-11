@@ -200,6 +200,26 @@ then **swap** sentinels back into real HEEx. This blocks RCE via `{6*7}`, `<%= %
 while keeping legit components and vars working. **XSS is a separate axis** — raw author HTML (`<script>`)
 still passes with `unsafe: true`; sanitize (ammonia / `unsafe: false`) if content is ever untrusted.
 
+### Theming & themes — built (plan of record: [`docs/themes.md`](./docs/themes.md))
+
+keen-docs replicates **pure-admin's whole theming mechanism**, extended: a theme is a CSS bundle **plus**
+a small **declarative render layer**. Baseline = the vendored pure-admin **`core.css`** framework bundle;
+themes install under `priv/web/vendor/themes/<id>/` and are declared in `keendocs.json` (mirrors
+`pureadmin.json`). Two delivery kinds (`KeenDocs.Themes.overlay?/1`): **standalone** bundles that replace
+`core.css` (the copied pure-admin samples), and **overlay** themes (`theme.json` `"base":"core"`) that
+layer a skin on core — the model for keen-docs' own themes, authored from the **design directions**
+(`design/*.html`) against the *real* `pa-*`/`kd-*`/`km-*` DOM (Aurora, DHL ship live). Selection:
+`config :keen_docs, :theme` + per-doc_set `settings.theme.id`.
+
+The **render layer** (`keendocs` block in `theme.json`, interpreted by `View.layout/3`, contract v1.0,
+deep-merged defaults) is declarative and bounded — no theme code, preserving the RCE-safe invariant above.
+It drives page-head (hero/crumbs/badges), TOC placement, region toggles, layout variant, fonts, the navbar
+**brand slot**, and the **version control** (which can be rendered as a live `<web-multiselect>`). A
+spacing-token layer (`--pa-sidebar-*`, defaults in `var()` fallbacks) makes *layout* theme-tunable, not
+just colour. The DHL 1:1 stress-test that shook these out (and the remaining findings — configurable
+header, active nav, upstreaming the spacing tokens, embedded-component `--base-*` hygiene) is in
+[`docs/theme-stress-test-dhl.md`](./docs/theme-stress-test-dhl.md).
+
 ## 6. Decisions locked
 
 - CLI runtime: **Node** (npm `@keenmate/keendocs`).

@@ -1,0 +1,94 @@
+html {
+  font-size: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 2.4rem 0 0.8rem 0;
+  padding: 0;
+}
+
+p {
+  margin: 0 0 1.6rem 0;
+  padding: 0;
+}
+
+:where(a) {
+  color: var(--pa-link-color);
+  text-decoration: underline;
+}
+
+:where(a:hover) {
+  color: var(--pa-link-color-hover);
+}
+
+:where(a:visited) {
+  color: var(--pa-link-color-visited);
+}
+
+ul, ol {
+  margin: 0 0 1.6rem 0;
+  padding: 0;
+  padding-inline-start: 3.2rem;
+}
+ul li, ol li {
+  margin-bottom: 0.4rem;
+}
+
+ul.unstyled, ol.unstyled {
+  list-style: none;
+  padding-inline-start: 0;
+}
+ul.unstyled li, ol.unstyled li {
+  margin-bottom: 0;
+}
+
+dl {
+  margin: 0 0 1.6rem 0;
+  padding: 0;
+}
+
+dd {
+  margin: 0;
+  padding: 0;
+}
+
+blockquote {
+  margin: 1.6rem 0 1.6rem 0;
+  padding-inline-start: 2.4rem;
+}
+
+pre {
+  overflow-x: auto;
+}
+
+hr {
+  margin: 2.4rem 0 2.4rem 0;
+}
+
+figure {
+  margin: 1.6rem 0 1.6rem 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--base-font-family);
+  font-size: 1.6rem;
+  color: var(--pa-text-color-1);
+  background-color: var(--pa-main-bg);
+  line-height: 1.5;
+}
+
+button,
+input,
+select,
+textarea,
+label {
+  font-family: inherit;
+  font-size: inherit;
+}

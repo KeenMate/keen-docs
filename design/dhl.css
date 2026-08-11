@@ -1,0 +1,146 @@
+/* ============================================================================
+   DHL Corporate — keen-docs theme skin (overlay on core.css + harness glue).
+   Skins the real pa- kd- km- DOM. Signature DHL yellow navbar + red accents,
+   Archivo display type, red table headers, yellow card bars, dark footer.
+   Light + dark via html.pa-mode-dark. NOTE: comments avoid the star-slash
+   sequence so the CSS parser never truncates a rule early.
+   ============================================================================ */
+:root{
+  --dhl-yellow:#FFCC00; --dhl-red:#D40511; --dhl-red-dark:#A50410;
+  --dhl-ink:#1a1a1a; --dhl-pill-bg:#fdeaea;
+  --dhl-shadow-sm:0 1px 2px rgba(16,18,20,.06);
+  --dhl-shadow:0 4px 16px rgba(16,18,20,.08);
+
+  --base-font-family:'Inter',system-ui,sans-serif;
+  --base-font-family-mono:'JetBrains Mono',ui-monospace,monospace;
+  --kd-heading-font:'Archivo','Barlow Semi Condensed',system-ui,sans-serif;
+
+  --base-accent-color:#D40511;
+  --base-accent-color-hover:#A50410;
+  --base-accent-color-active:#A50410;
+  --base-accent-color-light:rgba(212,5,17,.08);
+  --base-page-bg:#ffffff;
+  --base-main-bg:#ffffff;
+  --base-subtle-bg:#f6f7f8;
+  --base-border-color:#e5e7eb;
+  --base-text-color-1:#1a1a1a;
+  --base-text-color-2:#333333;
+  --base-text-color-3:#8a8f97;
+
+  --pa-header-bg:#FFCC00;
+  --pa-header-text:#231d00;
+  --pa-header-text-secondary:#4a3c00;
+  --pa-sidebar-bg:#ffffff;
+  --pa-sidebar-text:#333333;
+  --pa-main-bg:#ffffff;
+  --pa-card-bg:#ffffff;
+  --pa-border-color:#e5e7eb;
+  --pa-text-color-1:#1a1a1a;
+  --pa-text-color-2:#333333;
+  --pa-border-radius:10px; --pa-border-radius-sm:7px; --pa-border-radius-lg:12px;
+  --pa-accent:#D40511; --pa-accent-hover:rgba(212,5,17,.08);
+  /* sidebar spacing — tuned via the --pa-sidebar-* token contract (not selector overrides) */
+  --pa-sidebar-padding:2.2rem 1.8rem 4rem;
+  --pa-sidebar-section-margin:2.4rem 0 .8rem;
+  --pa-sidebar-link-padding:.7rem 1.1rem;
+}
+body{background:var(--base-page-bg);color:var(--base-text-color-1);-webkit-font-smoothing:antialiased}
+a{color:var(--dhl-red)}
+.kd-page p,.km-col__body p,.km-callout__body p,.km-card__body p{color:#333}
+
+/* ---- navbar ---- */
+.pa-navbar{background:var(--dhl-yellow);border-bottom:3px solid var(--dhl-red);box-shadow:0 2px 10px rgba(0,0,0,.10)}
+.pa-header__brand h1 a{font-family:'Arial Black',Arial,sans-serif;font-style:italic;font-weight:900;letter-spacing:-.04em;color:var(--dhl-red) !important}
+.kd-brand-set{color:var(--dhl-red-dark) !important;font-family:var(--kd-heading-font);font-weight:800 !important;text-transform:uppercase;letter-spacing:.12em}
+.kd-topnav .kd-top-link,.kd-dd-btn{color:#231d00 !important;font-family:var(--kd-heading-font);font-weight:700;text-transform:uppercase;letter-spacing:.02em;border-radius:7px}
+.kd-topnav .kd-top-link:hover,.kd-dd-btn:hover{background:rgba(0,0,0,.09);color:#231d00 !important}
+.kd-search input{border:1.5px solid rgba(0,0,0,.18);border-radius:8px;background:#fff;color:#333}
+.kd-search button{background:var(--dhl-red);border-radius:8px;text-transform:uppercase;font-family:var(--kd-heading-font);font-weight:700}
+.kd-mode,.pa-header__profile-btn{border:1.5px solid rgba(0,0,0,.18);background:#fff;color:#231d00;border-radius:8px}
+.kd-mode:hover,.pa-header__profile-btn:hover{background:#fffbe6}
+.pa-header__end .kd-top-link{color:#231d00 !important}
+/* brand: DHL logo + "DEVELOPER DOCS" label with a red divider before the package suffix */
+.kd-brand-label{font-family:var(--kd-heading-font);font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:1.28rem;color:var(--dhl-red-dark)}
+.pa-header__brand .kd-brand-set{border-inline-start:2px solid rgba(164,4,16,.35);padding-inline-start:1rem;margin-inline-start:1rem}
+
+/* ---- sidebar ---- (spacing comes from the --pa-sidebar-* tokens in :root above; here only COLOUR/FONT) */
+.pa-layout__sidebar{border-inline-end:1px solid var(--base-border-color)}
+/* version selector as a DHL pill (label + native select) */
+.kd-version-l{padding:.9rem 1.3rem;border:1.5px solid var(--base-border-color);background:var(--base-subtle-bg);border-radius:9px;text-transform:none;letter-spacing:normal;color:var(--dhl-ink);font-weight:700;font-size:1.4rem;font-family:var(--kd-heading-font)}
+.kd-version-l::before{content:"";width:.8rem;height:.8rem;border-radius:50%;background:var(--dhl-red);box-shadow:0 0 0 3px var(--dhl-pill-bg);flex:0 0 auto}
+.kd-version{border:0;background:transparent;color:var(--dhl-red-dark);font-weight:700;font-family:var(--base-font-family-mono);font-size:1.2rem;cursor:pointer}
+.kd-nav-section .pa-sidebar__label{font-family:var(--kd-heading-font);font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--base-text-color-3)}
+.pa-sidebar__link{border-radius:8px;border-inline-start:3px solid transparent;font-weight:500;color:#333}
+.pa-sidebar__link:hover{background:var(--base-subtle-bg);color:var(--dhl-ink)}
+.pa-sidebar__link--active{background:var(--dhl-pill-bg) !important;border-inline-start:3px solid var(--dhl-red);color:var(--dhl-red-dark) !important;font-weight:700}
+
+/* ---- page head ---- */
+.kd-pagehead h1{font-family:var(--kd-heading-font);font-weight:900;font-size:4rem;line-height:1.05;letter-spacing:-.02em;color:var(--dhl-ink)}
+.kd-lead{color:var(--base-text-color-3);font-size:1.8rem}
+.kd-crumb{font-family:var(--kd-heading-font);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.kd-crumb a:hover{color:var(--dhl-red)}
+.kd-pagehead__badges .kd-badge{background:var(--dhl-pill-bg);color:var(--dhl-red-dark)}
+h2{font-family:var(--kd-heading-font);font-weight:800;font-size:2.6rem;letter-spacing:-.01em;padding-bottom:1rem;border-bottom:2px solid var(--base-border-color)}
+
+/* ---- callouts (icon via CSS ::before, type-coloured) ---- */
+.km-callout{position:relative;border:1px solid var(--base-border-color);border-radius:var(--pa-border-radius);box-shadow:var(--dhl-shadow-sm);background:#fff;padding-inline-start:5.6rem}
+.km-callout__title{font-family:var(--kd-heading-font);font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.km-callout::before{position:absolute;left:1.6rem;top:1.6rem;width:3.4rem;height:3.4rem;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--kd-heading-font);font-weight:800;font-size:1.8rem}
+.km-callout--info{border-inline-start:4px solid var(--dhl-red)}
+.km-callout--info::before{content:"i";background:var(--dhl-pill-bg);color:var(--dhl-red)}
+.km-callout--info .km-callout__title{color:var(--dhl-red-dark)}
+.km-callout--warn,.km-callout--warning{border-inline-start:4px solid var(--dhl-yellow);background:linear-gradient(90deg,rgba(255,204,0,.10),transparent 60%)}
+.km-callout--warn::before,.km-callout--warning::before{content:"!";background:var(--dhl-yellow);color:#231d00}
+.km-callout--warn .km-callout__title,.km-callout--warning .km-callout__title{color:#8a6d00}
+
+/* ---- showcase / columns: crisp bordered cards ---- */
+.km-showcase__title{font-family:var(--kd-heading-font);font-weight:800}
+.km-col{border:1px solid var(--base-border-color);border-radius:var(--pa-border-radius);background:#fafbfc;padding:1.6rem}
+.km-col__header{font-family:var(--kd-heading-font);font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--base-text-color-3);border-bottom:1px solid #eef0f2;padding-bottom:.8rem;margin-bottom:1.2rem}
+.km-col__header--blue{color:var(--dhl-red)}
+.km-col__header--green{color:#b58a00}
+
+/* ---- card ---- */
+.km-card,.kd-card{border:1px solid var(--base-border-color);border-radius:var(--pa-border-radius);background:#fff;box-shadow:var(--dhl-shadow);overflow:hidden}
+.km-card__header{background:var(--dhl-yellow);color:#231d00;font-family:var(--kd-heading-font);font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid rgba(0,0,0,.12)}
+
+/* ---- code frame ---- */
+.km-code pre,pre.lumis{border:1px solid var(--base-border-color);border-radius:10px;box-shadow:var(--dhl-shadow-sm)}
+code{color:var(--dhl-red-dark);background:var(--base-subtle-bg);border:1px solid var(--base-border-color);border-radius:5px}
+.kd-demo-live{border:1px dashed var(--base-border-color);border-radius:12px;background:#fff}
+
+/* ---- table ---- */
+table{border:1px solid var(--base-border-color);border-radius:10px;overflow:hidden;box-shadow:var(--dhl-shadow-sm)}
+th{background:var(--dhl-red);color:#fff;font-family:var(--kd-heading-font);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+tbody tr:nth-child(even){background:#fafbfc}
+td code{background:var(--dhl-pill-bg);color:var(--dhl-red-dark);border:1px solid rgba(212,5,17,.2)}
+
+/* ---- badges ---- */
+.kd-badge{font-family:var(--kd-heading-font);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.kd-badge.component{background:var(--dhl-pill-bg);color:var(--dhl-red-dark)}
+
+/* ---- right-rail TOC ---- */
+.kd-toc__title{font-family:var(--kd-heading-font);font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--base-text-color-3)}
+.kd-toc a{display:block;padding:.5rem 0 .5rem 1.2rem;border-inline-start:2px solid var(--base-border-color);color:var(--base-text-color-3)}
+.kd-toc a:hover{color:var(--dhl-ink);border-color:var(--base-text-color-3)}
+
+/* ---- footer ---- */
+.pa-layout__footer{background:#141414;border-top:4px solid var(--dhl-yellow);color:#cfcfcf}
+.pa-layout__footer p,.pa-footer__start,.pa-footer__center,.pa-footer__end{color:#b7b7b7}
+.pa-layout__footer a{color:#e8e8e8;font-family:var(--kd-heading-font);font-weight:600}
+.pa-layout__footer a:hover{color:var(--dhl-yellow)}
+
+/* ============================ DARK (html.pa-mode-dark) ============================ */
+html.pa-mode-dark{
+  color-scheme:dark;
+  --base-page-bg:#15181c; --base-main-bg:#1a1e23; --base-subtle-bg:#20252b;
+  --base-border-color:#2a2e34; --base-text-color-1:#e8eaed; --base-text-color-2:#c7cbd1; --base-text-color-3:#9aa0a8;
+  --pa-sidebar-bg:#14171b; --pa-main-bg:#1a1e23; --pa-card-bg:#1a1e23;
+  --pa-border-color:#2a2e34; --pa-text-color-1:#e8eaed; --pa-text-color-2:#c7cbd1;
+}
+html.pa-mode-dark .kd-page p,html.pa-mode-dark .km-col__body p,html.pa-mode-dark .km-callout__body p,html.pa-mode-dark .km-card__body p{color:#c7cbd1}
+html.pa-mode-dark .km-callout{background:#1a1e23}
+html.pa-mode-dark .km-col{background:#181c20}
+html.pa-mode-dark .km-callout--warn .km-callout__title,html.pa-mode-dark .km-callout--warning .km-callout__title{color:var(--dhl-yellow)}
+html.pa-mode-dark code{color:#ff8c93;background:#20252b;border-color:#2a2e34}
+html.pa-mode-dark td code{color:#ff8c93;background:#3a1417}

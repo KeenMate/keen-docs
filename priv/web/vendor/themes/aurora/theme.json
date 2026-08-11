@@ -1,0 +1,50 @@
+{
+  "$comment": "Aurora — a keen-docs-authored theme. Unlike the copied pure-admin bundles (nato/dracula/corporate, which are self-contained and REPLACE core.css), Aurora is an OVERLAY: `base: core` tells View.styles/1 to layer this stylesheet on top of the vendored core.css (framework) + keen-docs' harness/content CSS. Hand-authored (not seeded), so keendocs.json marks it `local`.",
+  "name": "Aurora",
+  "id": "aurora",
+  "version": "1.0.0",
+  "description": "Airy modern-SaaS — Inter, soft layered shadows, blue→violet gradient accents. Calm, premium, Linear/Stripe-adjacent.",
+  "author": "KeenMate",
+  "license": "MIT",
+  "base": "core",
+
+  "modeCssClass": "pa-mode-{mode}",
+  "variantCssClass": "pa-color-{variant}",
+
+  "colorVariants": [
+    {
+      "id": "",
+      "name": "Default",
+      "file": "dist/aurora.css",
+      "modes": [
+        {
+          "id": "light",
+          "name": "Light",
+          "default": true,
+          "colors": { "accent": "#007bff", "background": "#f8f9fa", "surface": "#ffffff", "text": "#2c3e50", "header": "#ffffff", "sidebar": "#ffffff" }
+        },
+        {
+          "id": "dark",
+          "name": "Dark",
+          "colors": { "accent": "#4f7cff", "background": "#0f151b", "surface": "#171f27", "text": "#e7ecf1", "header": "#171f27", "sidebar": "#171f27" }
+        }
+      ]
+    }
+  ],
+
+  "fonts": {
+    "family": "Inter, system-ui, sans-serif",
+    "url": "https://fonts.google.com/specimen/Inter"
+  },
+
+  "keendocs": {
+    "contract": "1.0",
+    "toc": { "show": true, "placement": "right-rail" },
+    "fonts": {
+      "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap",
+      "body": "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+      "heading": "'Inter', system-ui, sans-serif",
+      "mono": "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+    }
+  }
+}

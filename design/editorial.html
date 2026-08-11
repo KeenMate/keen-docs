@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Form Integration — keen-docs / web-multiselect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --accent: #007bff;
+    --accent-soft: #eaf3ff;
+    --text-1: #1f2937;
+    --text-2: #6c757d;
+    --muted: #7a8a99;
+    --bg: #fbfbfa;
+    --surface: #ffffff;
+    --border: #e6e8eb;
+    --subtle: #f4f5f7;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f97316;
+    --info: #17a2b8;
+
+    --serif: "Fraunces", Georgia, "Times New Roman", serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+
+    --measure: 720px;
+    --sidebar-w: 240px;
+    --toc-w: 200px;
+    --nav-h: 60px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text-1);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    font-feature-settings: "cv05" 1, "cv08" 1, "ss01" 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  ::selection { background: var(--accent-soft); }
+
+  /* ---------------- Top nav ---------------- */
+  .topnav {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 0 28px;
+    background: rgba(251, 251, 250, 0.82);
+    backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .brand .mark {
+    font-family: var(--serif);
+    font-size: 1.18rem;
+    color: var(--text-1);
+  }
+  .brand .pkg {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .topnav .links {
+    display: flex;
+    gap: 22px;
+    margin-left: 8px;
+  }
+  .topnav .links a {
+    font-size: 0.9rem;
+    color: var(--text-2);
+    font-weight: 450;
+    transition: color 0.15s;
+  }
+  .topnav .links a:hover { color: var(--text-1); }
+  .topnav .spacer { flex: 1; }
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    min-width: 200px;
+  }
+  .search input {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    color: var(--text-1);
+    width: 100%;
+  }
+  .search .kbd {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 1px 6px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--muted);
+  }
+  .iconbtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 11px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .iconbtn:hover { color: var(--text-1); border-color: #d5d9de; }
+  .gh { gap: 6px; font-size: 0.85rem; font-weight: 450; }
+
+  /* ---------------- Layout ---------------- */
+  .layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr) var(--toc-w);
+    max-width: 1400px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  /* ---------------- Sidebar ---------------- */
+  .sidebar {
+    position: sticky;
+    top: var(--nav-h);
+    align-self: start;
+    height: calc(100vh - var(--nav-h));
+    overflow-y: auto;
+    padding: 30px 22px 40px 28px;
+    border-right: 1px solid var(--border);
+  }
+  .verselect {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 26px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-1);
+    cursor: pointer;
+  }
+  .verselect .v { font-family: var(--mono); font-weight: 500; }
+  .verselect .chev { color: var(--muted); font-size: 0.7rem; }
+
+  .navgroup { margin-bottom: 24px; }
+  .navgroup .label {
+    font-size: 0.68rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 9px;
+    padding-left: 11px;
+  }
+  .navgroup a {
+    display: block;
+    padding: 5px 11px;
+    font-size: 0.885rem;
+    color: var(--text-2);
+    border-radius: 6px;
+    line-height: 1.4;
+    transition: color 0.15s, background 0.15s;
+  }
+  .navgroup a:hover { color: var(--text-1); background: var(--subtle); }
+  .navgroup a.active {
+    color: var(--accent);
+    font-weight: 500;
+    background: transparent;
+    position: relative;
+  }
+  .navgroup a.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  /* ---------------- Main content ---------------- */
+  .main {
+    padding: 48px 56px 80px;
+    min-width: 0;
+  }
+  .content {
+    max-width: var(--measure);
+    margin: 0 auto;
+  }
+
+  .breadcrumb {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 22px;
+    letter-spacing: 0.01em;
+  }
+  .breadcrumb .sep { margin: 0 7px; opacity: 0.6; }
+  .breadcrumb .cur { color: var(--text-2); }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 2.65rem;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+    color: var(--text-1);
+  }
+  .lede {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: var(--text-2);
+    font-weight: 400;
+    margin: 0 0 36px;
+    max-width: 640px;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.62rem;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    margin: 56px 0 16px;
+    padding-top: 8px;
+    color: var(--text-1);
+    scroll-margin-top: calc(var(--nav-h) + 20px);
+  }
+  h2 .num {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0;
+    vertical-align: 0.35em;
+    margin-right: 4px;
+    opacity: 0.85;
+  }
+
+  p { margin: 0 0 18px; }
+  .content p { color: #374151; }
+  strong { font-weight: 600; color: var(--text-1); }
+  code:not(pre code) {
+    font-family: var(--mono);
+    font-size: 0.85em;
+    background: var(--subtle);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px 5px;
+    color: #b03a52;
+  }
+
+  /* section label small-caps */
+  .seclabel {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  /* ---------------- Callouts ---------------- */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 16px 18px;
+    margin: 24px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+  }
+  .callout .ic {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    margin-top: 2px;
+  }
+  .callout .body { font-size: 0.92rem; line-height: 1.62; color: var(--text-2); }
+  .callout .body .t {
+    display: block;
+    font-weight: 600;
+    color: var(--text-1);
+    font-size: 0.86rem;
+    letter-spacing: 0.01em;
+    margin-bottom: 3px;
+  }
+  .callout .body p { margin: 0; }
+  .callout.info { border-left-color: var(--info); }
+  .callout.info .ic { background: var(--info); }
+  .callout.warning { border-left-color: var(--warning); }
+  .callout.warning .ic { background: var(--warning); }
+
+  /* ---------------- Code blocks ---------------- */
+  pre {
+    margin: 20px 0;
+    padding: 15px 18px;
+    background: #f7f8fa;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: #1f2328;
+    tab-size: 2;
+  }
+  pre code { font-family: inherit; background: none; border: 0; padding: 0; color: inherit; }
+  .code-mini {
+    font-size: 0.76rem;
+    padding: 11px 13px;
+    line-height: 1.55;
+  }
+  .codewrap { margin: 20px 0; }
+  .codewrap .cap {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--subtle);
+    border: 1px solid var(--border);
+    border-bottom: 0;
+    border-radius: 8px 8px 0 0;
+    padding: 5px 12px;
+    letter-spacing: 0.03em;
+  }
+  .codewrap .cap + pre {
+    margin-top: 0;
+    border-radius: 0 8px 8px 8px;
+  }
+
+  /* ---------------- Showcase / columns ---------------- */
+  .showcase {
+    margin: 28px 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .showcase > .head {
+    padding: 16px 22px 14px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #fdfdfd, #fafbfc);
+  }
+  .showcase > .head .title {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.06rem;
+    color: var(--text-1);
+    letter-spacing: -0.01em;
+  }
+  .showcase > .head .sub {
+    font-size: 0.86rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .grid3 {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr 1fr;
+  }
+  .grid3 > .col {
+    padding: 20px 22px;
+    border-right: 1px solid var(--border);
+  }
+  .grid3 > .col:last-child { border-right: 0; }
+  .grid8020 {
+    display: grid;
+    grid-template-columns: 80fr 20fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+    margin: 24px 0;
+  }
+  .grid8020 > .col {
+    padding: 20px 22px;
+    border-right: 1px solid var(--border);
+  }
+  .grid8020 > .col:last-child { border-right: 0; background: #fcfcfd; }
+
+  .col .collabel {
+    font-size: 0.66rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .col p { font-size: 0.88rem; line-height: 1.62; color: var(--text-2); margin: 0 0 12px; }
+  .col p:last-child { margin-bottom: 0; }
+
+  /* accent tinted collabels for showcase preset */
+  .grid3 > .col:nth-child(1) .collabel { color: var(--accent); }
+  .grid3 > .col:nth-child(2) .collabel { color: var(--info); }
+  .grid3 > .col:nth-child(3) .collabel { color: #8b5cf6; }
+
+  /* ---------------- Component facsimile ---------------- */
+  .ms {
+    font-size: 0.9rem;
+    max-width: 100%;
+  }
+  .ms .control {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 42px;
+    padding: 6px 10px;
+    background: var(--surface);
+    border: 1px solid #d3d8de;
+    border-radius: 9px;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.09);
+    border-color: var(--accent);
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 6px 0 10px;
+    background: var(--accent-soft);
+    color: #0b5ed7;
+    border: 1px solid #cfe3ff;
+    border-radius: 7px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  .pill .x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    color: #4d8fe0;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .pill .x:hover { background: #d6e6ff; color: #0b5ed7; }
+  .ms .ph {
+    color: var(--muted);
+    font-size: 0.87rem;
+    padding-left: 2px;
+    flex: 1;
+    min-width: 90px;
+  }
+  .ms .caret { color: var(--muted); font-size: 0.7rem; margin-left: auto; padding-right: 2px; }
+  .dropdown {
+    margin-top: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px -12px rgba(20, 30, 45, 0.22), 0 2px 6px -2px rgba(20, 30, 45, 0.08);
+    padding: 5px;
+    overflow: hidden;
+  }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 0.875rem;
+    color: var(--text-1);
+    cursor: pointer;
+  }
+  .option .box {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #cbd2da;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+  .option.checked .box {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .option.checked { color: var(--text-1); font-weight: 500; }
+  .option.hover { background: var(--accent-soft); }
+  .option .meta { margin-left: auto; font-size: 0.72rem; color: var(--muted); font-family: var(--mono); }
+  .ms .output {
+    margin-top: 12px;
+    padding: 9px 12px;
+    background: #f7f8fa;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--text-2);
+  }
+  .ms .output .k { color: #0a3069; }
+  .ms .output .lbl {
+    display: block;
+    font-family: var(--sans);
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  /* ---------------- Table ---------------- */
+  .tablewrap { margin: 22px 0; overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  thead th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.7rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 16px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-2);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody td:first-child code {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: #d3e6ff;
+  }
+  tbody td code { white-space: nowrap; }
+
+  /* ---------------- Card ---------------- */
+  .card {
+    margin: 24px 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .card .head {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    color: var(--text-1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card .head .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--success);
+  }
+  .card .body {
+    padding: 16px 20px;
+    font-size: 0.9rem;
+    color: var(--text-2);
+    line-height: 1.62;
+  }
+  .card .body p { margin: 0; color: var(--text-2); }
+
+  /* ---------------- TOC ---------------- */
+  .toc {
+    position: sticky;
+    top: var(--nav-h);
+    align-self: start;
+    height: calc(100vh - var(--nav-h));
+    overflow-y: auto;
+    padding: 48px 24px 40px 8px;
+  }
+  .toc .label {
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .toc a {
+    display: block;
+    padding: 4px 0 4px 12px;
+    font-size: 0.82rem;
+    color: var(--text-2);
+    border-left: 2px solid var(--border);
+    line-height: 1.45;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .toc a:hover { color: var(--text-1); }
+  .toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+
+  /* ---------------- Footer ---------------- */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 28px 56px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .foot-inner {
+    max-width: var(--measure);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .foot-inner a { color: var(--text-2); }
+  .foot-inner a:hover { color: var(--text-1); }
+  .foot-inner .flinks { display: flex; gap: 18px; }
+
+  /* ---------------- Responsive ---------------- */
+  @media (max-width: 1180px) {
+    .layout { grid-template-columns: var(--sidebar-w) minmax(0, 1fr); }
+    .toc { display: none; }
+  }
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 32px 24px 60px; }
+    .grid3 { grid-template-columns: 1fr; }
+    .grid3 > .col { border-right: 0; border-bottom: 1px solid var(--border); }
+    .grid3 > .col:last-child { border-bottom: 0; }
+    .grid8020 { grid-template-columns: 1fr; }
+    .grid8020 > .col { border-right: 0; border-bottom: 1px solid var(--border); }
+    .topnav .links { display: none; }
+    .search { min-width: 0; }
+    footer { padding: 24px; }
+    .foot-inner { flex-direction: column; gap: 12px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top nav ===== -->
+<nav class="topnav">
+  <div class="brand">
+    <span class="mark">keen-docs</span>
+    <span class="pkg">/ web-multiselect</span>
+  </div>
+  <div class="links">
+    <a href="#">Components</a>
+    <a href="#">Guides</a>
+    <a href="#">Infrastructure</a>
+  </div>
+  <div class="spacer"></div>
+  <label class="search">
+    <span>⌕</span>
+    <input type="text" placeholder="Search docs…" />
+    <span class="kbd">⌘K</span>
+  </label>
+  <button class="iconbtn" title="Toggle theme">◑</button>
+  <a class="iconbtn gh" href="#">GitHub <span>↗</span></a>
+</nav>
+
+<!-- ===== Layout ===== -->
+<div class="layout">
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="sidebar">
+    <button class="verselect">
+      <span class="v">v2.0.0</span>
+      <span class="chev">▾</span>
+    </button>
+
+    <div class="navgroup">
+      <div class="label">Getting Started</div>
+      <a href="#">Introduction</a>
+      <a href="#">Installation</a>
+    </div>
+
+    <div class="navgroup">
+      <div class="label">Guides</div>
+      <a href="#">Theming</a>
+      <a href="#" class="active">Form Integration</a>
+      <a href="#">Value Formats</a>
+    </div>
+
+    <div class="navgroup">
+      <div class="label">Reference</div>
+      <a href="#">API</a>
+      <a href="#">Events</a>
+      <a href="#">Styling</a>
+    </div>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <main class="main">
+    <article class="content">
+
+      <div class="breadcrumb">
+        web-multiselect <span class="sep">›</span> Guides <span class="sep">›</span>
+        <span class="cur">Form Integration</span>
+      </div>
+
+      <h1>Form Integration</h1>
+      <p class="lede">
+        Submit multiselect values with native HTML forms — live, from real markdown.
+      </p>
+
+      <!-- Info callout: Setup -->
+      <div class="callout info">
+        <span class="ic">i</span>
+        <div class="body">
+          <span class="t">Setup</span>
+          <p>
+            This whole page is one markdown file. The demo below is a real
+            <code>&lt;web-multiselect&gt;</code> loaded from the CDN — selecting items runs live JS
+            and prints the value the server would receive. Press <strong>Esc</strong> to close the
+            dropdown.
+          </p>
+        </div>
+      </div>
+
+      <!-- FI01 -->
+      <h2 id="fi01"><span class="num">FI01</span> JSON Format (default)</h2>
+
+      <div class="showcase">
+        <div class="head">
+          <div class="title">FI01 JSON Format (Default)</div>
+          <div class="sub">Hidden input with a JSON array value</div>
+        </div>
+        <div class="grid3">
+
+          <!-- Demo -->
+          <div class="col">
+            <div class="collabel">Demo</div>
+            <div class="ms">
+              <div class="control">
+                <span class="pill">JavaScript <span class="x">×</span></span>
+                <span class="pill">TypeScript <span class="x">×</span></span>
+                <span class="ph">Search languages…</span>
+                <span class="caret">▾</span>
+              </div>
+              <div class="dropdown">
+                <div class="option checked"><span class="box">✓</span> JavaScript</div>
+                <div class="option checked"><span class="box">✓</span> TypeScript</div>
+                <div class="option hover"><span class="box"></span> Python</div>
+                <div class="option"><span class="box"></span> Go</div>
+                <div class="option"><span class="box"></span> Rust</div>
+                <div class="option"><span class="box"></span> Elixir</div>
+              </div>
+              <div class="output">
+                <span class="lbl">Submitted value</span>
+                { <span class="k">"values"</span>: ["js", "ts"] }
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="col">
+            <div class="collabel">Controls</div>
+            <p>
+              The component serialises its selection into a hidden input on every change,
+              so a normal form <code>POST</code> just works. Parse it back on the server:
+            </p>
+            <pre class="code-mini"><code><span style="color:#0550ae">app</span>.<span style="color:#8250df">post</span>(<span style="color:#0a3069">'/submit'</span>, (req, res) <span style="color:#cf222e">=&gt;</span> {
+  <span style="color:#cf222e">const</span> langs = <span style="color:#0550ae">JSON</span>.<span style="color:#8250df">parse</span>(req.body.languages);
+});</code></pre>
+          </div>
+
+          <!-- Description -->
+          <div class="col">
+            <div class="collabel">Description</div>
+            <p>
+              JSON is the default <code>value-format</code>. The hidden input carries a valid
+              JSON array — ideal for modern backends that already speak JSON.
+            </p>
+            <pre class="code-mini"><code><span style="color:#1f2328">&lt;</span><span style="color:#116329">input</span> <span style="color:#0550ae">type</span>=<span style="color:#0a3069">"hidden"</span>
+  <span style="color:#0550ae">name</span>=<span style="color:#0a3069">"languages"</span>
+  <span style="color:#0550ae">value</span>=<span style="color:#0a3069">'["js","ts"]'</span><span style="color:#1f2328">&gt;</span></code></pre>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Big demos -->
+      <h2 id="bigdemos">Big demos want more room</h2>
+      <p>
+        Some demos need to breathe. An <code>80/20</code> split keeps the interactive surface
+        wide while pinning contextual notes to a slim rail — the layout is pure CSS grid
+        <code>fr</code> ratios, decoupled from the demo itself.
+      </p>
+
+      <div class="grid8020">
+        <div class="col">
+          <div class="collabel">Demo</div>
+          <div class="ms">
+            <div class="control">
+              <span class="pill">JavaScript <span class="x">×</span></span>
+              <span class="pill">TypeScript <span class="x">×</span></span>
+              <span class="ph">Search languages…</span>
+              <span class="caret">▾</span>
+            </div>
+            <div class="dropdown">
+              <div class="option checked"><span class="box">✓</span> JavaScript <span class="meta">js</span></div>
+              <div class="option checked"><span class="box">✓</span> TypeScript <span class="meta">ts</span></div>
+              <div class="option hover"><span class="box"></span> Python <span class="meta">py</span></div>
+              <div class="option"><span class="box"></span> Go <span class="meta">go</span></div>
+              <div class="option"><span class="box"></span> Rust <span class="meta">rs</span></div>
+              <div class="option"><span class="box"></span> Elixir <span class="meta">ex</span></div>
+            </div>
+            <div class="output">
+              <span class="lbl">Submitted value</span>
+              { <span class="k">"values"</span>: ["js", "ts"] }
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="collabel">Notes</div>
+          <p>Wider canvas, dropdown stays open for inspection.</p>
+          <p>The rail carries just enough context to read the demo.</p>
+        </div>
+      </div>
+
+      <div class="codewrap">
+        <div class="cap">html</div>
+        <pre><code><span style="color:#1f2328">&lt;</span><span style="color:#116329">script</span><span style="color:#1f2328">&gt;</span><span style="color:#cf222e">import</span> <span style="color:#0a3069">'@keenmate/web-multiselect'</span>;<span style="color:#1f2328">&lt;/</span><span style="color:#116329">script</span><span style="color:#1f2328">&gt;</span>
+
+<span style="color:#1f2328">&lt;</span><span style="color:#116329">web-multiselect</span>
+  <span style="color:#0550ae">value-format</span>=<span style="color:#0a3069">"csv"</span>
+  <span style="color:#0550ae">data-options</span>=<span style="color:#0a3069">"Prague,Vienna,Berlin"</span> <span style="color:#1f2328">/&gt;</span></code></pre>
+      </div>
+
+      <!-- Value formats -->
+      <h2 id="formats">Value formats</h2>
+      <p>
+        The <code>value-format</code> attribute decides how the selection is written into the
+        hidden input. Pick the shape that matches how your backend reads the form.
+      </p>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>value-format</th>
+              <th>Hidden input value</th>
+              <th>Use when</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>json</code></td>
+              <td><code>["js","ts"]</code></td>
+              <td>Modern JSON backends</td>
+            </tr>
+            <tr>
+              <td><code>csv</code></td>
+              <td><code>js,ts</code></td>
+              <td>Classic form posts</td>
+            </tr>
+            <tr>
+              <td><code>array</code></td>
+              <td>multiple inputs</td>
+              <td>PHP-style <code>name[]</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Card + warning -->
+      <div class="card">
+        <div class="head"><span class="dot"></span> Tip</div>
+        <div class="body">
+          <p>
+            Prefer <code>csv</code> or <code>array</code> when a legacy framework can't parse a JSON
+            string field. Both round-trip cleanly through a standard <code>application/x-www-form-urlencoded</code>
+            submission — no client JavaScript required on the receiving end.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <span class="ic">!</span>
+        <div class="body">
+          <span class="t">Heads up</span>
+          <p>
+            The <code>array</code> format emits one hidden input per selected value. If your handler
+            reads a single scalar field it will only see the last one — read the field as a list
+            (e.g. <code>request.form.getlist("languages[]")</code>).
+          </p>
+        </div>
+      </div>
+
+    </article>
+  </main>
+
+  <!-- ===== TOC ===== -->
+  <aside class="toc">
+    <div class="label">On this page</div>
+    <a href="#fi01" class="active">FI01 — JSON Format</a>
+    <a href="#bigdemos">Big demos want more room</a>
+    <a href="#formats">Value formats</a>
+  </aside>
+
+</div>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <div class="foot-inner">
+    <span>© 2026 KeenMate · Built with <strong style="color:var(--text-2);font-weight:600;">keen-docs</strong></span>
+    <div class="flinks">
+      <a href="#">GitHub</a>
+      <a href="#">Changelog</a>
+      <a href="#">License</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

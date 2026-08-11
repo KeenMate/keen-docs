@@ -33,16 +33,16 @@ body {
   line-height: 1.6;
 }
 
-.kd-page { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.kd-page { max-width: 1200px; margin: 0 auto; padding: 3.2rem 2.4rem 9.6rem; }
 
-.kd-page-head { border-bottom: 2px solid var(--kd-border); margin-bottom: 2rem; }
-.kd-page-head h1 { color: var(--kd-secondary); margin-bottom: .25rem; }
+.kd-page-head { border-bottom: 2px solid var(--kd-border); margin-bottom: 3.2rem; }
+.kd-page-head h1 { color: var(--kd-secondary); margin-bottom: 0.4rem; }
 .kd-page-desc { color: var(--kd-muted); margin-top: 0; }
 
 /* ---- col label + body (KeenDocs.Markup profile renders the grid itself on pa-grid:
    :::columns -> .pa-row, :::col -> .pa-col-* — sizing/gutters/responsive come from
    pure-css grid.css; only the column's label + body chrome live here) ---- */
-.km-col__header { font-weight: 600; font-size: .95rem; margin-bottom: .5rem; color: var(--kd-secondary); }
+.km-col__header { font-weight: 600; font-size: 1.52rem; margin-bottom: 0.8rem; color: var(--kd-secondary); }
 .km-col__header--blue  { color: var(--kd-accent-blue); }
 .km-col__header--green { color: var(--kd-accent-green); }
 .km-col__header--cyan  { color: var(--kd-accent-cyan); }
@@ -50,20 +50,20 @@ body {
 .km-col__body > :last-child { margin-bottom: 0; }
 
 /* ---- showcase preset ---- */
-.km-showcase { border: 1px solid var(--kd-border); border-radius: .5rem; padding: 1.25rem; margin: 1.5rem 0; background: var(--kd-bg); }
-.km-showcase__title { margin: 0 0 .1rem; color: var(--kd-secondary); }
-.km-showcase__subtitle { margin: 0 0 1rem; color: var(--kd-muted); font-size: .9rem; }
+.km-showcase { border: 1px solid var(--kd-border); border-radius: 0.8rem; padding: 2rem; margin: 2.4rem 0; background: var(--kd-bg); }
+.km-showcase__title { margin: 0 0 0.16rem; color: var(--kd-secondary); }
+.km-showcase__subtitle { margin: 0 0 1.6rem; color: var(--kd-muted); font-size: 1.44rem; }
 
 /* ---- card / callout (KeenMarkdown.Extensions.Blocks) ---- */
-.km-card { border: 1px solid var(--kd-border); border-radius: .5rem; overflow: hidden; background: var(--kd-bg); }
+.km-card { border: 1px solid var(--kd-border); border-radius: 0.8rem; overflow: hidden; background: var(--kd-bg); }
 /* Filled header — use the INVERSE surface (dark in both light & dark themes), not a text
    colour. `--kd-secondary` is `--base-text-color-1`, which flips light in dark mode → white
    text on a light bar. `--base-inverse-bg` stays dark, so white text always reads. */
-.km-card__header { background: var(--base-inverse-bg, #003459); color: #fff; padding: .6rem 1rem; font-weight: 600; }
-.km-card__body { padding: 1rem; }
+.km-card__header { background: var(--base-inverse-bg, #003459); color: #fff; padding: 0.96rem 1.6rem; font-weight: 600; }
+.km-card__body { padding: 1.6rem; }
 
-.km-callout { border-left: 4px solid var(--base-info-color, var(--kd-primary)); border-radius: .375rem; padding: .9rem 1rem; margin: 1.25rem 0; background: var(--base-info-bg-light, #e7f6fc); }
-.km-callout__title { font-weight: 600; margin-bottom: .25rem; }
+.km-callout { border-left: 4px solid var(--base-info-color, var(--kd-primary)); border-radius: 0.6rem; padding: 1.44rem 1.6rem; margin: 2rem 0; background: var(--base-info-bg-light, #e7f6fc); }
+.km-callout__title { font-weight: 600; margin-bottom: 0.4rem; }
 .km-callout--warning { border-left-color: var(--base-warning-color, #ffc107); background: var(--base-warning-bg-light, #fff8e6); }
 .km-callout--danger  { border-left-color: var(--base-danger-color, #dc3545); background: var(--base-danger-bg-light, #fdecee); }
 .km-callout__body > :first-child { margin-top: 0; }
@@ -71,37 +71,37 @@ body {
 
 /* ---- demo live region (KeenDocs.Extensions.Demo) ---- */
 .kd-demo { }
-.kd-demo-live { padding: 1rem; border: 1px dashed var(--kd-border); border-radius: .375rem; background: var(--base-main-bg, #fff); }
-.kd-demo-source { margin-top: .5rem; font-size: .85rem; }
+.kd-demo-live { padding: 1.6rem; border: 1px dashed var(--kd-border); border-radius: 0.6rem; background: var(--base-main-bg, #fff); }
+.kd-demo-source { margin-top: 0.8rem; font-size: 1.36rem; }
 .kd-demo-source summary { cursor: pointer; color: var(--kd-muted); }
-.kd-out { margin-top: .75rem; padding: .6rem .8rem; background: #0d1117; color: #c9d1d9; border-radius: .375rem; font-size: .8rem; white-space: pre-wrap; }
-.kd-demo-orphan { border-left: 4px solid var(--base-danger-color, #dc3545); background: var(--base-danger-bg-light, #fdecee); padding: .75rem 1rem; border-radius: .375rem; font-size: .9rem; }
+.kd-out { margin-top: 1.2rem; padding: 0.96rem 1.28rem; background: #0d1117; color: #c9d1d9; border-radius: 0.6rem; font-size: 1.28rem; white-space: pre-wrap; }
+.kd-demo-orphan { border-left: 4px solid var(--base-danger-color, #dc3545); background: var(--base-danger-bg-light, #fdecee); padding: 1.2rem 1.6rem; border-radius: 0.6rem; font-size: 1.44rem; }
 
 /* ---- keen-phoenix-svelte islands (KeenDocs.Extensions.App) ---- */
-[data-app] { min-height: 3rem; }
-[data-app]:empty { border: 1px dashed var(--kd-border); border-radius: .375rem; }
-.kd-app-error { border-left: 4px solid var(--base-danger-color, #dc3545); background: var(--base-danger-bg-light, #fdecee); padding: .75rem 1rem; border-radius: .375rem; font-size: .9rem; }
+[data-app] { min-height: 4.8rem; }
+[data-app]:empty { border: 1px dashed var(--kd-border); border-radius: 0.6rem; }
+.kd-app-error { border-left: 4px solid var(--base-danger-color, #dc3545); background: var(--base-danger-bg-light, #fdecee); padding: 1.2rem 1.6rem; border-radius: 0.6rem; font-size: 1.44rem; }
 
 /* ---- mermaid (renders into the <pre> in place) ---- */
-pre.mermaid { border: 1px solid var(--kd-border); border-radius: .5rem; padding: 1rem; background: var(--kd-bg); text-align: center; }
+pre.mermaid { border: 1px solid var(--kd-border); border-radius: 0.8rem; padding: 1.6rem; background: var(--kd-bg); text-align: center; }
 
 /* ---- table of contents ---- */
-.kd-toc { border: 1px solid var(--kd-border); border-radius: .5rem; background: var(--kd-bg); padding: .75rem 1rem; margin-bottom: 2rem; font-size: .9rem; }
+.kd-toc { border: 1px solid var(--kd-border); border-radius: 0.8rem; background: var(--kd-bg); padding: 1.2rem 1.6rem; margin-bottom: 3.2rem; font-size: 1.44rem; }
 .kd-toc ul { list-style: none; margin: 0; padding: 0; }
 .kd-toc a { color: var(--kd-secondary); text-decoration: none; }
 .kd-toc a:hover { text-decoration: underline; }
-.kd-toc-h3 { padding-left: 1rem; }
-.kd-toc-h4 { padding-left: 2rem; }
+.kd-toc-h3 { padding-left: 1.6rem; }
+.kd-toc-h4 { padding-left: 3.2rem; }
 
 /* ---- heading anchors (ids generated server-side by MDEx) ---- */
-h1 > a.anchor, h2 > a.anchor, h3 > a.anchor, h4 > a.anchor { opacity: 0; margin-left: .35rem; text-decoration: none; color: var(--kd-muted); }
+h1 > a.anchor, h2 > a.anchor, h3 > a.anchor, h4 > a.anchor { opacity: 0; margin-left: 0.56rem; text-decoration: none; color: var(--kd-muted); }
 h1 > a.anchor::after, h2 > a.anchor::after, h3 > a.anchor::after, h4 > a.anchor::after { content: "#"; }
 h1:hover > a.anchor, h2:hover > a.anchor, h3:hover > a.anchor, h4:hover > a.anchor { opacity: 1; }
 
 /* ---- code blocks (MDEx inline-styled <pre>; this only adds chrome, not colours) ---- */
-.km-code pre, pre { border-radius: .5rem; padding: 1rem; overflow: auto; font-size: .85rem; border: 1px solid var(--kd-border); }
-:not(pre) > code { background: var(--base-subtle-bg, #eef1f4); padding: .1rem .35rem; border-radius: .25rem; font-size: .85em; }
+.km-code pre, pre { border-radius: 0.8rem; padding: 1.6rem; overflow: auto; font-size: 1.36rem; border: 1px solid var(--kd-border); }
+:not(pre) > code { background: var(--base-subtle-bg, #eef1f4); padding: 0.16rem 0.56rem; border-radius: 0.4rem; font-size: .85em; }
 
-table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
-th, td { border: 1px solid var(--kd-border); padding: .5rem .75rem; text-align: left; }
+table { border-collapse: collapse; width: 100%; margin: 1.6rem 0; }
+th, td { border: 1px solid var(--kd-border); padding: 0.8rem 1.2rem; text-align: left; }
 th { background: var(--base-elevated-bg, #f1f3f5); }

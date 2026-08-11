@@ -1,0 +1,362 @@
+/* ============================================================================
+   Aurora — a keen-docs theme (override layer over pure-admin core.css)
+
+   Skins the REAL DOM that KeenDocs.Web.View emits (pa-* chrome, kd-* harness,
+   km-* rendered content) — NOT invented markup. It layers AFTER core.css: it
+   overrides the --pa-* variables core's chrome reads and the --base-* variables
+   keen-docs' harness/content read, then adds the Aurora-specific signatures
+   (translucent blur navbar, gradient h1 + hero underline, gradient-soft active
+   states, callout accent bars, showcase pips, soft layered shadows). Light +
+   dark via html.pa-mode-dark. Code token colours come from lumis (light-dark()),
+   so Aurora only skins the .km-code frame.
+
+   Airy modern-SaaS: Inter + JetBrains Mono, blue→violet accents, Linear/Stripe calm.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------- palette (light) */
+:root {
+  /* fonts (also fed through the render block, kept here so the static preview matches) */
+  --base-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --base-font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --kd-heading-font: 'Inter', system-ui, sans-serif;
+
+  /* Aurora signature tokens */
+  --au-brand: #007bff;
+  --au-brand-2: #00a7e1;
+  --au-violet: #7c5cff;
+  --au-grad: linear-gradient(120deg, #007bff 0%, #4f7cff 45%, #7c5cff 100%);
+  --au-grad-soft: linear-gradient(120deg, rgba(0,123,255,.10), rgba(124,92,255,.10));
+  --au-shadow-sm: 0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.06);
+  --au-shadow-md: 0 4px 12px -2px rgba(16,24,40,.08), 0 2px 6px -2px rgba(16,24,40,.05);
+  --au-shadow-lg: 0 18px 40px -12px rgba(16,24,40,.18), 0 8px 16px -8px rgba(16,24,40,.10);
+  --au-focus: 0 0 0 4px rgba(0,123,255,.14);
+
+  /* keen-docs content/harness vars (--base-*) */
+  --base-accent-color: #007bff;
+  --base-accent-color-hover: #4f7cff;
+  --base-accent-color-active: #0069d9;
+  --base-accent-color-light: rgba(0,123,255,.08);
+  --base-focus-ring-color: rgba(0,123,255,.35);
+  --base-page-bg: #f8f9fa;
+  --base-main-bg: #ffffff;
+  --base-subtle-bg: #eef1f5;
+  --base-border-color: #e1e5e9;
+  --base-text-color-1: #2c3e50;
+  --base-text-color-2: #54626f;
+  --base-text-color-3: #7a8a99;
+
+  /* pure-admin chrome vars core.css reads (--pa-*) */
+  --pa-header-bg: rgba(255,255,255,.82);
+  --pa-header-border-color: #e6e9ee;
+  --pa-header-text: #2c3e50;
+  --pa-header-text-secondary: #6c757d;
+  --pa-sidebar-bg: #ffffff;
+  --pa-sidebar-text: #6c757d;
+  --pa-sidebar-text-secondary: #7a8a99;
+  --pa-main-bg: #ffffff;
+  --pa-card-bg: #ffffff;
+  --pa-card-header-bg: linear-gradient(180deg, #ffffff, #fcfcfd);
+  --pa-border-color: #e1e5e9;
+  --pa-text-color-1: #2c3e50;
+  --pa-text-color-2: #54626f;
+  --pa-border-radius: 12px;
+  --pa-border-radius-sm: 8px;
+  --pa-border-radius-lg: 16px;
+  --pa-accent: #007bff;
+  --pa-accent-hover: rgba(0,123,255,.08);
+}
+
+/* ---------------------------------------------------------------- base canvas */
+body {
+  background: var(--base-page-bg);
+  color: var(--base-text-color-1);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -.006em;
+}
+.pa-layout__main__inner { color: var(--base-text-color-1); }
+.kd-page p, .km-col__body p, .km-callout__body p, .km-card__body p { color: #4a5866; }
+
+/* ---------------------------------------------------------------- navbar (translucent + blur) */
+.pa-navbar {
+  background: var(--pa-header-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--pa-header-border-color);
+}
+/* gradient logo chip before the wordmark */
+.pa-header__brand h1 a {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+.pa-header__brand h1 a::before {
+  content: 'k';
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: .9rem;
+  background: var(--au-grad);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.5rem;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 10px -2px rgba(0,123,255,.5);
+}
+.kd-brand-set { font-weight: 500 !important; }
+.kd-top-link, .kd-dd-btn { font-weight: 500; border-radius: .8rem; }
+.kd-top-link:hover, .kd-dd-btn:hover { background: var(--base-subtle-bg); color: var(--base-text-color-1); }
+
+/* search — pill with focus ring */
+.kd-search input {
+  border-radius: .9rem;
+  border: 1px solid var(--base-border-color);
+  background: var(--base-page-bg);
+}
+.kd-search input:focus {
+  border-color: var(--au-brand);
+  box-shadow: var(--au-focus);
+  background: #fff;
+  outline: 0;
+}
+.kd-search button { border-radius: .9rem; background: var(--au-grad); }
+.kd-mode, .pa-header__profile-btn { border-radius: .9rem; }
+.kd-mode:hover, .pa-header__profile-btn:hover { border-color: var(--base-text-color-3); box-shadow: var(--au-shadow-sm); }
+
+/* ---------------------------------------------------------------- sidebar */
+.pa-layout__sidebar { border-inline-end: 1px solid #eceef1; }
+.kd-version {
+  border-radius: 1rem;
+  box-shadow: var(--au-shadow-sm);
+  background: var(--base-main-bg);
+}
+.kd-version:hover { border-color: var(--base-text-color-3); }
+.pa-sidebar__link {
+  border-radius: .8rem;
+  font-weight: 500;
+  color: var(--base-text-color-2);
+  position: relative;
+}
+.pa-sidebar__link:hover { background: var(--base-subtle-bg); color: var(--base-text-color-1); }
+.pa-sidebar__link--active {
+  color: var(--au-brand) !important;
+  font-weight: 600;
+  background: var(--au-grad-soft);
+}
+.pa-sidebar__link--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 1.6rem;
+  border-radius: 2px;
+  background: var(--au-grad);
+}
+.kd-nav-section .pa-sidebar__label { color: var(--base-text-color-3); }
+
+/* ---------------------------------------------------------------- page head (gradient h1 + underline) */
+.kd-pagehead h1 {
+  font-weight: 800;
+  letter-spacing: -.02em;
+  background: linear-gradient(120deg, #1e2b3a, #2c3e50 55%, #3a5a8f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.kd-pagehead__row { position: relative; }
+/* the Aurora hero underline */
+.kd-pagehead::after {
+  content: '';
+  display: block;
+  width: 6.4rem;
+  height: 4px;
+  border-radius: 3px;
+  background: var(--au-grad);
+  margin-top: 1.6rem;
+}
+.kd-lead { color: var(--base-text-color-2); font-weight: 450; }
+.kd-crumb { font-weight: 500; }
+
+/* section headings get a soft # marker via CSS counters is overkill — keep them clean */
+h2 { letter-spacing: -.02em; }
+
+/* ---------------------------------------------------------------- callouts (accent bar + tint) */
+.km-callout {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--base-border-color);
+  border-radius: var(--pa-border-radius);
+  box-shadow: var(--au-shadow-sm);
+  padding-inline-start: 2rem;
+}
+.km-callout::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+.km-callout__title { font-weight: 700; color: var(--base-text-color-1); }
+.km-callout__body p { color: #54626f; }
+.km-callout--info { background: linear-gradient(90deg, rgba(23,162,184,.06), rgba(23,162,184,.015)); }
+.km-callout--info::before { background: #17a2b8; }
+.km-callout--warn, .km-callout--warning { background: linear-gradient(90deg, rgba(249,115,22,.07), rgba(249,115,22,.015)); }
+.km-callout--warn::before, .km-callout--warning::before { background: #f97316; }
+.km-callout--tip, .km-callout--success { background: linear-gradient(90deg, rgba(34,197,94,.07), rgba(34,197,94,.015)); }
+.km-callout--tip::before, .km-callout--success::before { background: #22c55e; }
+.km-callout--danger, .km-callout--error { background: linear-gradient(90deg, rgba(239,68,68,.07), rgba(239,68,68,.015)); }
+.km-callout--danger::before, .km-callout--error::before { background: #ef4444; }
+
+/* ---------------------------------------------------------------- showcase + columns */
+.km-showcase {
+  background: var(--base-main-bg);
+  border: 1px solid var(--base-border-color);
+  border-radius: var(--pa-border-radius-lg);
+  box-shadow: var(--au-shadow-md);
+  overflow: hidden;
+  padding: 0;
+}
+.km-showcase__title {
+  margin: 0;
+  padding: 1.6rem 2rem .4rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.km-showcase__subtitle {
+  margin: 0;
+  padding: 0 2rem 1.4rem;
+  color: var(--base-text-color-3);
+  font-size: 1.3rem;
+  border-bottom: 1px solid #eceef1;
+}
+.km-col__header {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--base-text-color-3);
+}
+.km-col__header::before {
+  content: '';
+  width: .8rem;
+  height: .8rem;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.km-col__header--blue { color: var(--au-brand); }
+.km-col__header--green { color: #16a34a; }
+.km-col__body { font-size: 1.4rem; }
+
+/* ---------------------------------------------------------------- cards */
+.km-card, .kd-card {
+  background: var(--base-main-bg);
+  border: 1px solid var(--base-border-color);
+  border-radius: var(--pa-border-radius);
+  box-shadow: var(--au-shadow-sm);
+  overflow: hidden;
+}
+.km-card__header {
+  padding: 1.1rem 1.8rem;
+  border-bottom: 1px solid #eceef1;
+  font-weight: 700;
+  background: linear-gradient(180deg, #fff, #fcfcfd);
+}
+.km-card__body { padding: 1.6rem 1.8rem; }
+
+/* ---------------------------------------------------------------- code frames (lumis owns tokens) */
+.km-code pre, pre.lumis {
+  border: 1px solid var(--base-border-color);
+  border-radius: 1rem;
+  box-shadow: var(--au-shadow-sm);
+  padding: 1.3rem 1.5rem;
+}
+.km-code { margin: 1.6rem 0; }
+code { background: var(--base-subtle-bg); border: 1px solid #eceef1; border-radius: 5px; }
+
+/* the live demo mount */
+.kd-demo-live {
+  border: 1px solid var(--base-border-color);
+  border-radius: var(--pa-border-radius);
+  box-shadow: var(--au-shadow-sm);
+  background: #fff;
+}
+
+/* ---------------------------------------------------------------- badges */
+.kd-badge { border-radius: 999px; font-weight: 600; }
+.kd-badge.component { background: var(--au-grad-soft); color: var(--au-brand); }
+
+/* ---------------------------------------------------------------- tables */
+table { border-radius: var(--pa-border-radius); overflow: hidden; box-shadow: var(--au-shadow-sm); border: 1px solid var(--base-border-color); }
+th { background: #fafbfc; }
+tbody tr:hover { background: #fafbfd; }
+
+/* ---------------------------------------------------------------- right-rail TOC */
+.kd-toc--rail { border-inline-start: 2px solid transparent; padding-inline-start: 0; }
+.kd-toc__title { color: var(--base-text-color-3); }
+.kd-toc a {
+  display: block;
+  padding: .5rem 0 .5rem 1.4rem;
+  border-inline-start: 2px solid #eceef1;
+  color: var(--base-text-color-2);
+}
+.kd-toc a:hover { color: var(--base-text-color-1); border-color: var(--base-text-color-3); }
+
+/* ---------------------------------------------------------------- footer */
+.pa-layout__footer { border-top: 1px solid var(--base-border-color); background: var(--base-main-bg); }
+.pa-layout__footer a:hover { color: var(--au-brand); }
+
+/* ============================================================================
+   DARK MODE — html.pa-mode-dark (the real toggle target). Deep slate canvas,
+   the same blue→violet accents, brighter gradient-soft states.
+   ============================================================================ */
+html.pa-mode-dark {
+  color-scheme: dark;
+
+  --base-page-bg: #0f151b;
+  --base-main-bg: #171f27;
+  --base-subtle-bg: #222c36;
+  --base-border-color: #2a3540;
+  --base-text-color-1: #e7ecf1;
+  --base-text-color-2: #a9b6c2;
+  --base-text-color-3: #7e8b98;
+  --au-grad-soft: linear-gradient(120deg, rgba(0,123,255,.18), rgba(124,92,255,.18));
+
+  --pa-header-bg: rgba(23,31,39,.82);
+  --pa-header-border-color: #222c36;
+  --pa-header-text: #e7ecf1;
+  --pa-header-text-secondary: #a9b6c2;
+  --pa-sidebar-bg: #171f27;
+  --pa-sidebar-text: #a9b6c2;
+  --pa-main-bg: #171f27;
+  --pa-card-bg: #171f27;
+  --pa-card-header-bg: linear-gradient(180deg, #1a232c, #171f27);
+  --pa-border-color: #2a3540;
+  --pa-text-color-1: #e7ecf1;
+  --pa-text-color-2: #a9b6c2;
+}
+html.pa-mode-dark body,
+html.pa-mode-dark .kd-page p,
+html.pa-mode-dark .km-col__body p,
+html.pa-mode-dark .km-callout__body p,
+html.pa-mode-dark .km-card__body p { color: #a9b6c2; }
+html.pa-mode-dark .kd-pagehead h1 {
+  background: linear-gradient(120deg, #e7ecf1, #a9c7ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+html.pa-mode-dark .km-card__header,
+html.pa-mode-dark .km-showcase__title { background: linear-gradient(180deg, #1a232c, #171f27); }
+html.pa-mode-dark th { background: #1a232c; }
+html.pa-mode-dark code { background: #222c36; border-color: #2a3540; }
+html.pa-mode-dark .km-showcase__subtitle,
+html.pa-mode-dark .km-card__header,
+html.pa-mode-dark .pa-layout__sidebar { border-color: #222c36; }

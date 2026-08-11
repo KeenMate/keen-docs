@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form Integration — web-multiselect · keen-docs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#007bff; --cyan:#00a7e1; --violet:#7c5cff; --teal:#17a2b8;
+    --success:#22c55e; --danger:#ef4444; --warning:#f97316; --info:#17a2b8;
+
+    /* dark-glass palette */
+    --bg-deep:#0a0e1a;
+    --text:#e6edf3;
+    --text-soft:#aeb9c7;
+    --text-dim:#7b8697;
+    --glass:rgba(20,27,45,.55);
+    --glass-strong:rgba(17,23,40,.78);
+    --glass-panel:rgba(255,255,255,.045);
+    --border:rgba(255,255,255,.12);
+    --border-bright:rgba(255,255,255,.22);
+
+    /* code tokens (github-dark) */
+    --tk-tag:#7ee787; --tk-attr:#79c0ff; --tk-str:#a5d6ff; --tk-kw:#ff7b72;
+    --tk-punc:#8b949e; --tk-com:#8b949e;
+
+    --radius:16px; --radius-sm:10px;
+    --maxw:1360px;
+  }
+
+  /* light-glass overrides */
+  html[data-theme="light"]{
+    --bg-deep:#eaf2fb;
+    --text:#1f2937;
+    --text-soft:#425169;
+    --text-dim:#6b7688;
+    --glass:rgba(255,255,255,.55);
+    --glass-strong:rgba(255,255,255,.82);
+    --glass-panel:rgba(255,255,255,.5);
+    --border:rgba(255,255,255,.6);
+    --border-bright:rgba(255,255,255,.85);
+    --tk-tag:#116329; --tk-attr:#0550ae; --tk-str:#0a3069; --tk-kw:#cf222e;
+    --tk-punc:#57606a; --tk-com:#6e7781;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+    color:var(--text);
+    background:var(--bg-deep);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* ---- gradient mesh background ---- */
+  .mesh{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none;}
+  .blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;}
+  .b1{width:640px;height:640px;background:var(--blue);   top:-180px;left:-120px;}
+  .b2{width:560px;height:560px;background:var(--violet); top:-80px; right:-140px;opacity:.5;}
+  .b3{width:600px;height:600px;background:var(--cyan);   bottom:-220px;left:22%;opacity:.42;}
+  .b4{width:520px;height:520px;background:var(--teal);   bottom:-160px;right:-80px;opacity:.4;}
+  .b5{width:440px;height:440px;background:var(--violet); top:38%;left:44%;opacity:.28;}
+  html[data-theme="light"] .blob{opacity:.4;}
+  html[data-theme="light"] .b2{opacity:.34;}
+  .mesh::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(120% 80% at 50% -10%, transparent 40%, rgba(0,0,0,.35) 100%);}
+  html[data-theme="light"] .mesh::after{background:radial-gradient(120% 80% at 50% -10%, transparent 45%, rgba(255,255,255,.4) 100%);}
+
+  a{color:inherit;text-decoration:none;}
+
+  /* ---- glass primitive ---- */
+  .glass{
+    background:var(--glass);
+    backdrop-filter:blur(22px) saturate(160%);
+    -webkit-backdrop-filter:blur(22px) saturate(160%);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:0 8px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  html[data-theme="light"] .glass{box-shadow:0 10px 40px rgba(31,45,80,.12), inset 0 1px 0 rgba(255,255,255,.7);}
+
+  /* ---- top nav ---- */
+  header.nav{
+    position:sticky;top:0;z-index:50;
+    background:var(--glass-strong);
+    backdrop-filter:blur(24px) saturate(170%);
+    -webkit-backdrop-filter:blur(24px) saturate(170%);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{max-width:var(--maxw);margin:0 auto;padding:0 26px;height:64px;
+    display:flex;align-items:center;gap:22px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.05rem;letter-spacing:-.02em;}
+  .brand .logo{width:30px;height:30px;border-radius:9px;
+    background:linear-gradient(135deg,var(--blue),var(--violet));
+    box-shadow:0 4px 16px rgba(124,92,255,.5);
+    display:grid;place-items:center;color:#fff;font-weight:800;font-size:.95rem;}
+  .brand .sep{color:var(--text-dim);font-weight:500;}
+  .brand .pkg{background:linear-gradient(90deg,var(--cyan),var(--violet));
+    -webkit-background-clip:text;background-clip:text;color:transparent;font-weight:700;}
+  .nav-links{display:flex;gap:6px;margin-left:8px;}
+  .nav-links a{padding:7px 13px;border-radius:9px;color:var(--text-soft);font-weight:600;font-size:.9rem;
+    transition:.18s;}
+  .nav-links a:hover{color:var(--text);background:var(--glass-panel);}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+  .search{display:flex;align-items:center;gap:8px;padding:8px 13px;min-width:220px;
+    background:var(--glass-panel);border:1px solid var(--border);border-radius:11px;color:var(--text-dim);
+    font-size:.85rem;}
+  .search input{border:0;background:transparent;color:var(--text);outline:none;font-family:inherit;
+    font-size:.85rem;width:100%;}
+  .search kbd{margin-left:auto;font-family:'JetBrains Mono',mono;font-size:.68rem;padding:2px 6px;
+    border:1px solid var(--border);border-radius:6px;color:var(--text-dim);}
+  .icon-btn{width:38px;height:38px;display:grid;place-items:center;cursor:pointer;
+    background:var(--glass-panel);border:1px solid var(--border);border-radius:11px;color:var(--text);
+    font-size:1.05rem;transition:.18s;}
+  .icon-btn:hover{border-color:var(--border-bright);transform:translateY(-1px);}
+  .gh{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:11px;font-weight:700;font-size:.86rem;
+    background:linear-gradient(135deg,rgba(0,123,255,.22),rgba(124,92,255,.22));
+    border:1px solid var(--border-bright);transition:.18s;}
+  .gh:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,123,255,.28);}
+
+  /* ---- layout ---- */
+  .shell{max-width:var(--maxw);margin:0 auto;padding:28px 26px 60px;
+    display:grid;grid-template-columns:242px minmax(0,1fr) 220px;gap:26px;align-items:start;}
+
+  /* ---- sidebar ---- */
+  aside.side{position:sticky;top:88px;padding:18px 16px;}
+  .verselect{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 13px;border-radius:11px;margin-bottom:18px;cursor:pointer;
+    background:linear-gradient(135deg,rgba(0,123,255,.16),rgba(0,167,225,.1));
+    border:1px solid var(--border-bright);font-weight:700;font-size:.9rem;}
+  .verselect small{display:block;color:var(--text-dim);font-weight:600;font-size:.66rem;letter-spacing:.09em;
+    text-transform:uppercase;}
+  .verselect .chev{color:var(--text-soft);}
+  .sec-title{font-size:.68rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--text-dim);margin:18px 6px 8px;}
+  .sec-title:first-of-type{margin-top:4px;}
+  nav.tree a{display:block;padding:7px 12px;border-radius:9px;color:var(--text-soft);font-size:.88rem;
+    font-weight:500;transition:.16s;margin-bottom:1px;}
+  nav.tree a:hover{color:var(--text);background:var(--glass-panel);}
+  nav.tree a.active{
+    color:#fff;font-weight:700;
+    background:linear-gradient(135deg,var(--blue),var(--violet));
+    box-shadow:0 6px 22px rgba(0,123,255,.45),inset 0 1px 0 rgba(255,255,255,.3);
+    position:relative;
+  }
+  nav.tree a.active::before{content:"";position:absolute;left:-16px;top:50%;transform:translateY(-50%);
+    width:4px;height:20px;border-radius:4px;background:var(--cyan);box-shadow:0 0 14px var(--cyan);}
+
+  /* ---- main content ---- */
+  main.content{padding:34px 40px 44px;min-width:0;}
+  .crumb{font-size:.82rem;color:var(--text-dim);font-weight:600;margin-bottom:20px;}
+  .crumb .arw{opacity:.5;margin:0 6px;}
+  .crumb b{color:var(--text-soft);}
+  h1{font-size:2.5rem;font-weight:800;letter-spacing:-.03em;margin:0 0 10px;line-height:1.1;
+    background:linear-gradient(120deg,var(--text) 30%,var(--cyan));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .subtitle{font-size:1.12rem;color:var(--text-soft);margin:0 0 28px;font-weight:500;max-width:60ch;}
+  h2{font-size:1.55rem;font-weight:800;letter-spacing:-.02em;margin:44px 0 14px;
+    padding-top:14px;border-top:1px solid var(--border);}
+  h2:first-of-type{border-top:0;}
+  main p{color:var(--text-soft);margin:0 0 16px;}
+  main strong{color:var(--text);font-weight:700;}
+  code.inline{font-family:'JetBrains Mono',monospace;font-size:.85em;padding:2px 6px;border-radius:6px;
+    background:var(--glass-panel);border:1px solid var(--border);color:var(--cyan);}
+  html[data-theme="light"] code.inline{color:var(--blue);}
+
+  /* ---- callouts ---- */
+  .callout{display:flex;gap:14px;padding:16px 18px;border-radius:var(--radius);margin:20px 0;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);
+    background:var(--glass);}
+  .callout .co-ico{flex:0 0 34px;height:34px;border-radius:10px;display:grid;place-items:center;
+    font-size:1.05rem;font-weight:800;}
+  .callout .co-body{flex:1;min-width:0;}
+  .callout .co-title{font-weight:800;margin-bottom:3px;font-size:.98rem;}
+  .callout .co-body p{margin:0;color:var(--text-soft);font-size:.92rem;}
+  .callout.info{border-left:3px solid var(--info);}
+  .callout.info .co-ico{background:rgba(23,162,184,.18);color:var(--info);border:1px solid rgba(23,162,184,.4);}
+  .callout.warning{border-left:3px solid var(--warning);}
+  .callout.warning .co-ico{background:rgba(249,115,22,.18);color:var(--warning);border:1px solid rgba(249,115,22,.4);}
+
+  /* ---- showcase / cards ---- */
+  .card{padding:22px;border-radius:var(--radius);margin:22px 0;
+    background:var(--glass);backdrop-filter:blur(20px) saturate(150%);
+    -webkit-backdrop-filter:blur(20px) saturate(150%);border:1px solid var(--border);
+    box-shadow:0 8px 34px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.12);}
+  html[data-theme="light"] .card{box-shadow:0 10px 34px rgba(31,45,80,.1),inset 0 1px 0 rgba(255,255,255,.7);}
+  .card-head{margin-bottom:18px;}
+  .card-head .ct{font-weight:800;font-size:1.08rem;letter-spacing:-.01em;display:flex;align-items:center;gap:9px;}
+  .card-head .badge{font-size:.64rem;font-weight:800;letter-spacing:.06em;padding:3px 8px;border-radius:20px;
+    background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;text-transform:uppercase;}
+  .card-head .cs{color:var(--text-dim);font-size:.86rem;font-weight:500;margin-top:2px;}
+
+  .grid3{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:20px;}
+  .col-title{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--cyan);margin-bottom:10px;}
+  html[data-theme="light"] .col-title{color:var(--blue);}
+  .col p{font-size:.86rem;color:var(--text-soft);margin:0 0 10px;}
+
+  .grid8020{display:grid;grid-template-columns:4fr 1fr;gap:20px;align-items:start;}
+
+  /* ---- component facsimile ---- */
+  .ms{border-radius:13px;padding:11px 12px;
+    background:var(--glass-panel);border:1px solid var(--border-bright);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    display:flex;flex-wrap:wrap;gap:7px;align-items:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.1);}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 8px 4px 11px;border-radius:20px;
+    font-size:.82rem;font-weight:600;
+    background:linear-gradient(135deg,rgba(0,123,255,.32),rgba(124,92,255,.3));
+    border:1px solid rgba(124,92,255,.5);color:var(--text);}
+  .pill x,.pill .x{cursor:pointer;font-style:normal;opacity:.7;font-weight:700;}
+  .pill .x:hover{opacity:1;}
+  .ms .ph{color:var(--text-dim);font-size:.86rem;padding:2px 4px;flex:1;min-width:80px;}
+  .ms .caret{margin-left:auto;color:var(--text-dim);}
+
+  .dd{margin-top:6px;border-radius:13px;overflow:hidden;
+    background:var(--glass-strong);
+    backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
+    border:1px solid var(--border-bright);
+    box-shadow:0 18px 44px rgba(0,0,0,.4);}
+  .opt{display:flex;align-items:center;gap:10px;padding:9px 13px;font-size:.9rem;font-weight:500;cursor:pointer;
+    border-bottom:1px solid var(--border);color:var(--text-soft);transition:.14s;}
+  .opt:last-child{border-bottom:0;}
+  .opt .chk{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border-bright);
+    display:grid;place-items:center;font-size:.72rem;flex:0 0 18px;}
+  .opt.on{color:var(--text);background:linear-gradient(90deg,rgba(0,123,255,.14),transparent);}
+  .opt.on .chk{background:linear-gradient(135deg,var(--blue),var(--violet));border-color:transparent;color:#fff;
+    box-shadow:0 2px 8px rgba(0,123,255,.5);}
+  .opt.hover{background:linear-gradient(90deg,rgba(124,92,255,.24),rgba(0,167,225,.1));color:#fff;
+    box-shadow:inset 0 0 0 1px rgba(124,92,255,.4),0 0 20px rgba(124,92,255,.25);}
+  .opt:hover{color:var(--text);}
+
+  .outbox{margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:.82rem;
+    padding:10px 13px;border-radius:11px;color:var(--tk-str);
+    background:rgba(0,0,0,.35);border:1px solid var(--border);}
+  .outbox .lbl{color:var(--text-dim);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+    font-family:'Plus Jakarta Sans';display:block;margin-bottom:4px;}
+  html[data-theme="light"] .outbox{background:rgba(255,255,255,.65);}
+
+  /* ---- code blocks ---- */
+  .code{border-radius:12px;overflow:hidden;margin:14px 0;border:1px solid var(--border);
+    background:rgba(8,12,22,.9);box-shadow:0 8px 26px rgba(0,0,0,.3);}
+  html[data-theme="light"] .code{background:rgba(246,248,250,.96);box-shadow:0 6px 22px rgba(31,45,80,.1);}
+  .code-bar{display:flex;align-items:center;gap:7px;padding:8px 13px;border-bottom:1px solid var(--border);
+    background:rgba(255,255,255,.03);}
+  html[data-theme="light"] .code-bar{background:rgba(0,0,0,.03);}
+  .code-bar .dot{width:11px;height:11px;border-radius:50%;}
+  .code-bar .lang{margin-left:auto;font-family:'JetBrains Mono';font-size:.68rem;color:var(--text-dim);
+    letter-spacing:.04em;text-transform:uppercase;}
+  pre{margin:0;padding:14px 16px;overflow-x:auto;}
+  pre code{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;color:var(--text);}
+  html[data-theme="light"] pre code{color:#24292f;}
+  .code.mini pre{padding:11px 13px;}
+  .code.mini pre code{font-size:.76rem;}
+
+  /* ---- table ---- */
+  .tbl-wrap{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin:18px 0;
+    background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+  table{width:100%;border-collapse:collapse;font-size:.9rem;}
+  thead th{text-align:left;padding:13px 16px;font-weight:800;font-size:.72rem;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--cyan);background:rgba(255,255,255,.04);}
+  html[data-theme="light"] thead th{color:var(--blue);background:rgba(0,0,0,.03);}
+  tbody td{padding:12px 16px;border-top:1px solid var(--border);color:var(--text-soft);}
+  tbody tr:hover td{background:rgba(255,255,255,.03);}
+  td code{font-family:'JetBrains Mono';font-size:.82em;color:var(--tk-attr);}
+  td .tag{font-family:'JetBrains Mono';font-size:.82rem;padding:3px 9px;border-radius:7px;font-weight:600;
+    background:linear-gradient(135deg,rgba(0,123,255,.24),rgba(124,92,255,.2));
+    border:1px solid var(--border-bright);color:var(--text);}
+
+  /* ---- TOC ---- */
+  aside.toc{position:sticky;top:88px;padding:18px 16px;}
+  .toc-t{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);
+    margin-bottom:12px;}
+  aside.toc a{display:block;padding:6px 12px;font-size:.83rem;color:var(--text-soft);font-weight:500;
+    border-left:2px solid var(--border);margin-bottom:1px;transition:.16s;}
+  aside.toc a:hover{color:var(--text);border-left-color:var(--cyan);}
+  aside.toc a.on{color:var(--text);border-left-color:var(--cyan);font-weight:700;
+    box-shadow:-2px 0 14px rgba(0,167,225,.3);}
+
+  /* ---- footer ---- */
+  footer{border-top:1px solid var(--border);background:var(--glass-strong);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);margin-top:40px;}
+  .foot-inner{max-width:var(--maxw);margin:0 auto;padding:26px;display:flex;align-items:center;gap:18px;
+    flex-wrap:wrap;color:var(--text-dim);font-size:.86rem;}
+  .foot-inner a{color:var(--text-soft);font-weight:600;}
+  .foot-inner a:hover{color:var(--text);}
+  .foot-inner .fl{margin-left:auto;display:flex;gap:18px;}
+
+  @media(max-width:1160px){
+    .shell{grid-template-columns:230px minmax(0,1fr);}
+    aside.toc{display:none;}
+  }
+  @media(max-width:900px){
+    .shell{grid-template-columns:1fr;}
+    aside.side{position:static;}
+    .grid3{grid-template-columns:1fr;}
+    .grid8020{grid-template-columns:1fr;}
+    main.content{padding:24px;}
+    .nav-links,.search{display:none;}
+    h1{font-size:2rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="mesh">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="blob b4"></div><div class="blob b5"></div>
+</div>
+
+<!-- ===== TOP NAV ===== -->
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#">
+      <span class="logo">k</span>
+      keen-docs <span class="sep">/</span> <span class="pkg">web-multiselect</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#">Components</a>
+      <a href="#">Guides</a>
+      <a href="#">Infrastructure</a>
+    </nav>
+    <div class="nav-right">
+      <label class="search">
+        <span>⌕</span>
+        <input type="text" placeholder="Search docs…" aria-label="Search">
+        <kbd>⌘K</kbd>
+      </label>
+      <button class="icon-btn" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme==='dark'?'light':'dark'" title="Toggle theme" aria-label="Toggle dark mode">◑</button>
+      <a class="gh" href="#">GitHub <span>↗</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="side glass">
+    <div class="verselect">
+      <span><small>version</small>v2.0.0</span>
+      <span class="chev">⌄</span>
+    </div>
+
+    <div class="sec-title">Getting Started</div>
+    <nav class="tree">
+      <a href="#">Introduction</a>
+      <a href="#">Installation</a>
+    </nav>
+
+    <div class="sec-title">Guides</div>
+    <nav class="tree">
+      <a href="#">Theming</a>
+      <a href="#" class="active">Form Integration</a>
+      <a href="#">Value Formats</a>
+    </nav>
+
+    <div class="sec-title">Reference</div>
+    <nav class="tree">
+      <a href="#">API</a>
+      <a href="#">Events</a>
+      <a href="#">Styling</a>
+    </nav>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="content glass">
+    <div class="crumb">
+      web-multiselect <span class="arw">›</span> <b>Guides</b> <span class="arw">›</span> Form Integration
+    </div>
+
+    <h1>Form Integration</h1>
+    <p class="subtitle">Submit multiselect values with native HTML forms — live, from real markdown.</p>
+
+    <div class="callout info">
+      <div class="co-ico">i</div>
+      <div class="co-body">
+        <div class="co-title">Setup</div>
+        <p>This whole page is one markdown file. The demo below is a real &lt;web-multiselect&gt; loaded from the CDN — selecting items runs live JS and prints the value the server would receive. Press <code class="inline">Esc</code> to close the dropdown.</p>
+      </div>
+    </div>
+
+    <!-- FI01 -->
+    <h2 id="fi01">FI01 — JSON Format (default)</h2>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="ct"><span class="badge">FI01</span> JSON Format (Default)</div>
+        <div class="cs">Hidden input with a JSON array value</div>
+      </div>
+
+      <div class="grid3">
+        <!-- Demo -->
+        <div class="col">
+          <div class="col-title">Demo</div>
+          <div class="ms">
+            <span class="pill">JavaScript <i class="x">×</i></span>
+            <span class="pill">TypeScript <i class="x">×</i></span>
+            <span class="ph">Search languages…</span>
+            <span class="caret">⌄</span>
+          </div>
+          <div class="dd">
+            <div class="opt on"><span class="chk">✓</span> JavaScript</div>
+            <div class="opt on"><span class="chk">✓</span> TypeScript</div>
+            <div class="opt hover"><span class="chk"></span> Python</div>
+            <div class="opt"><span class="chk"></span> Go</div>
+            <div class="opt"><span class="chk"></span> Rust</div>
+            <div class="opt"><span class="chk"></span> Elixir</div>
+          </div>
+          <div class="outbox">
+            <span class="lbl">server receives</span>
+            { "values": ["js","ts"] }
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="col">
+          <div class="col-title">Controls</div>
+          <p>Read the JSON string on the server and parse it back into a real array before validating.</p>
+          <div class="code mini">
+            <div class="code-bar"><span class="dot" style="background:#ff5f56"></span><span class="dot" style="background:#ffbd2e"></span><span class="dot" style="background:#27c93f"></span><span class="lang">js</span></div>
+<pre><code><span style="color:var(--tk-kw)">app</span>.<span style="color:var(--tk-attr)">post</span>(<span style="color:var(--tk-str)">'/submit'</span>, (req, res) => {
+  <span style="color:var(--tk-kw)">const</span> langs = <span style="color:var(--tk-attr)">JSON</span>.<span style="color:var(--tk-attr)">parse</span>(req.body.languages);
+});</code></pre>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="col">
+          <div class="col-title">Description</div>
+          <p>The component renders a single hidden input holding a JSON-encoded array. It posts cleanly with any standard <code class="inline">&lt;form&gt;</code>.</p>
+          <div class="code mini">
+            <div class="code-bar"><span class="dot" style="background:#ff5f56"></span><span class="dot" style="background:#ffbd2e"></span><span class="dot" style="background:#27c93f"></span><span class="lang">html</span></div>
+<pre><code><span style="color:var(--tk-punc)">&lt;</span><span style="color:var(--tk-tag)">input</span> <span style="color:var(--tk-attr)">type</span>=<span style="color:var(--tk-str)">"hidden"</span> <span style="color:var(--tk-attr)">name</span>=<span style="color:var(--tk-str)">"languages"</span>
+  <span style="color:var(--tk-attr)">value</span>=<span style="color:var(--tk-str)">'["js","ts"]'</span><span style="color:var(--tk-punc)">&gt;</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Big demos -->
+    <h2 id="big">Big demos want more room</h2>
+    <p>Some components need width to breathe. Layout is <strong>generic</strong> — a plain <code class="inline">:::columns{cols="80/20"}</code> gives the demo the stage and keeps notes docked to the side, no grid framework required.</p>
+
+    <div class="grid8020">
+      <div class="col">
+        <div class="col-title">Demo</div>
+        <div class="ms">
+          <span class="pill">Prague <i class="x">×</i></span>
+          <span class="pill">Vienna <i class="x">×</i></span>
+          <span class="pill">Berlin <i class="x">×</i></span>
+          <span class="ph">Add a city…</span>
+          <span class="caret">⌄</span>
+        </div>
+        <div class="dd">
+          <div class="opt on"><span class="chk">✓</span> Prague</div>
+          <div class="opt on"><span class="chk">✓</span> Vienna</div>
+          <div class="opt on hover"><span class="chk">✓</span> Berlin</div>
+          <div class="opt"><span class="chk"></span> Warsaw</div>
+          <div class="opt"><span class="chk"></span> Budapest</div>
+        </div>
+        <div class="outbox"><span class="lbl">server receives</span>Prague,Vienna,Berlin</div>
+      </div>
+      <div class="col">
+        <div class="col-title">Notes</div>
+        <p>The 20% rail is perfect for terse guidance next to a wide live widget.</p>
+      </div>
+    </div>
+
+    <div class="code">
+      <div class="code-bar"><span class="dot" style="background:#ff5f56"></span><span class="dot" style="background:#ffbd2e"></span><span class="dot" style="background:#27c93f"></span><span class="lang">html</span></div>
+<pre><code><span style="color:var(--tk-punc)">&lt;</span><span style="color:var(--tk-tag)">script</span><span style="color:var(--tk-punc)">&gt;</span><span style="color:var(--tk-kw)">import</span> <span style="color:var(--tk-str)">'@keenmate/web-multiselect'</span>;<span style="color:var(--tk-punc)">&lt;/</span><span style="color:var(--tk-tag)">script</span><span style="color:var(--tk-punc)">&gt;</span>
+
+<span style="color:var(--tk-punc)">&lt;</span><span style="color:var(--tk-tag)">web-multiselect</span> <span style="color:var(--tk-attr)">value-format</span>=<span style="color:var(--tk-str)">"csv"</span>
+  <span style="color:var(--tk-attr)">data-options</span>=<span style="color:var(--tk-str)">"Prague,Vienna,Berlin"</span> <span style="color:var(--tk-punc)">/&gt;</span></code></pre>
+    </div>
+
+    <!-- Value formats -->
+    <h2 id="formats">Value formats</h2>
+    <p>Pick the wire format that matches your backend. All three post through the same hidden-input mechanism.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>value-format</th><th>Hidden input value</th><th>Use when</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="tag">json</span></td><td><code>["js","ts"]</code></td><td>Modern JSON backends</td></tr>
+          <tr><td><span class="tag">csv</span></td><td><code>js,ts</code></td><td>Classic form posts</td></tr>
+          <tr><td><span class="tag">array</span></td><td>multiple inputs</td><td>PHP-style <code>name[]</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tip card + warning -->
+    <div class="card">
+      <div class="card-head">
+        <div class="ct">💡 Tip</div>
+      </div>
+      <p style="margin:0;color:var(--text-soft)">Keep <code class="inline">value-format</code> in sync between the client component and your server parser. When in doubt, log the raw hidden-input value once — the output box in every demo above shows exactly what will land in <code class="inline">req.body</code>.</p>
+    </div>
+
+    <div class="callout warning">
+      <div class="co-ico">!</div>
+      <div class="co-body">
+        <div class="co-title">Heads up</div>
+        <p>The <code class="inline">array</code> format emits one input per selection. Make sure your framework groups repeated <code class="inline">name[]</code> fields into a list — some older stacks keep only the last value and silently drop the rest.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ===== TOC ===== -->
+  <aside class="toc glass">
+    <div class="toc-t">On this page</div>
+    <a href="#fi01" class="on">FI01 — JSON Format</a>
+    <a href="#big">Big demos want more room</a>
+    <a href="#formats">Value formats</a>
+  </aside>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="foot-inner">
+    <span>© 2026 KeenMate · Built with <strong style="color:var(--text-soft)">keen-docs</strong></span>
+    <span class="fl">
+      <a href="#">GitHub</a>
+      <a href="#">Components</a>
+      <a href="#">Changelog</a>
+      <a href="#">License</a>
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>

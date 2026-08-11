@@ -1,0 +1,17 @@
+{
+  "themes": {
+    "corporate": {
+      "source": "../pure-admin-themes/corporate",
+      "version": "2.9.0"
+    },
+    "dracula": {
+      "source": "../pure-admin-themes/dracula",
+      "version": "2.9.0"
+    },
+    "nato": {
+      "source": "../pure-admin-themes/nato",
+      "version": "2.9.0"
+    }
+  },
+  "themesDir": "priv/web/vendor/themes"
+}

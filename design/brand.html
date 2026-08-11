@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>keen-docs — Form Integration · web-multiselect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#00a7e1;
+    --primary:#007bff;
+    --primary-deep:#0056b3;
+    --deep:#003459;
+    --inverse:#2c3e50;
+    --text-1:#2c3e50;
+    --text-2:#6c757d;
+    --page:#f8f9fa;
+    --surface:#ffffff;
+    --border:#e1e5e9;
+    --success:#22c55e;
+    --danger:#ef4444;
+    --warning:#f97316;
+    --info:#17a2b8;
+    --grad:linear-gradient(120deg,#00a7e1 0%,#007bff 55%,#0056b3 100%);
+    --grad-soft:linear-gradient(120deg,rgba(0,167,225,.14),rgba(0,123,255,.14));
+    --shadow-sm:0 1px 2px rgba(16,42,67,.06),0 1px 3px rgba(16,42,67,.08);
+    --shadow-md:0 6px 18px rgba(16,42,67,.10),0 2px 6px rgba(16,42,67,.06);
+    --shadow-lg:0 18px 44px rgba(0,52,89,.16);
+    --r-sm:8px; --r:12px; --r-lg:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    background:var(--page);
+    color:var(--text-1);
+    font-size:15px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:'Plus Jakarta Sans','Inter',sans-serif;color:var(--text-1);line-height:1.2;letter-spacing:-.02em;}
+  a{color:var(--primary);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code,pre{font-family:'JetBrains Mono',ui-monospace,monospace;}
+
+  /* ===== TOP NAV ===== */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:var(--grad);
+    color:#fff;
+    box-shadow:0 2px 12px rgba(0,52,89,.28);
+  }
+  .topbar-accent{height:3px;background:linear-gradient(90deg,#7ee8fa,#00a7e1,#007bff,#0056b3,#7ee8fa);}
+  .topbar-inner{
+    max-width:1360px;margin:0 auto;padding:0 24px;height:62px;
+    display:flex;align-items:center;gap:18px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Plus Jakarta Sans';font-weight:800;font-size:19px;color:#fff;letter-spacing:-.01em;}
+  .brand:hover{text-decoration:none;}
+  .brand-mark{
+    width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+    background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);
+    font-size:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .pkg-chip{
+    font-family:'JetBrains Mono';font-size:12px;font-weight:500;
+    background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);
+    color:#eaf7ff;padding:3px 10px;border-radius:20px;white-space:nowrap;
+  }
+  .nav-links{display:flex;gap:4px;margin-left:8px;}
+  .nav-links a{
+    color:rgba(255,255,255,.9);font-weight:600;font-size:14px;
+    padding:7px 13px;border-radius:8px;transition:.15s;
+  }
+  .nav-links a:hover{background:rgba(255,255,255,.16);color:#fff;text-decoration:none;}
+  .nav-spacer{flex:1;}
+  .search{
+    display:flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,.92);border-radius:9px;
+    padding:7px 12px;min-width:210px;box-shadow:inset 0 1px 2px rgba(0,52,89,.12);
+  }
+  .search svg{flex:none;}
+  .search input{border:0;outline:0;background:transparent;font-size:13px;font-family:'Inter';color:var(--text-1);width:100%;}
+  .search .kbd{font-family:'JetBrains Mono';font-size:11px;color:var(--text-2);border:1px solid var(--border);border-radius:5px;padding:1px 5px;background:#fff;}
+  .icon-btn{
+    width:38px;height:38px;border-radius:9px;border:1px solid rgba(255,255,255,.3);
+    background:rgba(255,255,255,.12);color:#fff;font-size:17px;cursor:pointer;
+    display:grid;place-items:center;transition:.15s;
+  }
+  .icon-btn:hover{background:rgba(255,255,255,.24);}
+  .gh-btn{
+    display:flex;align-items:center;gap:7px;font-weight:700;font-size:14px;
+    background:#fff;color:var(--primary-deep);padding:8px 15px;border-radius:9px;
+    box-shadow:0 2px 8px rgba(0,52,89,.22);transition:.15s;white-space:nowrap;
+  }
+  .gh-btn:hover{text-decoration:none;transform:translateY(-1px);box-shadow:0 5px 14px rgba(0,52,89,.3);color:#003459;}
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative;overflow:hidden;
+    background:var(--grad);color:#fff;
+    padding:34px 0 40px;
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(650px 320px at 88% -10%,rgba(126,232,250,.45),transparent 60%),
+      radial-gradient(500px 300px at 8% 120%,rgba(0,52,89,.5),transparent 60%);
+    pointer-events:none;
+  }
+  .hero-inner{max-width:1360px;margin:0 auto;padding:0 24px;position:relative;}
+  .crumb{display:flex;gap:8px;align-items:center;font-size:13px;color:rgba(255,255,255,.82);margin-bottom:16px;font-weight:500;}
+  .crumb a{color:rgba(255,255,255,.82);}
+  .crumb a:hover{color:#fff;}
+  .crumb .sep{opacity:.55;}
+  .hero h1{font-size:44px;font-weight:800;margin:0 0 12px;color:#fff;text-shadow:0 2px 14px rgba(0,52,89,.25);}
+  .hero-sub{font-size:18px;color:rgba(255,255,255,.94);max-width:640px;margin:0;font-weight:400;}
+  .hero-badges{display:flex;gap:9px;margin-top:20px;}
+  .hbadge{
+    font-size:12.5px;font-weight:700;letter-spacing:.02em;
+    padding:5px 13px;border-radius:20px;
+    background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;
+    display:flex;align-items:center;gap:6px;
+  }
+  .hbadge.solid{background:#fff;color:var(--primary-deep);border-color:#fff;}
+
+  /* ===== LAYOUT ===== */
+  .shell{max-width:1360px;margin:0 auto;padding:0 24px;display:flex;gap:36px;align-items:flex-start;}
+  .sidebar{
+    width:240px;flex:none;position:sticky;top:78px;
+    align-self:flex-start;padding:26px 0 40px;max-height:calc(100vh - 78px);overflow-y:auto;
+  }
+  .content{flex:1;min-width:0;max-width:860px;padding:30px 0 60px;}
+
+  /* ===== SIDEBAR ===== */
+  .ver-select{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:9px 13px;margin-bottom:22px;cursor:pointer;box-shadow:var(--shadow-sm);
+    font-weight:700;font-size:13.5px;transition:.15s;
+  }
+  .ver-select:hover{border-color:var(--brand);box-shadow:0 2px 10px rgba(0,167,225,.18);}
+  .ver-select .vtag{background:var(--grad-soft);color:var(--primary-deep);font-family:'JetBrains Mono';font-size:12px;padding:2px 8px;border-radius:6px;}
+  .ver-select .chev{color:var(--text-2);font-size:12px;}
+  .nav-group{margin-bottom:22px;}
+  .nav-group h5{
+    font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--text-2);margin:0 0 8px;padding-left:12px;
+  }
+  .nav-group a{
+    display:block;padding:7px 12px;border-radius:8px;color:var(--text-1);
+    font-size:14px;font-weight:500;transition:.13s;margin-bottom:1px;
+  }
+  .nav-group a:hover{background:#eef4fb;color:var(--primary-deep);text-decoration:none;}
+  .nav-group a.active{
+    background:var(--grad);color:#fff;font-weight:700;
+    box-shadow:0 4px 12px rgba(0,123,255,.34);
+  }
+  .nav-group a.active:hover{color:#fff;}
+
+  /* ===== CONTENT ELEMENTS ===== */
+  .content h2{
+    font-size:27px;font-weight:800;margin:44px 0 14px;padding-bottom:10px;
+    border-bottom:2px solid var(--border);position:relative;
+  }
+  .content h2::after{content:"";position:absolute;left:0;bottom:-2px;width:64px;height:2px;background:var(--grad);}
+  .content h2:first-child{margin-top:0;}
+  .content > p{color:var(--text-1);margin:14px 0;}
+  .content .lead{font-size:16px;}
+
+  /* callouts */
+  .callout{
+    display:flex;gap:14px;border-radius:var(--r);padding:16px 18px;margin:20px 0;
+    border:1px solid var(--border);box-shadow:var(--shadow-sm);position:relative;overflow:hidden;
+  }
+  .callout::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;}
+  .callout .c-ico{width:34px;height:34px;border-radius:9px;flex:none;display:grid;place-items:center;font-size:17px;font-weight:800;color:#fff;}
+  .callout .c-body{min-width:0;}
+  .callout .c-title{font-weight:800;font-family:'Plus Jakarta Sans';font-size:15px;margin-bottom:2px;}
+  .callout .c-body p{margin:2px 0 0;font-size:14px;color:var(--text-1);}
+  .callout code{background:rgba(0,52,89,.07);padding:1px 6px;border-radius:5px;font-size:12.5px;color:var(--primary-deep);}
+  .callout.info{background:linear-gradient(180deg,#f2fbff,#fff);}
+  .callout.info::before{background:var(--brand);}
+  .callout.info .c-ico{background:linear-gradient(135deg,var(--brand),var(--primary));}
+  .callout.info .c-title{color:var(--primary-deep);}
+  .callout.warn{background:linear-gradient(180deg,#fff8f2,#fff);}
+  .callout.warn::before{background:var(--warning);}
+  .callout.warn .c-ico{background:linear-gradient(135deg,#fb923c,#f97316);}
+  .callout.warn .c-title{color:#c2410c;}
+
+  /* showcase / panels */
+  .showcase{
+    border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;
+    margin:22px 0;box-shadow:var(--shadow-md);background:var(--surface);
+  }
+  .showcase-head{
+    background:var(--grad);color:#fff;padding:14px 20px;
+  }
+  .showcase-head .sh-title{font-family:'Plus Jakarta Sans';font-weight:800;font-size:16px;display:flex;align-items:center;gap:9px;}
+  .showcase-head .sh-sub{font-size:13px;color:rgba(255,255,255,.9);margin-top:2px;}
+  .sh-badge{font-size:11px;font-weight:700;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);padding:2px 9px;border-radius:14px;}
+
+  .grid3{display:grid;grid-template-columns:1.15fr .95fr .95fr;gap:0;}
+  .grid3 > .cell{border-right:1px solid var(--border);}
+  .grid3 > .cell:last-child{border-right:0;}
+  .grid-80-20{display:grid;grid-template-columns:80% 20%;gap:0;}
+  .grid-80-20 > .cell{border-right:1px solid var(--border);}
+  .grid-80-20 > .cell:last-child{border-right:0;}
+  .cell{display:flex;flex-direction:column;}
+  .cell-head{
+    padding:9px 16px;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#fff;
+    display:flex;align-items:center;gap:7px;
+  }
+  .cell-head.blue{background:linear-gradient(90deg,#007bff,#0056b3);}
+  .cell-head.green{background:linear-gradient(90deg,#22c55e,#16a34a);}
+  .cell-head.cyan{background:linear-gradient(90deg,#00a7e1,#0891b2);}
+  .cell-head.slate{background:linear-gradient(90deg,#334155,#1e293b);}
+  .cell-body{padding:18px 16px;flex:1;}
+  .cell-body p{margin:0 0 10px;font-size:13.5px;color:var(--text-1);line-height:1.55;}
+  .cell-body p:last-child{margin-bottom:0;}
+
+  /* component facsimile */
+  .facsimile{padding:4px 0 2px;}
+  .ms-control{
+    border:1.5px solid var(--brand);border-radius:10px;background:#fff;
+    padding:8px 10px;display:flex;flex-wrap:wrap;gap:7px;align-items:center;
+    box-shadow:0 0 0 3px rgba(0,167,225,.12);min-height:44px;
+  }
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+    background:var(--grad-soft);color:var(--primary-deep);border:1px solid rgba(0,123,255,.3);
+    padding:3px 6px 3px 10px;border-radius:16px;
+  }
+  .pill .x{
+    width:16px;height:16px;border-radius:50%;background:rgba(0,123,255,.16);color:var(--primary-deep);
+    display:grid;place-items:center;font-size:11px;cursor:pointer;
+  }
+  .pill .x:hover{background:var(--danger);color:#fff;}
+  .ms-input{flex:1;min-width:110px;border:0;outline:0;font-size:13.5px;color:var(--text-1);font-family:'Inter';background:transparent;padding:2px;}
+  .ms-input::placeholder{color:var(--text-2);}
+  .ms-caret{color:var(--brand);font-size:12px;padding:0 2px;}
+
+  .ms-dropdown{
+    margin-top:6px;border:1px solid var(--border);border-radius:11px;background:#fff;
+    box-shadow:var(--shadow-lg);overflow:hidden;
+  }
+  .ms-opt{
+    display:flex;align-items:center;gap:10px;padding:9px 13px;font-size:13.5px;cursor:pointer;
+    border-bottom:1px solid #f1f3f6;transition:.1s;
+  }
+  .ms-opt:last-child{border-bottom:0;}
+  .ms-check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border);flex:none;display:grid;place-items:center;font-size:12px;color:transparent;}
+  .ms-opt.sel{background:linear-gradient(90deg,rgba(0,167,225,.10),rgba(0,123,255,.06));color:var(--primary-deep);font-weight:600;}
+  .ms-opt.sel .ms-check{background:var(--grad);border-color:transparent;color:#fff;}
+  .ms-opt.hover{background:#eef4fb;}
+  .ms-opt.hover .ms-check{border-color:var(--brand);}
+  .ms-opt .flag{margin-left:auto;font-size:11px;color:var(--text-2);font-family:'JetBrains Mono';}
+
+  .output-box{
+    margin-top:12px;background:#0d1b2a;border-radius:9px;padding:10px 13px;
+    font-family:'JetBrains Mono';font-size:12.5px;color:#e2e8f0;
+    display:flex;align-items:center;gap:9px;border:1px solid #1b2a3d;
+  }
+  .output-box .dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;flex:none;}
+  .output-box .lbl{color:#64748b;font-size:11px;margin-right:2px;}
+  .output-box .val .s{color:#7ee8fa;}
+  .output-box .val .p{color:#94a3b8;}
+
+  /* code blocks */
+  .codeblock{
+    border:1px solid #d0d7de;border-radius:10px;overflow:hidden;background:#fff;
+    box-shadow:var(--shadow-sm);margin:14px 0;
+  }
+  .code-bar{
+    display:flex;align-items:center;gap:7px;padding:8px 13px;background:#f6f8fa;border-bottom:1px solid #d0d7de;
+  }
+  .code-bar .lang{font-family:'JetBrains Mono';font-size:11px;font-weight:600;color:var(--text-2);letter-spacing:.04em;text-transform:uppercase;}
+  .code-bar .dots{display:flex;gap:5px;margin-left:auto;}
+  .code-bar .dots i{width:10px;height:10px;border-radius:50%;display:block;}
+  .code-bar .dots i:nth-child(1){background:#ff5f57;}
+  .code-bar .dots i:nth-child(2){background:#febc2e;}
+  .code-bar .dots i:nth-child(3){background:#28c840;}
+  pre.code{margin:0;padding:14px 16px;font-family:'JetBrains Mono';font-size:12.5px;line-height:1.7;color:#1f2328;overflow-x:auto;background:#fff;}
+  .code-sm pre.code{font-size:12px;padding:11px 13px;}
+  .code-sm .code-bar{padding:6px 11px;}
+
+  /* table */
+  .tbl-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);margin:18px 0;}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  thead th{
+    background:var(--grad);color:#fff;text-align:left;padding:12px 16px;font-weight:700;font-size:13px;
+    letter-spacing:.02em;
+  }
+  tbody td{padding:12px 16px;border-top:1px solid var(--border);vertical-align:top;color:var(--text-1);}
+  tbody tr:nth-child(even){background:#fafbfc;}
+  tbody tr:hover{background:#eef4fb;}
+  td code,th code{font-family:'JetBrains Mono';font-size:12.5px;background:rgba(0,52,89,.07);padding:2px 7px;border-radius:5px;color:var(--primary-deep);}
+  .fmt-chip{display:inline-block;font-family:'JetBrains Mono';font-size:12px;font-weight:600;padding:2px 9px;border-radius:6px;color:#fff;}
+  .fmt-chip.json{background:var(--primary);}
+  .fmt-chip.csv{background:var(--info);}
+  .fmt-chip.array{background:#8b5cf6;}
+
+  /* tip card */
+  .tipcard{
+    border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;margin:22px 0;box-shadow:var(--shadow-md);background:var(--surface);
+  }
+  .tipcard-head{
+    background:linear-gradient(90deg,#22c55e,#16a34a);color:#fff;padding:11px 18px;
+    font-family:'Plus Jakarta Sans';font-weight:800;font-size:15px;display:flex;align-items:center;gap:9px;
+  }
+  .tipcard-body{padding:16px 18px;font-size:14px;}
+  .tipcard-body code{background:rgba(0,52,89,.07);padding:1px 6px;border-radius:5px;color:var(--primary-deep);font-family:'JetBrains Mono';font-size:12.5px;}
+
+  /* footer */
+  footer{
+    margin-top:20px;background:linear-gradient(180deg,#003459,#012238);color:#cfe4f2;
+  }
+  .footer-inner{
+    max-width:1360px;margin:0 auto;padding:34px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  }
+  .footer-brand{display:flex;align-items:center;gap:11px;font-family:'Plus Jakarta Sans';font-weight:800;font-size:16px;color:#fff;}
+  .footer-brand .brand-mark{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);}
+  .footer-meta{font-size:13.5px;color:#9db8ce;}
+  .footer-links{display:flex;gap:8px;}
+  .footer-links a{
+    color:#cfe4f2;font-weight:600;font-size:13.5px;padding:7px 14px;border-radius:8px;
+    border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);transition:.15s;
+  }
+  .footer-links a:hover{background:rgba(255,255,255,.15);color:#fff;text-decoration:none;}
+
+  @media (max-width:1080px){
+    .grid3{grid-template-columns:1fr;}
+    .grid3 > .cell{border-right:0;border-bottom:1px solid var(--border);}
+    .grid-80-20{grid-template-columns:1fr;}
+    .grid-80-20 > .cell{border-right:0;border-bottom:1px solid var(--border);}
+    .grid3 > .cell:last-child,.grid-80-20 > .cell:last-child{border-bottom:0;}
+  }
+  @media (max-width:900px){
+    .sidebar{display:none;}
+    .nav-links,.search{display:none;}
+    .hero h1{font-size:34px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP NAV ===== -->
+<header class="topbar">
+  <div class="topbar-accent"></div>
+  <div class="topbar-inner">
+    <a class="brand" href="#"><span class="brand-mark">◆</span>keen-docs</a>
+    <span class="pkg-chip">/ web-multiselect</span>
+    <nav class="nav-links">
+      <a href="#">Components</a>
+      <a href="#">Guides</a>
+      <a href="#">Infrastructure</a>
+    </nav>
+    <div class="nav-spacer"></div>
+    <div class="search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6c757d" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search docs…">
+      <span class="kbd">⌘K</span>
+    </div>
+    <button class="icon-btn" title="Toggle theme" onclick="document.body.classList.toggle('dark')">◑</button>
+    <a class="gh-btn" href="#">GitHub <span>↗</span></a>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="crumb">
+      <a href="#">Docs</a><span class="sep">/</span>
+      <a href="#">Guides</a><span class="sep">/</span>
+      <span>Form Integration</span>
+    </div>
+    <h1>Form Integration</h1>
+    <p class="hero-sub">Submit multiselect values with native HTML forms — live, from real markdown.</p>
+    <div class="hero-badges">
+      <span class="hbadge solid">📘 Guide</span>
+      <span class="hbadge">v2.0.0</span>
+      <span class="hbadge">web-multiselect</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BODY ===== -->
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="ver-select">
+      <span>Version <span class="vtag">v2.0.0</span></span>
+      <span class="chev">▾</span>
+    </div>
+
+    <div class="nav-group">
+      <h5>Getting Started</h5>
+      <a href="#">Introduction</a>
+      <a href="#">Installation</a>
+    </div>
+
+    <div class="nav-group">
+      <h5>Guides</h5>
+      <a href="#">Theming</a>
+      <a href="#" class="active">Form Integration</a>
+      <a href="#">Value Formats</a>
+    </div>
+
+    <div class="nav-group">
+      <h5>Reference</h5>
+      <a href="#">API</a>
+      <a href="#">Events</a>
+      <a href="#">Styling</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="content">
+
+    <!-- info callout -->
+    <div class="callout info">
+      <div class="c-ico">i</div>
+      <div class="c-body">
+        <div class="c-title">Setup</div>
+        <p>This whole page is one markdown file. The demo below is a real <code>&lt;web-multiselect&gt;</code> loaded from the CDN — selecting items runs live JS and prints the value the server would receive. Press <code>Esc</code> to close the dropdown.</p>
+      </div>
+    </div>
+
+    <h2>FI01 — JSON Format (default)</h2>
+    <p class="lead">The default serialization writes selected values as a JSON array into a hidden input, so any backend that already speaks JSON can read the field directly.</p>
+
+    <!-- SHOWCASE 3-col -->
+    <div class="showcase">
+      <div class="showcase-head">
+        <div class="sh-title">FI01 JSON Format (Default) <span class="sh-badge">LIVE</span></div>
+        <div class="sh-sub">Hidden input with a JSON array value</div>
+      </div>
+      <div class="grid3">
+
+        <!-- Demo -->
+        <div class="cell">
+          <div class="cell-head blue">▶ Demo</div>
+          <div class="cell-body">
+            <div class="facsimile">
+              <div class="ms-control">
+                <span class="pill">JavaScript <span class="x">×</span></span>
+                <span class="pill">TypeScript <span class="x">×</span></span>
+                <input class="ms-input" placeholder="Search languages…">
+                <span class="ms-caret">▾</span>
+              </div>
+              <div class="ms-dropdown">
+                <div class="ms-opt sel"><span class="ms-check">✓</span> JavaScript <span class="flag">js</span></div>
+                <div class="ms-opt sel"><span class="ms-check">✓</span> TypeScript <span class="flag">ts</span></div>
+                <div class="ms-opt hover"><span class="ms-check"></span> Python <span class="flag">py</span></div>
+                <div class="ms-opt"><span class="ms-check"></span> Go <span class="flag">go</span></div>
+                <div class="ms-opt"><span class="ms-check"></span> Rust <span class="flag">rs</span></div>
+                <div class="ms-opt"><span class="ms-check"></span> Elixir <span class="flag">ex</span></div>
+              </div>
+              <div class="output-box">
+                <span class="dot"></span><span class="lbl">value →</span>
+                <span class="val">{ "values": [<span class="s">"js"</span><span class="p">,</span> <span class="s">"ts"</span>] }</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="cell">
+          <div class="cell-head green">⚙ Controls</div>
+          <div class="cell-body">
+            <p>On the server, parse the hidden field back into an array. Node/Express reads the JSON body field directly:</p>
+            <div class="codeblock code-sm">
+              <div class="code-bar"><span class="lang">js</span><span class="dots"><i></i><i></i><i></i></span></div>
+<pre class="code"><span style="color:#0550ae">app</span>.<span style="color:#8250df">post</span>(<span style="color:#0a3069">'/submit'</span><span style="color:#1f2328">,</span> (<span style="color:#0550ae">req</span><span style="color:#1f2328">,</span> <span style="color:#0550ae">res</span>) <span style="color:#cf222e">=&gt;</span> {
+  <span style="color:#cf222e">const</span> <span style="color:#0550ae">langs</span> <span style="color:#cf222e">=</span> <span style="color:#0550ae">JSON</span>.<span style="color:#8250df">parse</span>(<span style="color:#0550ae">req</span>.<span style="color:#0550ae">body</span>.<span style="color:#0550ae">languages</span>)<span style="color:#1f2328">;</span>
+})<span style="color:#1f2328">;</span></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="cell">
+          <div class="cell-head cyan">✦ Description</div>
+          <div class="cell-body">
+            <p>The component keeps a synced hidden input inside the form. Its <code>value</code> is a JSON-encoded array of the selected option values.</p>
+            <div class="codeblock code-sm">
+              <div class="code-bar"><span class="lang">html</span><span class="dots"><i></i><i></i><i></i></span></div>
+<pre class="code"><span style="color:#1f2328">&lt;</span><span style="color:#116329">input</span> <span style="color:#0550ae">type</span>=<span style="color:#0a3069">"hidden"</span>
+  <span style="color:#0550ae">name</span>=<span style="color:#0a3069">"languages"</span>
+  <span style="color:#0550ae">value</span>=<span style="color:#0a3069">'["js","ts"]'</span><span style="color:#1f2328">&gt;</span></pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <h2>Big demos want more room</h2>
+    <p>Some interactions need width to breathe. A <code>:::columns{cols="80/20"}</code> layout gives the demo an 80% column and pins short notes alongside in the remaining 20% — pure CSS-grid <code>fr</code> ratios, not a fixed 12-column grid.</p>
+
+    <!-- 80/20 -->
+    <div class="showcase">
+      <div class="grid-80-20">
+        <div class="cell">
+          <div class="cell-head blue">▶ Demo</div>
+          <div class="cell-body">
+            <div class="facsimile">
+              <div class="ms-control">
+                <span class="pill">JavaScript <span class="x">×</span></span>
+                <span class="pill">TypeScript <span class="x">×</span></span>
+                <span class="pill">Elixir <span class="x">×</span></span>
+                <input class="ms-input" placeholder="Search languages…">
+                <span class="ms-caret">▾</span>
+              </div>
+              <div class="ms-dropdown">
+                <div class="ms-opt sel"><span class="ms-check">✓</span> JavaScript <span class="flag">js</span></div>
+                <div class="ms-opt sel"><span class="ms-check">✓</span> TypeScript <span class="flag">ts</span></div>
+                <div class="ms-opt hover"><span class="ms-check"></span> Python <span class="flag">py</span></div>
+                <div class="ms-opt"><span class="ms-check"></span> Go <span class="flag">go</span></div>
+                <div class="ms-opt"><span class="ms-check"></span> Rust <span class="flag">rs</span></div>
+                <div class="ms-opt sel"><span class="ms-check">✓</span> Elixir <span class="flag">ex</span></div>
+              </div>
+              <div class="output-box">
+                <span class="dot"></span><span class="lbl">value →</span>
+                <span class="val">{ "values": [<span class="s">"js"</span><span class="p">,</span> <span class="s">"ts"</span><span class="p">,</span> <span class="s">"ex"</span>] }</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cell-head slate">✎ Notes</div>
+          <div class="cell-body">
+            <p>The 20% rail is ideal for terse annotations, keyboard hints, or "gotchas".</p>
+            <p><code>Esc</code> closes the panel; <code>↑ ↓</code> move focus.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="codeblock">
+      <div class="code-bar"><span class="lang">html</span><span class="dots"><i></i><i></i><i></i></span></div>
+<pre class="code"><span style="color:#1f2328">&lt;</span><span style="color:#116329">script</span><span style="color:#1f2328">&gt;</span><span style="color:#cf222e">import</span> <span style="color:#0a3069">'@keenmate/web-multiselect'</span><span style="color:#1f2328">;&lt;/</span><span style="color:#116329">script</span><span style="color:#1f2328">&gt;</span>
+
+<span style="color:#1f2328">&lt;</span><span style="color:#116329">web-multiselect</span>
+  <span style="color:#0550ae">value-format</span>=<span style="color:#0a3069">"csv"</span>
+  <span style="color:#0550ae">data-options</span>=<span style="color:#0a3069">"Prague,Vienna,Berlin"</span> <span style="color:#1f2328">/&gt;</span></pre>
+    </div>
+
+    <h2>Value formats</h2>
+    <p>The <code>value-format</code> attribute controls exactly what lands in the submitted field. Pick the shape your backend already expects.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th><code style="background:rgba(255,255,255,.18);color:#fff">value-format</code></th>
+            <th>Hidden input value</th>
+            <th>Use when</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="fmt-chip json">json</span></td>
+            <td><code>["js","ts"]</code></td>
+            <td>Modern JSON backends</td>
+          </tr>
+          <tr>
+            <td><span class="fmt-chip csv">csv</span></td>
+            <td><code>js,ts</code></td>
+            <td>Classic form posts</td>
+          </tr>
+          <tr>
+            <td><span class="fmt-chip array">array</span></td>
+            <td>multiple inputs</td>
+            <td>PHP-style <code>name[]</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TIP card -->
+    <div class="tipcard">
+      <div class="tipcard-head">💡 Tip</div>
+      <div class="tipcard-body">
+        <code>:::col</code> is a plain labelled column (no box). <code>:::card</code> — like this one — is the boxed variant with a colored header bar.
+      </div>
+    </div>
+
+    <!-- WARNING callout -->
+    <div class="callout warn">
+      <div class="c-ico">!</div>
+      <div class="c-body">
+        <div class="c-title">Heads up</div>
+        <p>With <code>value-format="array"</code> the component emits multiple inputs sharing one <code>name[]</code>. Make sure your framework merges repeated fields — some strict parsers keep only the last value.</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand"><span class="brand-mark">◆</span>keen-docs</div>
+      <div class="footer-meta" style="margin-top:8px;">© 2026 KeenMate · Built with keen-docs</div>
+    </div>
+    <div class="footer-links">
+      <a href="#">GitHub ↗</a>
+      <a href="#">Hex ↗</a>
+      <a href="#">npm ↗</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

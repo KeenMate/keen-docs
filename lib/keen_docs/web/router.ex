@@ -44,6 +44,39 @@ defmodule KeenDocs.Web.Router do
     send_css(conn, Path.join(["vendor", "pure-css", file]))
   end
 
+  # The pure-admin framework bundle (core.css) — the baseline shell + palette linked by
+  # View.styles/1 when no template is active — plus its vanilla JS enhancements (navbar-collapse.js).
+  # Same repo-relative send (no traversal); content-type by extension so the .js loads as a module.
+  get "/vendor/pure-admin/:file" do
+    rel = Path.join(["vendor", "pure-admin", file])
+    if String.ends_with?(file, ".js"), do: send_js(conn, rel), else: send_css(conn, rel)
+  end
+
+  # keen-docs' own front-end enhancements (not vendored from pure-admin): the reader settings panel
+  # driver. Served as a real ES-flavoured module; declared before the greedy /:set/... routes.
+  get "/keendocs/:file" do
+    send_js(conn, Path.join(["keendocs", file]))
+  end
+
+  # ── installed theme bundles (priv/web/vendor/themes/<id>/…) ────────────────
+  # The active theme's self-contained bundle: its stylesheet (View links it in place of core.css)
+  # and its bundled assets (fonts the CSS @font-face's via ../assets/…). Declared before the greedy
+  # /:set/... routes so /themes/... isn't read as a document. Ids/paths are validated (no traversal).
+  get "/themes/:id/dist/:file" do
+    send_theme_file(conn, id, ["dist", file])
+  end
+
+  get "/themes/:id/assets/*rest" do
+    send_theme_file(conn, id, ["assets" | rest])
+  end
+
+  # ── presentation templates (priv/templates/<id>/dist/<id>.css) ────────────
+  # Legacy template stylesheets (the `calm` skin). Superseded by theme bundles above; kept until
+  # calm is re-based (themes Phase 5). Declared before the greedy /:set/... routes.
+  get "/templates/:id/dist/:file" do
+    send_template_css(conn, id, file)
+  end
+
   # ── hub ───────────────────────────────────────────────────────────────────
   # The hub renders its authored homepage (the 'hub' site's home_slug page); if none is set,
   # it falls back to the auto-generated doc_set table.
@@ -95,16 +128,17 @@ defmodule KeenDocs.Web.Router do
       page ->
         site = Content.one(Content.get_site("hub"))
         output = View.render_markdown(page.content)
-        hero = if opts[:hero] && site, do: View.hero_html(site.title, site.description), else: ""
+        # Page-head DATA (the theme decides whether/how to render it); the hub hero is title + tagline.
+        head_data = if opts[:hero] && site, do: [title: site.title, subtitle: site.description], else: nil
 
-        inner = """
-        #{hero}<article class="kd-page">#{View.body_html(output)}</article>
-        """
+        inner = ~s(<article class="kd-page">#{View.body_html(output)}</article>)
 
         html(conn, View.layout(page.title || slug, inner,
           head: View.head_html(output),
           footer: View.footer_html(output),
           docset: site,
+          page: head_data,
+          toc: output.toc,
           canonical: canonical_url(site, conn)))
     end
   end
@@ -261,7 +295,7 @@ defmodule KeenDocs.Web.Router do
     docset = Content.one(Content.get_doc_set(set))
     nav = Content.rows(Content.get_doc_nav(set))
     variants = Content.rows(Content.list_doc_variants(set))
-    sidebar = View.sidebar_html(set, nav, active_variant, active_slug, variants)
+    sidebar = View.sidebar_html(set, nav, active_variant, active_slug, variants, docset)
     {docset, sidebar}
   end
 
@@ -306,21 +340,43 @@ defmodule KeenDocs.Web.Router do
         output = View.render_markdown(doc.content)
         index = Content.one(Content.get_document_index(set, variant, slug))
         {docset, sidebar} = set_chrome(set, variant, slug)
-        hero = if opts[:hero] && docset, do: View.hero_html(docset.title, docset.description), else: ""
 
-        inner = """
-        <div class="kd-crumb"><a href="/">home</a> / <a href="/#{esc(set)}">#{esc(set)}</a> / #{esc(variant)} / #{esc(slug)}</div>
-        #{hero}<article class="kd-page">#{View.body_html(output)}</article>
-        #{index_panel(index)}
-        """
+        head_data =
+          if opts[:hero] && docset do
+            # set homepage → the doc_set's own hero (title + description)
+            [title: docset.title, subtitle: docset.description]
+          else
+            crumb = ~s(<div class="kd-crumb"><a href="/">home</a> / <a href="/#{esc(set)}">#{esc(set)}</a> / #{esc(variant)} / #{esc(slug)}</div>)
+            [crumb: crumb, title: doc.title || slug, subtitle: frontmatter_desc(doc), badges: doc_badges(docset, variant)]
+          end
+
+        inner = ~s(<article class="kd-page">#{View.body_html(output)}</article>\n#{index_panel(index)})
 
         html(conn, View.layout(doc.title || slug, inner,
           head: View.head_html(output),
           footer: View.footer_html(output),
           docset: docset,
           sidebar: sidebar,
+          page: head_data,
+          toc: output.toc,
           canonical: canonical_url(docset, conn)))
     end
+  end
+
+  # A document's front-matter description → hero subtitle (nil when absent).
+  defp frontmatter_desc(%{frontmatter: fm}) when is_map(fm), do: fm["description"] || fm["summary"]
+  defp frontmatter_desc(_), do: nil
+
+  # Hero badges for a doc: the doc_set kind + the version (when the variant is a version code).
+  defp doc_badges(docset, variant) do
+    kind =
+      case docset && Map.get(docset, :kind_code) do
+        nil -> ""
+        k -> badge(k, k)
+      end
+
+    ver = if is_binary(variant) and variant =~ ~r/\d/, do: badge("v#{variant}", "default"), else: ""
+    [kind, ver] |> Enum.reject(&(&1 == "")) |> Enum.join(" ")
   end
 
   # Per-page canonical from the set's site_url (settings) + the request path.
@@ -466,6 +522,50 @@ defmodule KeenDocs.Web.Router do
       conn |> put_resp_content_type("text/css") |> send_resp(200, File.read!(path))
     else
       send_resp(conn, 404, "missing asset: #{rel}")
+    end
+  end
+
+  # Serve a file from an installed theme bundle (priv/web/vendor/themes/<id>/<sub...>). The id is a
+  # slug and every sub-segment is a safe filename (no dots-only/slashes), so the join can't escape
+  # the theme dir. Content-type is derived from the extension (css / woff2 / woff / json).
+  defp send_theme_file(conn, id, sub) do
+    if id =~ ~r/^[a-z][a-z0-9-]*$/ and Enum.all?(sub, &(&1 =~ ~r/^[A-Za-z0-9][A-Za-z0-9._-]*$/)) do
+      path = Path.join([File.cwd!(), "priv", "web", "vendor", "themes", id | sub])
+
+      if File.exists?(path) do
+        conn |> put_resp_content_type(theme_content_type(path)) |> send_resp(200, File.read!(path))
+      else
+        send_resp(conn, 404, "missing theme asset: #{id}/#{Enum.join(sub, "/")}")
+      end
+    else
+      send_resp(conn, 400, "bad theme asset path")
+    end
+  end
+
+  defp theme_content_type(path) do
+    case Path.extname(path) do
+      ".css" -> "text/css"
+      ".woff2" -> "font/woff2"
+      ".woff" -> "font/woff"
+      ".json" -> "application/json"
+      ".svg" -> "image/svg+xml"
+      _ -> "application/octet-stream"
+    end
+  end
+
+  # Serve a template stylesheet from priv/templates/<id>/dist/<file>. Both segments are
+  # validated to a safe charset (no dots/slashes) so neither can escape the templates dir.
+  defp send_template_css(conn, id, file) do
+    if id =~ ~r/^[a-z][a-z0-9-]*$/ and file =~ ~r/^[a-z][a-z0-9.-]*\.css$/ do
+      path = Path.join([File.cwd!(), "priv", "templates", id, "dist", file])
+
+      if File.exists?(path) do
+        conn |> put_resp_content_type("text/css") |> send_resp(200, File.read!(path))
+      else
+        send_resp(conn, 404, "missing template asset: #{id}/#{file}")
+      end
+    else
+      send_resp(conn, 400, "bad template asset path")
     end
   end
 

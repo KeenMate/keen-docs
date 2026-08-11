@@ -25,6 +25,15 @@ config :keen_markdown,
   # default BEM `km-*`. See `KeenDocs.Markup`.
   profile: KeenDocs.Markup
 
+# The presentation THEME — the visual "shape" (layout shell, chrome, typography, component styling)
+# a site renders in, as an installed pure-admin theme bundle (see keendocs.json + KeenDocs.Themes).
+# Resolution mirrors the profile pattern: this ONE global default, overridable per doc_set via its
+# `settings["theme"]["id"]` (the same settings.theme map also carries a per-doc_set accent/vars
+# micro-override). The id maps to priv/web/vendor/themes/<id>/dist/<id>.css (served at
+# /themes/<id>/dist/<id>.css). nil / "none" / an uninstalled id → the vendored pure-admin core.css
+# baseline shell. Installed themes: nato, dracula, corporate (`make seed-themes`).
+config :keen_docs, :theme, "dhl"
+
 # keen-phoenix-svelte islands mounted by `:::app`. `base_path` mirrors
 # `KeenPhoenixSvelte.Apps.base_path/0`. This harness is a plain (non-LiveView) page, so it
 # sets `runtime` to the esbuild-bundled keen-phoenix-svelte client (served at
