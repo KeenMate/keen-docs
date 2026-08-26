@@ -4,11 +4,11 @@
   "id": "nato",
   "version": "2.9.0",
   "description": "Institutional navy and azure theme inspired by NATO's visual identity",
-  "content": "## NATO\n\nA disciplined, institutional theme inspired by the visual identity of the North Atlantic Treaty Organization. Built around NATO's two signature blues — Pantone 280 navy and Pantone 2718 azure — paired with crisp white surfaces for an authoritative, official feel.\n\n### Highlights\n\n- **Navy `#004990` + azure `#118ACB`** — NATO's signature Pantone palette\n- **Noto Sans Condensed** — matching NATO's display typography\n- **High-contrast institutional look** suited to government, defense, and enterprise dashboards\n- **Light and dark modes** with shared accent colors\n- **Bundled font** — self-hosted woff2 included\n\n### Usage\n\n```html\n<link rel=\"stylesheet\" href=\"css/nato.css\">\n```\n\nDefaults to light mode. Switch with `pa-mode-light` / `pa-mode-dark` on `<body>`. Auto-switching via `prefers-color-scheme` is enabled by default.\n\n> Inspired by NATO's public visual identity. Not affiliated with or endorsed by NATO.",
+  "content": "## NATO\n\nA disciplined, institutional theme inspired by the visual identity of the North Atlantic Treaty Organization. Built around NATO's two signature blues — Pantone 280 navy and Pantone 2718 azure — paired with crisp white surfaces for an authoritative, official feel.\n\n### Highlights\n\n- **Navy `#004990` + azure `#118ACB`** — NATO's signature Pantone palette\n- **Noto Sans Condensed** — matching NATO's display typography\n- **High-contrast institutional look** suited to government, defense, and enterprise dashboards\n- **Light and dark modes** with shared accent colors\n- **Bundled font** — self-hosted woff2 included\n\n### Usage\n\n```html\n<link rel=\"stylesheet\" href=\"css/nato.css\">\n```\n\nDefaults to light mode. Switch with `pc-mode-light` / `pc-mode-dark` on `<body>`. Auto-switching via `prefers-color-scheme` is enabled by default.\n\n> Inspired by NATO's public visual identity. Not affiliated with or endorsed by NATO.",
   "author": "KeenMate",
   "license": "MIT",
 
-  "modeCssClass": "pa-mode-{mode}",
+  "modeCssClass": "pc-mode-{mode}",
   "variantCssClass": "pa-color-{variant}",
 
   "colorVariants": [

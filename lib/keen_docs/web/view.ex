@@ -49,7 +49,7 @@ defmodule KeenDocs.Web.View do
     inner_mod = if sidebar in [nil, ""], do: " pa-layout__main__inner--wide", else: ""
 
     # The active theme's default colour variant (pa-color-*) is a static, server-rendered class on
-    # <html> (mode — pa-mode-dark — is added by mode_init_js). Empty for single-variant themes.
+    # <html> (mode — pc-mode-dark — is added by mode_init_js). Empty for single-variant themes.
     html_class =
       case theme_variant_class(docset) do
         "" -> ""
@@ -542,7 +542,7 @@ defmodule KeenDocs.Web.View do
     end
   end
 
-  # Dark mode: a --base-* override scoped to `html.pa-mode-dark`, inlined so the toggle
+  # Dark mode: a --base-* override scoped to `html.pc-mode-dark`, inlined so the toggle
   # flips instantly with no flash. Read once at compile time (single source: dark-theme.css).
   @external_resource "priv/web/dark-theme.css"
   @dark_theme_css (case File.read("priv/web/dark-theme.css") do
@@ -559,7 +559,7 @@ defmodule KeenDocs.Web.View do
   # states, which don't reflow the page, are restored there.
   defp pref_init_js do
     "(function(){try{var d=document.documentElement,m=localStorage.getItem('kd-mode');" <>
-      "if(m==='dark'||(!m&&matchMedia('(prefers-color-scheme:dark)').matches))d.classList.add('pa-mode-dark');" <>
+      "if(m==='dark'||(!m&&matchMedia('(prefers-color-scheme:dark)').matches))d.classList.add('pc-mode-dark');" <>
       "var f=localStorage.getItem('kd-font-size');" <>
       "if(f&&f!=='default')d.classList.add('font-size-'+f);}catch(e){}})();"
   end
@@ -567,7 +567,7 @@ defmodule KeenDocs.Web.View do
   # Top-bar button that toggles the dark class and persists the choice.
   defp mode_toggle_html do
     onclick =
-      "var d=document.documentElement.classList.toggle('pa-mode-dark');" <>
+      "var d=document.documentElement.classList.toggle('pc-mode-dark');" <>
         "try{localStorage.setItem('kd-mode',d?'dark':'light');}catch(e){}"
 
     ~s(<button type="button" class="kd-mode" onclick="#{onclick}" title="Toggle dark mode" aria-label="Toggle dark mode">◑</button>)
@@ -720,7 +720,7 @@ defmodule KeenDocs.Web.View do
   defp accent_decls(accent) do
     a = esc(to_string(accent))
 
-    # Also publish the raw accent so dark mode (.pa-mode-dark) can brighten it for
+    # Also publish the raw accent so dark mode (.pc-mode-dark) can brighten it for
     # contrast on dark surfaces while keeping the doc's brand hue (see dark-theme.css).
     "--kd-doc-accent:#{a};" <>
       "--base-accent-color:#{a};" <>

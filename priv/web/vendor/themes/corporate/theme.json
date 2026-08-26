@@ -4,11 +4,11 @@
   "id": "corporate",
   "version": "2.9.0",
   "description": "Professional blue/gray theme for business applications",
-  "content": "## Corporate\n\nA clean, professional theme built for business applications. Cool blue accents on neutral gray backgrounds keep the interface focused and distraction-free.\n\n### Highlights\n\n- **Light-first design** with a polished, enterprise-ready look\n- **Sky blue accent (#0ea5e9)** for links, buttons, and active states\n- **System fonts** — no custom font download required\n- Dark mode included for low-light conditions\n\n### Usage\n\n```html\n<link rel=\"stylesheet\" href=\"css/corporate.css\">\n```\n\nDefaults to light mode. Switch with `pa-mode-light` / `pa-mode-dark` on `<body>`. Auto-switching via `prefers-color-scheme` is enabled by default.",
+  "content": "## Corporate\n\nA clean, professional theme built for business applications. Cool blue accents on neutral gray backgrounds keep the interface focused and distraction-free.\n\n### Highlights\n\n- **Light-first design** with a polished, enterprise-ready look\n- **Sky blue accent (#0ea5e9)** for links, buttons, and active states\n- **System fonts** — no custom font download required\n- Dark mode included for low-light conditions\n\n### Usage\n\n```html\n<link rel=\"stylesheet\" href=\"css/corporate.css\">\n```\n\nDefaults to light mode. Switch with `pc-mode-light` / `pc-mode-dark` on `<body>`. Auto-switching via `prefers-color-scheme` is enabled by default.",
   "author": "KeenMate",
   "license": "MIT",
 
-  "modeCssClass": "pa-mode-{mode}",
+  "modeCssClass": "pc-mode-{mode}",
   "variantCssClass": "pa-color-{variant}",
 
   "colorVariants": [

@@ -38,7 +38,7 @@ defmodule KeenDocs.Web.Router do
 
   # ── vendored CSS foundation (@keenmate/pure-css) ──────────────────────────
   # base.css is inlined into the page <style> (FOUC-free --base-*); grid.css and
-  # utilities.css are linked from here so authored content can use .pa-col-*/.m-* etc.
+  # utilities.css are linked from here so authored content can use .pc-col-*/.m-* etc.
   # Declared before the greedy /:set/... routes so /vendor/... isn't read as a document.
   get "/vendor/pure-css/:file" do
     send_css(conn, Path.join(["vendor", "pure-css", file]))

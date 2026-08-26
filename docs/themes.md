@@ -53,7 +53,7 @@ themes/<id>/
   theme.json          # pure-admin manifest (name, id, modeCssClass, variantCssClass,
                       #   colorVariants[].modes[].colors) + a `keendocs` render block (below)
   src/scss/<id>.scss  # sets $base-* from the palette → @import pure-admin-core → emits the bundle
-  dist/<id>.css       # compiled full framework + palette (modes: pa-mode-*, variants: pa-color-*)
+  dist/<id>.css       # compiled full framework + palette (modes: pc-mode-*, variants: pa-color-*)
   assets/             # bundled fonts etc.
 ```
 
@@ -116,7 +116,7 @@ a native keen-docs theme would put it in its own `theme.json`.
 - **Selection**: one global default (`config :keen_docs, :theme`), overridable per doc_set via
   `settings["theme"]["id"]`; `nil`/`"none"`/uninstalled → the vendored `core.css` baseline. The same
   `settings["theme"]` map's `accent`/`vars` keys stay a per-doc_set micro-override on top of the
-  bundle. Modes via `pa-mode-*` (bare class, `<html>` toggle), variants via `pa-color-*`.
+  bundle. Modes via `pc-mode-*` (bare class, `<html>` toggle), variants via `pa-color-*`.
 
 ## Current state (this session)
 
@@ -134,8 +134,8 @@ a native keen-docs theme would put it in its own `theme.json`.
 ### Phase 1 — collapse onto the core bundle (baseline) ✅ done
 - [x] Rewire `View.styles/1` + `layout/3` head to link the single **framework bundle** (`core.css`)
       instead of the base/reboot/scrollbars inline + `layout.css` + `profile-panel.css` links.
-- [x] ~~Keep `grid.css` linked~~ — **core.css already carries grid + utilities** (`.pa-col-*`,
-      `.pa-row`, `.d-flex`, all 94 `--base-*` vars, the 10px base), so grid/utilities links were
+- [x] ~~Keep `grid.css` linked~~ — **core.css already carries grid + utilities** (`.pc-col-*`,
+      `.pc-row`, `.d-flex`, all 94 `--base-*` vars, the 10px base), so grid/utilities links were
       dropped too; keen-docs content CSS still layers after (inline `<style>`).
 - [x] Add `make vendor-pa-core` (copies `../pure-admin/packages/core/dist/css/main.css`).
 - [x] Add router route `/vendor/pure-admin/:file`.
@@ -159,7 +159,7 @@ a native keen-docs theme would put it in its own `theme.json`.
       the SAME `settings["theme"]` map as the existing per-doc_set `accent`/`vars` micro-override — so
       `id` picks the base bundle and `accent`/`vars` fine-tune it. (Legacy `priv/templates` route + the
       `calm` skin are dormant, retired in Phase 5.)
-- [x] **Modes** already work theme-agnostically — bundles scope dark as a bare `.pa-mode-dark`, which
+- [x] **Modes** already work theme-agnostically — bundles scope dark as a bare `.pc-mode-dark`, which
       keen-docs' existing `<html>` toggle (`mode_init_js` + `mode_toggle_html`) drives; no html-vs-body
       reconcile needed. **Variant**: default `pa-color-*` class is server-rendered on `<html>` from
       `theme.json`; seeded themes are single-variant (`id:""`) so it's plumbing-only for now (an

@@ -5,11 +5,11 @@
   "id": "calm",
   "version": "1.0.0",
   "description": "Branded gradient hero and colored showcase headers over a calm, spacious full-width reading layout.",
-  "content": "## Calm\n\nA confident, brand-forward template: a gradient hero band, colored showcase and card headers, and a full-width three-pane shell (nav · content · toc). Plus Jakarta Sans headings pair with an Inter body and JetBrains Mono for code.\n\n### Highlights\n\n- **Full-width three-pane layout** — the content column breathes\n- **Gradient chrome** derived from `--base-accent-color`, so it re-tints per doc_set\n- **Colored showcase / card / table headers** for lively, scannable demos\n- Dark mode included (`pa-mode-dark`)\n\n### Usage\n\n```html\n<link rel=\"stylesheet\" href=\"/templates/calm/dist/calm.css\">\n```\n\nDefaults to light. Switch with `pa-mode-light` / `pa-mode-dark` on `<html>`; auto-follows `prefers-color-scheme`.",
+  "content": "## Calm\n\nA confident, brand-forward template: a gradient hero band, colored showcase and card headers, and a full-width three-pane shell (nav · content · toc). Plus Jakarta Sans headings pair with an Inter body and JetBrains Mono for code.\n\n### Highlights\n\n- **Full-width three-pane layout** — the content column breathes\n- **Gradient chrome** derived from `--base-accent-color`, so it re-tints per doc_set\n- **Colored showcase / card / table headers** for lively, scannable demos\n- Dark mode included (`pc-mode-dark`)\n\n### Usage\n\n```html\n<link rel=\"stylesheet\" href=\"/templates/calm/dist/calm.css\">\n```\n\nDefaults to light. Switch with `pc-mode-light` / `pc-mode-dark` on `<html>`; auto-follows `prefers-color-scheme`.",
   "author": "KeenMate",
   "license": "MIT",
 
-  "modeCssClass": "pa-mode-{mode}",
+  "modeCssClass": "pc-mode-{mode}",
 
   "colorVariants": [
     {

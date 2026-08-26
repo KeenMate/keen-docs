@@ -22,8 +22,8 @@ layout).
 
 ## Dark mode
 
-Ships its own `html.pa-mode-dark` scope (sets `color-scheme: dark` so embedded web components and
-`light-dark()` code follow). Toggle by adding/removing `pa-mode-dark` on `<html>`; the preview
+Ships its own `html.pc-mode-dark` scope (sets `color-scheme: dark` so embedded web components and
+`light-dark()` code follow). Toggle by adding/removing `pc-mode-dark` on `<html>`; the preview
 persists the choice to `localStorage` and follows `prefers-color-scheme` on first load.
 
 ## Preview note

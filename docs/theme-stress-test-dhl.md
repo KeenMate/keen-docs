@@ -104,7 +104,7 @@ a **stacked** wordmark (`kd-brand-label` > `kd-brand-set`, tunable via
 ### Positive findings (system already flexible enough)
 - **Overlay-on-core** works cleanly: a hand-authored theme reskins the whole page via variables +
   selector overrides, no SCSS build, no framework fork.
-- `--pa-*` (chrome) + `--base-*` (content) + `html.pa-mode-dark` reach every surface incl. embedded
+- `--pa-*` (chrome) + `--base-*` (content) + `html.pc-mode-dark` reach every surface incl. embedded
   components. Callout icons, table headers, card bars, code frames all reachable in pure CSS.
 - The render block (`toc`, `fonts`, now `brand`) is the right home for declarative per-theme
   page-assembly — extending it (now `brand`, `versionControl`, `header`) is the natural path for #2–#4.

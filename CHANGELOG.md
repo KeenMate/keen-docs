@@ -179,7 +179,7 @@ expose. Iterated with a Playwright screenshot+computed-style loop (`tmp/pw/`, gi
 keen-docs' own themes are the **design directions** in `design/*.html` (aurora, brand, editorial,
 terminal, glass, dhl…), authored as **overlays on the vendored `core.css`** — a `theme.json` with
 `"base": "core"` + a `dist/<id>.css` that reskins the *real* DOM via `--pa-*`/`--base-*` overrides +
-`html.pa-mode-dark`, no SCSS build. (The copied pure-admin bundles — nato/dracula/corporate — were only
+`html.pc-mode-dark`, no SCSS build. (The copied pure-admin bundles — nato/dracula/corporate — were only
 to prove the mechanism; they're **standalone** bundles that replace `core.css`. `KeenDocs.Themes.overlay?/1`
 picks the delivery per theme.) Aurora (airy modern-SaaS) and DHL (yellow/red, Archivo) both ship live;
 `design/aurora.css` + the static `aurora-real.html`/`dhl-pure.html` were the authoring previews (built by
@@ -209,7 +209,7 @@ under `priv/web/vendor/themes/<id>/` (`theme.json` + `dist/<id>.css` + `assets/`
 copies the pure-admin sample bundles from `../pure-admin-themes` (writing `keendocs.lock.json`). Selection:
 `config :keen_docs, :theme` globally, overridable per doc_set via `settings["theme"]["id"]` (which also
 carries the existing `accent`/`vars` micro-override); `nil`/uninstalled → the core baseline. Modes work
-theme-agnostically (bundles scope dark as a bare `.pa-mode-dark`, toggled on `<html>`). The plan of record
+theme-agnostically (bundles scope dark as a bare `.pc-mode-dark`, toggled on `<html>`). The plan of record
 lives in **`docs/themes.md`** (Phases 1–3 done; 4 = the keendocs CLI, 5 = cleanup).
 
 ### Fixed — dark-mode readability: card headers & error blocks (2026-08-04)
@@ -225,15 +225,15 @@ in both themes → white text always reads). Same class of bug fixed on `.kd-dem
 
 keen-docs now ships a `KeenMarkdown.Profile` (`KeenDocs.Markup`, wired via
 `config :keen_markdown, :profile`) that overrides the layout slots (Level-2 structure): `:::columns`
-→ `.pa-row`, each `:::col` → `.pa-col-<width>`, a non-column child → `.pa-col-100`. So content
+→ `.pc-row`, each `:::col` → `.pc-col-<width>`, a non-column child → `.pc-col-100`. So content
 columns use pure-css's native grid — gutters, container-query responsiveness and mobile auto-stack
 come for free — and share one grid vocabulary with pure-admin pages. Other blocks keep the engine's
 default `km-*`.
 
 - Column width comes from the engine's new `:col` `width` assign (`{part, total}`); it maps to an
-  **exact** `pa-col` fraction when the ratio reduces to one pa-grid ships (`80/20` →
-  `.pa-col-4-5`/`.pa-col-1-5`, thirds → `.pa-col-1-3`), else the nearest 5% column. A standalone
-  `:::col` is an auto `.pa-col`.
+  **exact** `pc-col` fraction when the ratio reduces to one pa-grid ships (`80/20` →
+  `.pc-col-4-5`/`.pc-col-1-5`, thirds → `.pc-col-1-3`), else the nearest 5% column. A standalone
+  `:::col` is an auto `.pc-col`.
 - Dropped the now-dead `.km-columns` / `.km-columns__span` / `.km-col` grid rules from keendocs.css
   (content no longer emits them); the column label/body chrome (`.km-col__header--*`, `.km-col__body`)
   stays.
@@ -250,7 +250,7 @@ byte-identical to `1.0.0-rc01`.
 ### Fixed — stale vendored grid (dead Yahoo `.pure-*`) (2026-08-04)
 
 pure-css replaced its legacy Yahoo PureCSS grid (`.pure-g`/`.pure-u-*`) with the native flexbox
-`pa-grid` (`.pa-row` / `.pa-col-{n}` 5% increments + `.pa-col-{x}-{y}` fractions + container-query
+`pa-grid` (`.pc-row` / `.pc-col-{n}` 5% increments + `.pc-col-{x}-{y}` fractions + container-query
 responsive + auto-stack). keen-docs' vendored `grid.css` was never updated — it still shipped 462
 dead `.pure-*` rules and zero `.pa-*`. Re-vendored all three (`base`/`grid`/`utilities`) from the
 current pure-css build; fixed a stale `.pure-u-*` comment in `router.ex`. (Nothing rendered a grid
@@ -305,9 +305,9 @@ BEM `km-*`). keen-docs **adopts the engine default profile** — so rendered con
 A site-wide dark theme, proving the `--base-*` foundation: one class flip re-themes the chrome, the
 `kd-*` content, and embedded components together.
 
-- **`priv/web/dark-theme.css`** — a lean `--base-*` override scoped to `html.pa-mode-dark`, using
+- **`priv/web/dark-theme.css`** — a lean `--base-*` override scoped to `html.pc-mode-dark`, using
   pure-admin's dark palette (`#1a1a1a`/`#242424`/`#333` surfaces, `#f2f2f2`/`#b8b8b8` text, `#404040`
-  borders) and its `.pa-mode-dark` + `color-scheme: dark` dual-mode convention. Inlined into the page
+  borders) and its `.pc-mode-dark` + `color-scheme: dark` dual-mode convention. Inlined into the page
   `<style>` (compile-time module attr) so the toggle flips with no flash.
 - **Brand accent preserved across modes** — `theme_css/1` now also publishes the doc's raw accent as
   `--kd-doc-accent`; dark mode *brightens* it (`color-mix`) for contrast on dark surfaces instead of
@@ -316,7 +316,7 @@ A site-wide dark theme, proving the `--base-*` foundation: one class flip re-the
   persists to `localStorage`; a tiny `<head>` script (`mode_init_js/0`) sets the initial mode before
   paint (explicit choice wins, else OS `prefers-color-scheme`). No framework, no re-render.
 - **Code blocks follow the mode too** — keen_markdown now highlights code once for both themes via
-  `light-dark()` (its `:dark_theme` / multi-themes formatter), so `.pa-mode-dark`'s `color-scheme: dark`
+  `light-dark()` (its `:dark_theme` / multi-themes formatter), so `.pc-mode-dark`'s `color-scheme: dark`
   flips fenced code (tokens + background) to `github_dark` with no extra work here. (Closes the earlier
   "code stays light in dark mode" gap — see the keen-markdown changelog.) `github_light`/`github_dark`
   are the defaults; overridable via `config :keen_markdown, :theme` / `:dark_theme`.

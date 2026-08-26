@@ -8,7 +8,7 @@
   "license": "MIT",
   "base": "core",
 
-  "modeCssClass": "pa-mode-{mode}",
+  "modeCssClass": "pc-mode-{mode}",
   "variantCssClass": "pa-color-{variant}",
 
   "colorVariants": [

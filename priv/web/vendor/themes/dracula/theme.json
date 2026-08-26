@@ -8,7 +8,7 @@
   "author": "KeenMate",
   "license": "MIT",
 
-  "modeCssClass": "pa-mode-{mode}",
+  "modeCssClass": "pc-mode-{mode}",
   "variantCssClass": "pa-color-{variant}",
 
   "colorVariants": [

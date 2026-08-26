@@ -21,7 +21,7 @@ config :keen_markdown,
     KeenDocs.Extensions.App
   ],
   # keen-docs' presentation profile: renders content columns on pure-css's pa-grid
-  # (`:::columns` -> `.pa-row`, `:::col` -> `.pa-col-*`); other blocks keep the engine's
+  # (`:::columns` -> `.pc-row`, `:::col` -> `.pc-col-*`); other blocks keep the engine's
   # default BEM `km-*`. See `KeenDocs.Markup`.
   profile: KeenDocs.Markup
 

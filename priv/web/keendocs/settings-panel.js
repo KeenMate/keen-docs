@@ -86,21 +86,21 @@
     });
 
     // ── appearance (light / dark / auto) ──────────────────────────────────────
-    // Shares the `kd-mode` key + `pa-mode-dark` class with the header toggle button and the
+    // Shares the `kd-mode` key + `pc-mode-dark` class with the header toggle button and the
     // pre-paint head script. Restored pre-paint; here we only reflect + apply on change.
     if (modeSel) {
       modeSel.value = get('kd-mode') || 'auto';
       modeSel.addEventListener('change', function () {
         var m = modeSel.value;
         if (m === 'dark') {
-          html.classList.add('pa-mode-dark');
+          html.classList.add('pc-mode-dark');
           store('kd-mode', 'dark');
         } else if (m === 'light') {
-          html.classList.remove('pa-mode-dark');
+          html.classList.remove('pc-mode-dark');
           store('kd-mode', 'light');
         } else {
           drop('kd-mode');
-          html.classList.toggle('pa-mode-dark', matchMedia('(prefers-color-scheme:dark)').matches);
+          html.classList.toggle('pc-mode-dark', matchMedia('(prefers-color-scheme:dark)').matches);
         }
       });
     }

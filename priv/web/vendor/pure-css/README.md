@@ -27,8 +27,8 @@ page's `<style>` via compile-time `@external_resource` module attrs, so `mix com
                     `body` defaults. **Inlined** (the 10px root must be set before anything sized in
                     rem — pure-css authors its whole scale against it). Added in pure-css 1.0.0-rc02.
 - `scrollbars.css`— themed thin scrollbars (`--pa-*`). **Inlined**. Added in rc02.
-- `grid.css`      — the `pa-grid` flexbox grid: `.pa-row` / `.pa-col-{n}` (5% steps) /
-                    `.pa-col-{x}-{y}` fractions, container-query responsive, auto-stack (served + linked).
+- `grid.css`      — the `pa-grid` flexbox grid: `.pc-row` / `.pc-col-{n}` (5% steps) /
+                    `.pc-col-{x}-{y}` fractions, container-query responsive, auto-stack (served + linked).
 - `utilities.css` — spacing / flex / display / width-height / gap / font-family / border utilities
                     (served + linked).
 

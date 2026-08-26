@@ -3,7 +3,7 @@
 A **template** is a complete visual system for a keen-docs site — layout shell, typography,
 chrome, and content styling. It is the keen-docs analogue of a `pure-admin-themes` theme, and
 this directory mirrors that repo's anatomy on purpose (theme discovery by manifest, `dist/` CSS,
-a `content` markdown blurb, `pa-mode-{mode}` dark switching), so we can grow the same
+a `content` markdown blurb, `pc-mode-{mode}` dark switching), so we can grow the same
 `build → pack → publish` CLI later without rework.
 
 > **Reference:** `../../../pure-admin-themes` — the pattern we follow. A pure-admin theme only
@@ -58,7 +58,7 @@ Keeping this list stable is what lets any template render any page.
   `.km-callout__title`, `.km-callout__body`
 - Card: `.km-card` › `.km-card__header`, `.km-card__body`
 - Showcase: `.km-showcase` › `.km-showcase__title`, `.km-showcase__subtitle`, then a grid
-- Columns (KeenDocs.Markup profile → `pa-grid`): `.pa-row` › `.pa-col-*` each ›
+- Columns (KeenDocs.Markup profile → `pa-grid`): `.pc-row` › `.pc-col-*` each ›
   `.km-col__header` (+ `--blue`/`--green`/`--cyan`) + `.km-col__body`
 - Code: `.km-code` › `pre.lumis` (colours are **inline** from Lumis — a template only frames the
   block, never recolours tokens)
@@ -66,7 +66,7 @@ Keeping this list stable is what lets any template render any page.
 - Tables: plain `<table>/<thead>/<th>/<td>`
 
 > Colours come from `--base-*`; a template that hardcodes a hex where a `var(--base-*)` exists is
-> a bug (it breaks per-doc_set theming). Dark mode is a `.pa-mode-dark` scope the template ships
+> a bug (it breaks per-doc_set theming). Dark mode is a `.pc-mode-dark` scope the template ships
 > itself (same convention as pure-admin themes), setting `color-scheme: dark` so embedded web
 > components and `light-dark()` code follow.
 
