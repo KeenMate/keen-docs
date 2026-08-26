@@ -38,7 +38,7 @@ defmodule KeenDocs.Web.View do
         overflow_host = ~s(<nav class="pa-sidebar__nav kd-nav-overflow-host"><ul id="kd-nav-overflow"></ul></nav>)
         # Drag-to-resize is now a reader SETTING (default on): the settings panel adds/removes
         # `pa-layout__sidebar--resizable` (sidebar-resize.js keys off it to append the handle + write
-        # --pa-local-sidebar-width). Server-render WITHOUT it so the panel is the single source of that
+        # --pc-local-sidebar-width). Server-render WITHOUT it so the panel is the single source of that
         # state. Full-height + internal scroll still come from the sticky app-shell (body.pa-layout--sticky).
         ~s(<aside class="pa-layout__sidebar kd-sidebar">#{overflow_host}#{sidebar || ""}</aside>)
       else
@@ -489,7 +489,7 @@ defmodule KeenDocs.Web.View do
   # light palette + minimal dark tweaks) as the BASELINE, or a template's own bundle when one is
   # active. keen-docs' own layers then inline AFTER it (so they win): the dark-mode --base-* override
   # (core's default theme is light-only), the per-doc_set theme override, the harness chrome-glue,
-  # and the rendered content (kd-*) styling. Everything sits on core's --pa-*/--base-* vars.
+  # and the rendered content (kd-*) styling. Everything sits on core's --pc-*/--base-* vars.
   defp styles(docset) do
     case theme_id(docset) do
       nil ->
@@ -892,26 +892,26 @@ defmodule KeenDocs.Web.View do
 
   # Docs-specific styling layered over pure-admin's default chrome. The pa-navbar / pa-layout /
   # pa-sidebar / pa-footer STRUCTURE *and look* come from the vendored core.css bundle (+ its baked
-  # --pa-* palette); the harness only styles the keen-docs pieces that live inside that shell — the
+  # --pc-* palette); the harness only styles the keen-docs pieces that live inside that shell — the
   # on-bar controls, the content column, the in-content page head, the docs sidebar extras, and the
-  # rendered content classes — all via --pa-*/--base-* so they follow the (themeable) header/surface.
+  # rendered content classes — all via --pc-*/--base-* so they follow the (themeable) header/surface.
   defp harness_css do
     """
     /* box-sizing, body font/colour/margin and the typography reset come from the vendored
        reboot.css; the harness only overrides the page background (docs want the subtle --base-page-bg
-       behind cards, not reboot's --pa-main-bg surface) and the link treatment. */
+       behind cards, not reboot's --pc-main-bg surface) and the link treatment. */
     body{background:var(--base-page-bg,#f6f8fb)}
     a{color:var(--base-accent-color,#2563eb);text-decoration:none} a:hover{text-decoration:underline}
-    /* ---- on-bar controls (the bar itself is pure-admin default: --pa-header-bg) ---- */
+    /* ---- on-bar controls (the bar itself is pure-admin default: --pc-header-bg) ---- */
     .pa-header__brand{display:flex;align-items:center}
     .pa-header__brand h1{font-size:1.68rem;margin:0;font-weight:700}
-    .pa-header__brand a{color:var(--pa-header-text,#0f172a)!important;text-decoration:none}
+    .pa-header__brand a{color:var(--pc-header-text,#0f172a)!important;text-decoration:none}
     .kd-brand-logo{display:inline-flex;align-items:center}
     .kd-brand-logo img{height:2.8rem;width:auto;display:block}
     /* stacked wordmark: theme label on top, doc_set as a small line beneath, a left rule dividing it
-       from the logo. Sizes tunable via --pa-brand-* (defaults match the DHL mockup: 12px / 10px). */
-    .kd-brand-label{display:flex;flex-direction:column;justify-content:center;white-space:nowrap;margin-left:1rem;padding-left:1.1rem;border-left:2px solid var(--pa-brand-divider,var(--pa-border-color,rgba(0,0,0,.18)));font-family:var(--kd-heading-font,inherit);font-weight:800;font-size:var(--pa-brand-label-size,1.2rem);letter-spacing:.12em;line-height:1.18;text-transform:uppercase;color:var(--pa-header-text,#0f172a)}
-    .kd-brand-set{display:block;font-weight:600;font-size:var(--pa-brand-set-size,1rem);letter-spacing:.14em;text-transform:uppercase;color:var(--pa-header-text-secondary,#64748b)}
+       from the logo. Sizes tunable via --pc-brand-* (defaults match the DHL mockup: 12px / 10px). */
+    .kd-brand-label{display:flex;flex-direction:column;justify-content:center;white-space:nowrap;margin-left:1rem;padding-left:1.1rem;border-left:2px solid var(--pc-brand-divider,var(--pc-border-color,rgba(0,0,0,.18)));font-family:var(--kd-heading-font,inherit);font-weight:800;font-size:var(--pc-brand-label-size,1.2rem);letter-spacing:.12em;line-height:1.18;text-transform:uppercase;color:var(--pc-header-text,#0f172a)}
+    .kd-brand-set{display:block;font-weight:600;font-size:var(--pc-brand-set-size,1rem);letter-spacing:.14em;text-transform:uppercase;color:var(--pc-header-text-secondary,#64748b)}
     .pa-header__burger{display:none} @media(max-width:768px){.pa-header__burger{display:flex}}
     /* Top nav + search now use pure-admin's OWN components (pa-header__nav > ul > li > a with
        pa-header__dropdown; pa-navbar-search). The harness only adds the dropdown caret and bends
@@ -924,8 +924,8 @@ defmodule KeenDocs.Web.View do
        .pa-header__nav-item--active (currentColor pill) and .pa-sidebar__section. */
     /* on-bar utility text links in pa-header__end (Resolve, per-doc_set header_links) — styled like
        the native nav links so the whole bar reads consistently. */
-    .kd-top-link{color:var(--pa-header-text-secondary,#475569);font-size:1.44rem;padding:0.64rem 1.04rem;border-radius:6px;white-space:nowrap}
-    .kd-top-link:hover{background:var(--pa-accent-hover,#eef2ff);color:var(--pa-accent,#2563eb);text-decoration:none}
+    .kd-top-link{color:var(--pc-header-text-secondary,#475569);font-size:1.44rem;padding:0.64rem 1.04rem;border-radius:6px;white-space:nowrap}
+    .kd-top-link:hover{background:var(--pc-accent-hover,#eef2ff);color:var(--pc-accent,#2563eb);text-decoration:none}
     /* Reserve the search's min-width on the CENTER FLEX ITEM, not just the input. Flexbox only honours
        a flex item's OWN min-width when distributing space; a min-width on the search (center's child)
        lets center grow to a sliver and the search overflows it onto start/end. Putting 18rem on center
@@ -935,9 +935,9 @@ defmodule KeenDocs.Web.View do
     .pa-header__center:has(.kd-search){min-width:18rem}
     .pa-navbar-search.kd-search{width:100%;min-width:0;max-width:41.6rem;margin:0 auto;cursor:text}
     .kd-cta{text-decoration:none;white-space:nowrap}
-    .pa-navbar-search__input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:1.4rem;color:var(--pa-text-color-1,#1a2233);outline:none}
-    .pa-navbar-search__input::placeholder{color:var(--pa-text-color-2,#64748b)}
-    .kd-form button{padding:0.64rem 1.28rem;border-radius:6px;border:0;background:var(--pa-accent,#2563eb);color:#fff;cursor:pointer}
+    .pa-navbar-search__input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:1.4rem;color:var(--pc-text-color-1,#1a2233);outline:none}
+    .pa-navbar-search__input::placeholder{color:var(--pc-text-color-2,#64748b)}
+    .kd-form button{padding:0.64rem 1.28rem;border-radius:6px;border:0;background:var(--pc-accent,#2563eb);color:#fff;cursor:pointer}
     /* Responsive shedding of the NON-nav on-bar controls (navbar-collapse.js owns the top-nav itself,
        folding it into the sidebar). Order is the point: utility links → CTA label → search + suffix. */
     @media(max-width:1200px){.kd-top-link{display:none}}
@@ -948,10 +948,10 @@ defmodule KeenDocs.Web.View do
     @media(max-width:1150px){.kd-brand-label{display:none}}
     @media(max-width:768px){.kd-cta__label{display:none}}
     @media(max-width:560px){.pa-header__center{display:none}.kd-brand-set{display:none}}
-    .kd-mode{background:transparent;color:var(--pa-header-text,#334155);border:1px solid var(--pa-border-color,#cbd5e1);border-radius:6px;padding:0.48rem 0.88rem;font-size:1.6rem;line-height:1;cursor:pointer}
-    .kd-mode:hover{background:var(--pa-accent-hover,#eef2f7)}
-    .pa-header__profile-btn{display:inline-flex;align-items:center;gap:.8rem;background:transparent;border:1px solid var(--pa-border-color,#cbd5e1);color:var(--pa-header-text,#334155);border-radius:6px;padding:.5rem 1rem;cursor:pointer;font:inherit;font-size:1.44rem}
-    .pa-header__profile-btn:hover{background:var(--pa-accent-hover,#eef2f7)}
+    .kd-mode{background:transparent;color:var(--pc-header-text,#334155);border:1px solid var(--pc-border-color,#cbd5e1);border-radius:6px;padding:0.48rem 0.88rem;font-size:1.6rem;line-height:1;cursor:pointer}
+    .kd-mode:hover{background:var(--pc-accent-hover,#eef2f7)}
+    .pa-header__profile-btn{display:inline-flex;align-items:center;gap:.8rem;background:transparent;border:1px solid var(--pc-border-color,#cbd5e1);color:var(--pc-header-text,#334155);border-radius:6px;padding:.5rem 1rem;cursor:pointer;font:inherit;font-size:1.44rem}
+    .pa-header__profile-btn:hover{background:var(--pc-accent-hover,#eef2f7)}
     .pa-header__profile-name{font-weight:600}
     /* ---- content column + in-content page head ---- */
     .pa-layout__main__inner{max-width:102.4rem;margin:0 auto;padding:2.8rem 3.2rem}
@@ -973,31 +973,31 @@ defmodule KeenDocs.Web.View do
     .kd-toc li{margin:0.32rem 0} .kd-toc a{color:var(--base-text-color-2,#64748b);font-size:1.36rem} .kd-toc a:hover{color:var(--base-accent-color,#2563eb)}
     .kd-toc--rail{position:sticky;top:6.4rem;border-inline-start:1px solid var(--base-border-color,#e5e9f0);padding-inline-start:1.6rem}
     .kd-toc--inline{background:var(--base-main-bg,#fff);border:1px solid var(--base-border-color,#e5e9f0);border-radius:8px;padding:1.28rem 1.6rem;margin:0 0 2rem}
-    /* ---- docs sidebar: layout METRICS as --pa-sidebar- tokens ----
+    /* ---- docs sidebar: layout METRICS as --pc-sidebar- tokens ----
        core.css hardcodes sidebar spacing as literals; the harness re-expresses it via variables whose
        defaults live in the var() fallbacks, so a theme tunes LAYOUT declaratively (set e.g.
-       --pa-sidebar-padding in its :root) instead of overriding selectors. Colours and fonts still ride
-       the --pa- and --base- palette. Spacing-token prototype — see docs/theme-stress-test-dhl.md ---- */
+       --pc-sidebar-padding in its :root) instead of overriding selectors. Colours and fonts still ride
+       the --pc- and --base- palette. Spacing-token prototype — see docs/theme-stress-test-dhl.md ---- */
     /* Full height + internal scroll come from the sticky app-shell (body.pa-layout--sticky in core):
        the aside is a stretched flex child spanning header→footer and scrolls its own overflow. The
        harness only (a) sets width to the resizable var so it beats core's 16rem tablet reduction —
-       sidebar-resize.js rewrites --pa-local-sidebar-width live; core's ≤768 auto-hide has higher
+       sidebar-resize.js rewrites --pc-local-sidebar-width live; core's ≤768 auto-hide has higher
        specificity and still wins — and (b) pads the scroll pane. Do NOT re-add position/align-self/
        max-height here: those re-break the full-height stretch. */
-    .pa-layout__sidebar{width:var(--pa-local-sidebar-width);padding:var(--pa-sidebar-padding,1.8rem 1.4rem 3rem)}
-    .pa-sidebar__nav{padding:var(--pa-sidebar-nav-padding,0)}
-    .pa-sidebar__nav li{margin:var(--pa-sidebar-item-gap,0.1rem) 0}
-    .pa-sidebar__link,.pa-sidebar__toggle{padding:var(--pa-sidebar-link-padding,0.6rem 1.1rem);font-size:var(--pa-sidebar-link-font-size,1.4rem)}
-    .pa-sidebar__link .pa-sidebar__label{font-size:var(--pa-sidebar-link-font-size,1.4rem)}
+    .pa-layout__sidebar{width:var(--pc-local-sidebar-width);padding:var(--pc-sidebar-padding,1.8rem 1.4rem 3rem)}
+    .pa-sidebar__nav{padding:var(--pc-sidebar-nav-padding,0)}
+    .pa-sidebar__nav li{margin:var(--pc-sidebar-item-gap,0.1rem) 0}
+    .pa-sidebar__link,.pa-sidebar__toggle{padding:var(--pc-sidebar-link-padding,0.6rem 1.1rem);font-size:var(--pc-sidebar-link-font-size,1.4rem)}
+    .pa-sidebar__link .pa-sidebar__label{font-size:var(--pc-sidebar-link-font-size,1.4rem)}
     /* section headings are native .pa-sidebar__section (rc09) — core owns their spacing/type */
     .kd-version-l{display:flex;align-items:center;gap:0.8rem;font-size:1.088rem;text-transform:uppercase;letter-spacing:.05em;color:var(--base-text-color-3,#94a3b8);font-weight:700;margin:0 0 1.2rem}
     .kd-version{flex:1;padding:0.56rem 0.8rem;border:1px solid var(--base-border-color,#cbd5e1);border-radius:6px;background:var(--base-main-bg,#fff);font-size:1.36rem;color:var(--base-text-color-1,#1a2233);cursor:pointer}
     /* web-multiselect version control (a theme opts in via render-block versionControl) — a package pill wrapping the live component */
     .kd-version-l--wms{display:flex;flex-direction:column;align-items:stretch;gap:0.7rem;margin:0 0 1.8rem;padding:1rem 1.2rem;border:1px solid var(--base-border-color,#e5e9f0);background:var(--base-subtle-bg,#eef1f5);border-radius:10px;text-transform:none;letter-spacing:normal}
     .kd-version-pkg{display:flex;align-items:center;gap:0.7rem;font-family:var(--kd-heading-font,inherit);font-weight:700;font-size:1.24rem;color:var(--base-text-color-1,#1a2233);line-height:1.2;word-break:break-word}
-    /* uses --pa-accent (chrome token), not --base-accent-color: the web-multiselect component writes
+    /* uses --pc-accent (chrome token), not --base-accent-color: the web-multiselect component writes
        --base-* onto :root when it upgrades (its fallback), which would otherwise tint this dot. */
-    .kd-version-dot{width:0.8rem;height:0.8rem;border-radius:50%;background:var(--pa-accent,var(--base-accent-color,#2563eb));box-shadow:0 0 0 3px var(--pa-accent-hover,rgba(37,99,235,.12));flex:0 0 auto}
+    .kd-version-dot{width:0.8rem;height:0.8rem;border-radius:50%;background:var(--pc-accent,var(--base-accent-color,#2563eb));box-shadow:0 0 0 3px var(--pc-accent-hover,rgba(37,99,235,.12));flex:0 0 auto}
     web-multiselect.kd-version{display:block;width:100%;font-size:1.3rem}
     /* navbar→sidebar overflow (navbar-collapse.js injects into #kd-nav-overflow): the empty target
        host self-hides, and a sidebar holding nothing but the empty host self-hides too — so the hub

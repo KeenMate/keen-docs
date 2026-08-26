@@ -62,16 +62,16 @@ the sidebar snaps to a thin 16rem.
 }
 ```
 
-This overrides the low-specificity `:where(.pa-layout__sidebar){ width: var(--pa-local-sidebar-width) }`,
-so `--pa-local-sidebar-width` (written live by `sidebar-resize.js`, and settable by a theme) has no
+This overrides the low-specificity `:where(.pa-layout__sidebar){ width: var(--pc-local-sidebar-width) }`,
+so `--pc-local-sidebar-width` (written live by `sidebar-resize.js`, and settable by a theme) has no
 effect in that band.
 
 **Fix.** Drive the tablet width through the same variable, e.g.:
 
 ```scss
 @media (max-width: 1024px) and (min-width: 769px) {
-  .pa-layout__sidebar { --pa-local-sidebar-width: #{$sidebar-width-tablet}; }
-  // or: width: min(var(--pa-local-sidebar-width), #{$sidebar-width-tablet});
+  .pa-layout__sidebar { --pc-local-sidebar-width: #{$sidebar-width-tablet}; }
+  // or: width: min(var(--pc-local-sidebar-width), #{$sidebar-width-tablet});
 }
 ```
 
@@ -82,8 +82,8 @@ so resize + theme overrides keep working (and a themed default wider than 16rem 
 ## 🟡 Gap 3 — `sidebar-resize.js` isn't shipped with core, and hardcodes values that are already vars
 
 **Not shipped where it's used.** The script lives in `demo/js/sidebar-resize.js`, yet `_sidebar.scss`
-documents `--pa-local-sidebar-width` as *"modified by JS for resize"* and ships `.pa-sidebar-resize`
-styling plus `--pa-local-sidebar-min-width: 18rem` / `--pa-local-sidebar-max-width: 50rem`. It's a
+documents `--pc-local-sidebar-width` as *"modified by JS for resize"* and ships `.pa-sidebar-resize`
+styling plus `--pc-local-sidebar-min-width: 18rem` / `--pc-local-sidebar-max-width: 50rem`. It's a
 first-class layout behavior — please ship it in `packages/core/src/js/` next to `navbar-collapse.js`
 so consumers don't have to reach into the demo folder to vendor it.
 
@@ -97,7 +97,7 @@ const DEFAULT_WIDTH = 288; // 28.8rem
 const remWidth = width / 10; // assumes the 10px rem base
 ```
 
-These duplicate — and can drift from — `--pa-local-sidebar-min-width` / `--pa-local-sidebar-max-width`
+These duplicate — and can drift from — `--pc-local-sidebar-min-width` / `--pc-local-sidebar-max-width`
 (and the root font size). The script should read those CSS variables instead of hardcoding them, so a
 theme that changes the min/max/base stays consistent with the drag limits.
 
@@ -108,5 +108,5 @@ theme that changes the min/max/base stays consistent with the drag limits.
 | # | Severity | Where | One-line fix |
 |---|----------|-------|--------------|
 | 1 | 🔴 | header flex + `navbar-collapse.js` | reserve the center slot's `min-width` (or measure available space, not `nav.clientWidth`) |
-| 2 | 🟠 | `_layout-responsive.scss` tablet rule | set `--pa-local-sidebar-width` in the media query instead of a hard `width` literal |
-| 3 | 🟡 | `sidebar-resize.js` | ship it in core; read `--pa-local-sidebar-{min,max}-width` instead of hardcoding |
+| 2 | 🟠 | `_layout-responsive.scss` tablet rule | set `--pc-local-sidebar-width` in the media query instead of a hard `width` literal |
+| 3 | 🟡 | `sidebar-resize.js` | ship it in core; read `--pc-local-sidebar-{min,max}-width` instead of hardcoding |

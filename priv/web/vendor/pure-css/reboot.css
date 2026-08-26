@@ -17,16 +17,16 @@ p {
 }
 
 :where(a) {
-  color: var(--pa-link-color);
+  color: var(--pc-link-color);
   text-decoration: underline;
 }
 
 :where(a:hover) {
-  color: var(--pa-link-color-hover);
+  color: var(--pc-link-color-hover);
 }
 
 :where(a:visited) {
-  color: var(--pa-link-color-visited);
+  color: var(--pc-link-color-visited);
 }
 
 ul, ol {
@@ -79,8 +79,8 @@ body {
   padding: 0;
   font-family: var(--base-font-family);
   font-size: 1.6rem;
-  color: var(--pa-text-color-1);
-  background-color: var(--pa-main-bg);
+  color: var(--pc-text-color-1);
+  background-color: var(--pc-main-bg);
   line-height: 1.5;
 }
 

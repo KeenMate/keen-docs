@@ -215,7 +215,7 @@ The **render layer** (`keendocs` block in `theme.json`, interpreted by `View.lay
 deep-merged defaults) is declarative and bounded — no theme code, preserving the RCE-safe invariant above.
 It drives page-head (hero/crumbs/badges), TOC placement, region toggles, layout variant, fonts, the navbar
 **brand slot**, and the **version control** (which can be rendered as a live `<web-multiselect>`). A
-spacing-token layer (`--pa-sidebar-*`, defaults in `var()` fallbacks) makes *layout* theme-tunable, not
+spacing-token layer (`--pc-sidebar-*`, defaults in `var()` fallbacks) makes *layout* theme-tunable, not
 just colour. The DHL 1:1 stress-test that shook these out (and the remaining findings — configurable
 header, active nav, upstreaming the spacing tokens, embedded-component `--base-*` hygiene) is in
 [`docs/theme-stress-test-dhl.md`](./docs/theme-stress-test-dhl.md).

@@ -7,29 +7,29 @@
     <link rel="stylesheet" href="core.css" />
   <style>/* box-sizing, body font/colour/margin and the typography reset come from the vendored
    reboot.css; the harness only overrides the page background (docs want the subtle --base-page-bg
-   behind cards, not reboot's --pa-main-bg surface) and the link treatment. */
+   behind cards, not reboot's --pc-main-bg surface) and the link treatment. */
 body{background:var(--base-page-bg,#f6f8fb)}
 a{color:var(--base-accent-color,#2563eb);text-decoration:none} a:hover{text-decoration:underline}
-/* ---- on-bar controls (the bar itself is pure-admin default: --pa-header-bg) ---- */
+/* ---- on-bar controls (the bar itself is pure-admin default: --pc-header-bg) ---- */
 .pa-header__brand h1{font-size:1.68rem;margin:0;font-weight:700}
-.pa-header__brand a{color:var(--pa-header-text,#0f172a)!important;text-decoration:none}
-.kd-brand-set{color:var(--pa-header-text-secondary,#64748b)!important;font-weight:600;margin-left:0.72rem;font-size:1.44rem}
+.pa-header__brand a{color:var(--pc-header-text,#0f172a)!important;text-decoration:none}
+.kd-brand-set{color:var(--pc-header-text-secondary,#64748b)!important;font-weight:600;margin-left:0.72rem;font-size:1.44rem}
 .pa-header__burger{display:none} @media(max-width:768px){.pa-header__burger{display:flex}}
 .kd-topnav{display:flex;align-items:center;gap:0.24rem}
-.kd-top-link,.kd-dd-btn{color:var(--pa-header-text-secondary,#475569);background:none;border:0;font:inherit;font-size:1.44rem;cursor:pointer;padding:0.64rem 1.04rem;border-radius:6px}
-.kd-top-link:hover,.kd-dd-btn:hover{background:var(--pa-accent-hover,#eef2ff);color:var(--pa-accent,#2563eb);text-decoration:none}
+.kd-top-link,.kd-dd-btn{color:var(--pc-header-text-secondary,#475569);background:none;border:0;font:inherit;font-size:1.44rem;cursor:pointer;padding:0.64rem 1.04rem;border-radius:6px}
+.kd-top-link:hover,.kd-dd-btn:hover{background:var(--pc-accent-hover,#eef2ff);color:var(--pc-accent,#2563eb);text-decoration:none}
 .kd-dd{position:relative}
-.kd-dd-menu{display:none;position:absolute;top:100%;left:0;background:var(--pa-card-bg,#fff);border:1px solid var(--pa-border-color,#e5e9f0);box-shadow:0 8px 24px rgba(16,42,67,.12);min-width:19.2rem;padding:0.48rem;border-radius:8px;z-index:30}
+.kd-dd-menu{display:none;position:absolute;top:100%;left:0;background:var(--pc-card-bg,#fff);border:1px solid var(--pc-border-color,#e5e9f0);box-shadow:0 8px 24px rgba(16,42,67,.12);min-width:19.2rem;padding:0.48rem;border-radius:8px;z-index:30}
 .kd-dd:hover .kd-dd-menu{display:block}
-.kd-dd-item{display:block;padding:0.64rem 0.96rem;border-radius:6px;color:var(--pa-text-color-1,#334155);font-size:1.44rem}
-.kd-dd-item:hover{background:var(--pa-accent-hover,#eef2f7);color:var(--pa-accent,#2563eb);text-decoration:none}
+.kd-dd-item{display:block;padding:0.64rem 0.96rem;border-radius:6px;color:var(--pc-text-color-1,#334155);font-size:1.44rem}
+.kd-dd-item:hover{background:var(--pc-accent-hover,#eef2f7);color:var(--pc-accent,#2563eb);text-decoration:none}
 .kd-search{display:flex;gap:0.64rem;width:100%;max-width:41.6rem;margin:0 auto}
-.kd-search input{flex:1;min-width:0;padding:0.64rem 1.04rem;border-radius:6px;border:1px solid var(--pa-border-color,#cbd5e1);background:var(--pa-main-bg,#fff);color:var(--pa-text-color-1,#1a2233)}
-.kd-search button,.kd-form button{padding:0.64rem 1.28rem;border-radius:6px;border:0;background:var(--pa-accent,#2563eb);color:#fff;cursor:pointer}
-.kd-mode{background:transparent;color:var(--pa-header-text,#334155);border:1px solid var(--pa-border-color,#cbd5e1);border-radius:6px;padding:0.48rem 0.88rem;font-size:1.6rem;line-height:1;cursor:pointer}
-.kd-mode:hover{background:var(--pa-accent-hover,#eef2f7)}
-.pa-header__profile-btn{display:inline-flex;align-items:center;gap:.8rem;background:transparent;border:1px solid var(--pa-border-color,#cbd5e1);color:var(--pa-header-text,#334155);border-radius:6px;padding:.5rem 1rem;cursor:pointer;font:inherit;font-size:1.44rem}
-.pa-header__profile-btn:hover{background:var(--pa-accent-hover,#eef2f7)}
+.kd-search input{flex:1;min-width:0;padding:0.64rem 1.04rem;border-radius:6px;border:1px solid var(--pc-border-color,#cbd5e1);background:var(--pc-main-bg,#fff);color:var(--pc-text-color-1,#1a2233)}
+.kd-search button,.kd-form button{padding:0.64rem 1.28rem;border-radius:6px;border:0;background:var(--pc-accent,#2563eb);color:#fff;cursor:pointer}
+.kd-mode{background:transparent;color:var(--pc-header-text,#334155);border:1px solid var(--pc-border-color,#cbd5e1);border-radius:6px;padding:0.48rem 0.88rem;font-size:1.6rem;line-height:1;cursor:pointer}
+.kd-mode:hover{background:var(--pc-accent-hover,#eef2f7)}
+.pa-header__profile-btn{display:inline-flex;align-items:center;gap:.8rem;background:transparent;border:1px solid var(--pc-border-color,#cbd5e1);color:var(--pc-header-text,#334155);border-radius:6px;padding:.5rem 1rem;cursor:pointer;font:inherit;font-size:1.44rem}
+.pa-header__profile-btn:hover{background:var(--pc-accent-hover,#eef2f7)}
 .pa-header__profile-name{font-weight:600}
 /* ---- content column + in-content page head ---- */
 .pa-layout__main__inner{max-width:102.4rem;margin:0 auto;padding:2.8rem 3.2rem}

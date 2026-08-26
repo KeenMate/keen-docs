@@ -7,33 +7,33 @@
     <link rel="stylesheet" href="core.css" />
   <style>/* box-sizing, body font/colour/margin and the typography reset come from the vendored
    reboot.css; the harness only overrides the page background (docs want the subtle --base-page-bg
-   behind cards, not reboot's --pa-main-bg surface) and the link treatment. */
+   behind cards, not reboot's --pc-main-bg surface) and the link treatment. */
 body{background:var(--base-page-bg,#f6f8fb)}
 a{color:var(--base-accent-color,#2563eb);text-decoration:none} a:hover{text-decoration:underline}
-/* ---- on-bar controls (the bar itself is pure-admin default: --pa-header-bg) ---- */
+/* ---- on-bar controls (the bar itself is pure-admin default: --pc-header-bg) ---- */
 .pa-header__brand{display:flex;align-items:center}
 .pa-header__brand h1{font-size:1.68rem;margin:0;font-weight:700}
-.pa-header__brand a{color:var(--pa-header-text,#0f172a)!important;text-decoration:none}
+.pa-header__brand a{color:var(--pc-header-text,#0f172a)!important;text-decoration:none}
 .kd-brand-logo{display:inline-flex;align-items:center}
 .kd-brand-logo img{height:2.8rem;width:auto;display:block}
-.kd-brand-label{font-weight:700;font-size:1.36rem;margin-left:0.56rem;color:var(--pa-header-text,#0f172a)}
-.kd-brand-set{color:var(--pa-header-text-secondary,#64748b)!important;font-weight:600;margin-left:0.72rem;font-size:1.44rem}
+.kd-brand-label{font-weight:700;font-size:1.36rem;margin-left:0.56rem;color:var(--pc-header-text,#0f172a)}
+.kd-brand-set{color:var(--pc-header-text-secondary,#64748b)!important;font-weight:600;margin-left:0.72rem;font-size:1.44rem}
 .pa-header__burger{display:none} @media(max-width:768px){.pa-header__burger{display:flex}}
 .kd-topnav{display:flex;align-items:center;gap:0.24rem}
-.kd-top-link,.kd-dd-btn{color:var(--pa-header-text-secondary,#475569);background:none;border:0;font:inherit;font-size:1.44rem;cursor:pointer;padding:0.64rem 1.04rem;border-radius:6px}
-.kd-top-link:hover,.kd-dd-btn:hover{background:var(--pa-accent-hover,#eef2ff);color:var(--pa-accent,#2563eb);text-decoration:none}
+.kd-top-link,.kd-dd-btn{color:var(--pc-header-text-secondary,#475569);background:none;border:0;font:inherit;font-size:1.44rem;cursor:pointer;padding:0.64rem 1.04rem;border-radius:6px}
+.kd-top-link:hover,.kd-dd-btn:hover{background:var(--pc-accent-hover,#eef2ff);color:var(--pc-accent,#2563eb);text-decoration:none}
 .kd-dd{position:relative}
-.kd-dd-menu{display:none;position:absolute;top:100%;left:0;background:var(--pa-card-bg,#fff);border:1px solid var(--pa-border-color,#e5e9f0);box-shadow:0 8px 24px rgba(16,42,67,.12);min-width:19.2rem;padding:0.48rem;border-radius:8px;z-index:30}
+.kd-dd-menu{display:none;position:absolute;top:100%;left:0;background:var(--pc-card-bg,#fff);border:1px solid var(--pc-border-color,#e5e9f0);box-shadow:0 8px 24px rgba(16,42,67,.12);min-width:19.2rem;padding:0.48rem;border-radius:8px;z-index:30}
 .kd-dd:hover .kd-dd-menu{display:block}
-.kd-dd-item{display:block;padding:0.64rem 0.96rem;border-radius:6px;color:var(--pa-text-color-1,#334155);font-size:1.44rem}
-.kd-dd-item:hover{background:var(--pa-accent-hover,#eef2f7);color:var(--pa-accent,#2563eb);text-decoration:none}
+.kd-dd-item{display:block;padding:0.64rem 0.96rem;border-radius:6px;color:var(--pc-text-color-1,#334155);font-size:1.44rem}
+.kd-dd-item:hover{background:var(--pc-accent-hover,#eef2f7);color:var(--pc-accent,#2563eb);text-decoration:none}
 .kd-search{display:flex;gap:0.64rem;width:100%;max-width:41.6rem;margin:0 auto}
-.kd-search input{flex:1;min-width:0;padding:0.64rem 1.04rem;border-radius:6px;border:1px solid var(--pa-border-color,#cbd5e1);background:var(--pa-main-bg,#fff);color:var(--pa-text-color-1,#1a2233)}
-.kd-search button,.kd-form button{padding:0.64rem 1.28rem;border-radius:6px;border:0;background:var(--pa-accent,#2563eb);color:#fff;cursor:pointer}
-.kd-mode{background:transparent;color:var(--pa-header-text,#334155);border:1px solid var(--pa-border-color,#cbd5e1);border-radius:6px;padding:0.48rem 0.88rem;font-size:1.6rem;line-height:1;cursor:pointer}
-.kd-mode:hover{background:var(--pa-accent-hover,#eef2f7)}
-.pa-header__profile-btn{display:inline-flex;align-items:center;gap:.8rem;background:transparent;border:1px solid var(--pa-border-color,#cbd5e1);color:var(--pa-header-text,#334155);border-radius:6px;padding:.5rem 1rem;cursor:pointer;font:inherit;font-size:1.44rem}
-.pa-header__profile-btn:hover{background:var(--pa-accent-hover,#eef2f7)}
+.kd-search input{flex:1;min-width:0;padding:0.64rem 1.04rem;border-radius:6px;border:1px solid var(--pc-border-color,#cbd5e1);background:var(--pc-main-bg,#fff);color:var(--pc-text-color-1,#1a2233)}
+.kd-search button,.kd-form button{padding:0.64rem 1.28rem;border-radius:6px;border:0;background:var(--pc-accent,#2563eb);color:#fff;cursor:pointer}
+.kd-mode{background:transparent;color:var(--pc-header-text,#334155);border:1px solid var(--pc-border-color,#cbd5e1);border-radius:6px;padding:0.48rem 0.88rem;font-size:1.6rem;line-height:1;cursor:pointer}
+.kd-mode:hover{background:var(--pc-accent-hover,#eef2f7)}
+.pa-header__profile-btn{display:inline-flex;align-items:center;gap:.8rem;background:transparent;border:1px solid var(--pc-border-color,#cbd5e1);color:var(--pc-header-text,#334155);border-radius:6px;padding:.5rem 1rem;cursor:pointer;font:inherit;font-size:1.44rem}
+.pa-header__profile-btn:hover{background:var(--pc-accent-hover,#eef2f7)}
 .pa-header__profile-name{font-weight:600}
 /* ---- content column + in-content page head ---- */
 .pa-layout__main__inner{max-width:102.4rem;margin:0 auto;padding:2.8rem 3.2rem}
@@ -55,22 +55,22 @@ h1{font-size:2.56rem;margin:0.32rem 0 1.6rem;font-family:var(--kd-heading-font,i
 .kd-toc li{margin:0.32rem 0} .kd-toc a{color:var(--base-text-color-2,#64748b);font-size:1.36rem} .kd-toc a:hover{color:var(--base-accent-color,#2563eb)}
 .kd-toc--rail{position:sticky;top:6.4rem;border-inline-start:1px solid var(--base-border-color,#e5e9f0);padding-inline-start:1.6rem}
 .kd-toc--inline{background:var(--base-main-bg,#fff);border:1px solid var(--base-border-color,#e5e9f0);border-radius:8px;padding:1.28rem 1.6rem;margin:0 0 2rem}
-/* ---- docs sidebar: layout METRICS as --pa-sidebar- tokens ----
+/* ---- docs sidebar: layout METRICS as --pc-sidebar- tokens ----
    core.css hardcodes sidebar spacing as literals; the harness re-expresses it via variables whose
    defaults live in the var() fallbacks, so a theme tunes LAYOUT declaratively (set e.g.
-   --pa-sidebar-padding in its :root) instead of overriding selectors. Colours and fonts still ride
-   the --pa- and --base- palette. Spacing-token prototype — see docs/theme-stress-test-dhl.md ---- */
-.pa-layout__sidebar{position:sticky;top:4.8rem;align-self:flex-start;max-height:calc(100vh - 4.8rem);overflow:auto;padding:var(--pa-sidebar-padding,1.8rem 1.4rem 3rem)}
-.pa-sidebar__nav{padding:var(--pa-sidebar-nav-padding,0)}
-.pa-sidebar__nav li{margin:var(--pa-sidebar-item-gap,0.1rem) 0}
-.pa-sidebar__link{padding:var(--pa-sidebar-link-padding,0.6rem 1.1rem);font-size:var(--pa-sidebar-link-font-size,1.4rem)}
-.pa-sidebar__link .pa-sidebar__label{font-size:var(--pa-sidebar-link-font-size,1.4rem)}
-.pa-sidebar__nav li.kd-nav-section{margin:var(--pa-sidebar-section-margin,2rem 0 0.6rem);padding-left:var(--pa-sidebar-section-indent,0.8rem)}
-.pa-sidebar__nav li.kd-nav-section:first-child{margin-top:var(--pa-sidebar-section-margin-first,0.4rem)}
+   --pc-sidebar-padding in its :root) instead of overriding selectors. Colours and fonts still ride
+   the --pc- and --base- palette. Spacing-token prototype — see docs/theme-stress-test-dhl.md ---- */
+.pa-layout__sidebar{position:sticky;top:4.8rem;align-self:flex-start;max-height:calc(100vh - 4.8rem);overflow:auto;padding:var(--pc-sidebar-padding,1.8rem 1.4rem 3rem)}
+.pa-sidebar__nav{padding:var(--pc-sidebar-nav-padding,0)}
+.pa-sidebar__nav li{margin:var(--pc-sidebar-item-gap,0.1rem) 0}
+.pa-sidebar__link{padding:var(--pc-sidebar-link-padding,0.6rem 1.1rem);font-size:var(--pc-sidebar-link-font-size,1.4rem)}
+.pa-sidebar__link .pa-sidebar__label{font-size:var(--pc-sidebar-link-font-size,1.4rem)}
+.pa-sidebar__nav li.kd-nav-section{margin:var(--pc-sidebar-section-margin,2rem 0 0.6rem);padding-left:var(--pc-sidebar-section-indent,0.8rem)}
+.pa-sidebar__nav li.kd-nav-section:first-child{margin-top:var(--pc-sidebar-section-margin-first,0.4rem)}
 .kd-version-l{display:flex;align-items:center;gap:0.8rem;font-size:1.088rem;text-transform:uppercase;letter-spacing:.05em;color:var(--base-text-color-3,#94a3b8);font-weight:700;margin:0 0 1.2rem}
 .kd-version{flex:1;padding:0.56rem 0.8rem;border:1px solid var(--base-border-color,#cbd5e1);border-radius:6px;background:var(--base-main-bg,#fff);font-size:1.36rem;color:var(--base-text-color-1,#1a2233);cursor:pointer}
 .kd-nav-section{list-style:none}
-.kd-nav-section .pa-sidebar__label{font-size:var(--pa-sidebar-section-font-size,1.1rem);text-transform:uppercase;letter-spacing:.05em;color:var(--base-text-color-3,#94a3b8);font-weight:700}
+.kd-nav-section .pa-sidebar__label{font-size:var(--pc-sidebar-section-font-size,1.1rem);text-transform:uppercase;letter-spacing:.05em;color:var(--base-text-color-3,#94a3b8);font-weight:700}
 /* ---- footer link colours (structure/look from core.css) ---- */
 .pa-layout__footer a{color:var(--base-accent-color,#2563eb)} .kd-social{margin-inline-end:0.96rem}
 /* ---- rendered content ---- */

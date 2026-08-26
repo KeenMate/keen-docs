@@ -12,7 +12,7 @@ Live theme: `priv/web/vendor/themes/dhl/` (`theme.json` `base:core` + `dist/dhl.
 Navbar (yellow + red rule), sidebar active pill, page head (Archivo 900 H1), **callout icons**
 (type-coloured `::before` — no render change needed), showcase column cards + coloured headers,
 yellow card header bars, **red table headers** + zebra, code frames, dark footer, light/dark. So the
-palette + component look is fully theme-reachable via `--pa-*`/`--base-*` + selector overrides.
+palette + component look is fully theme-reachable via `--pc-*`/`--base-*` + selector overrides.
 
 ## Gotcha found (and fixed)
 A `*/` inside a CSS comment (`pa-*/kd-*`) silently truncated the whole `:root`, so every custom prop
@@ -35,7 +35,7 @@ Lesson: theme CSS authored by hand needs a lint/guard for stray comment terminat
 
 ### ⚠️ Systemic finding — the theming contract covers COLOURS, not SPACING
 
-The `--pa-*` / `--base-*` contract exposes **colours, backgrounds, borders, fonts, radii** — but
+The `--pc-*` / `--base-*` contract exposes **colours, backgrounds, borders, fonts, radii** — but
 **layout metrics (padding / margin / gaps / sizes) are hardcoded literals** in `core.css`. So a theme
 can recolour anything with a variable, but to change *spacing* it must **override selectors** (fragile,
 specificity-prone, per-theme boilerplate). Driving the DHL sidebar to 1:1 forced selector overrides for
@@ -43,22 +43,22 @@ every one of these:
 
 | hardcoded in core/harness | had to override | should be |
 |---|---|---|
-| `.pa-sidebar__nav{padding:1.6rem 0}` | `padding:0` | `--pa-sidebar-nav-padding` |
-| `.pa-layout__sidebar{padding:0}` (none) | `2.2rem 1.8rem 4rem` | `--pa-sidebar-padding` |
-| `.pa-sidebar__link` font 16px / pad | 14px / `.7rem 1.1rem` | `--pa-sidebar-link-font-size` / `--pa-sidebar-link-padding` |
-| `.kd-nav-section` margin/indent | `2.4rem 0 .8rem` / `padding-left:.8rem` | `--pa-sidebar-section-margin` / `--pa-sidebar-section-indent` |
-| leaf `margin-inline-start` per level | removed | `--pa-sidebar-nesting-indent` |
+| `.pa-sidebar__nav{padding:1.6rem 0}` | `padding:0` | `--pc-sidebar-nav-padding` |
+| `.pa-layout__sidebar{padding:0}` (none) | `2.2rem 1.8rem 4rem` | `--pc-sidebar-padding` |
+| `.pa-sidebar__link` font 16px / pad | 14px / `.7rem 1.1rem` | `--pc-sidebar-link-font-size` / `--pc-sidebar-link-padding` |
+| `.kd-nav-section` margin/indent | `2.4rem 0 .8rem` / `padding-left:.8rem` | `--pc-sidebar-section-margin` / `--pc-sidebar-section-indent` |
+| leaf `margin-inline-start` per level | removed | `--pc-sidebar-nesting-indent` |
 
-**As the user put it: there's no `--pa-sidebar-top-margin` (or any spacing token) and there should be.**
+**As the user put it: there's no `--pc-sidebar-top-margin` (or any spacing token) and there should be.**
 This is the biggest systemic gap the stress-test found: the theming system needs a **spacing/metrics
-token layer** parallel to the colour one — literals become `var(--pa-…, <default>)`, so themes tune
+token layer** parallel to the colour one — literals become `var(--pc-…, <default>)`, so themes tune
 layout **declaratively via variables** instead of overriding selectors.
 
-**✅ Prototyped for the sidebar** (`View.harness_css`): the `--pa-sidebar-*` set is now token-driven with
+**✅ Prototyped for the sidebar** (`View.harness_css`): the `--pc-sidebar-*` set is now token-driven with
 the defaults living in the `var()` fallbacks (NOT a `:root{}` block — a `:root` block is fragile: a stray
 `*/` in a nearby comment silently drops it, which happened here). DHL now sets **3 tokens** in its `:root`
 and carries **zero** sidebar-spacing selector overrides; Aurora/baseline get the improved defaults free.
-Next: extend the same treatment to `--pa-navbar-*` / `--pa-content-*`, and ultimately push it **upstream
+Next: extend the same treatment to `--pc-navbar-*` / `--pc-content-*`, and ultimately push it **upstream
 into pure-admin-core** so it's not a keen-docs-only patch. And add a **stray-`*/`-in-comment lint** to the
 keendocs CLI's render-contract validation — this class of bug has now bitten twice (DHL skin `:root`,
 harness `:root`), invisible in the source, only caught by inspecting computed styles in Playwright.
@@ -69,8 +69,8 @@ Porting the version control to a live `<web-multiselect>` (render block `version
 → `View.version_selector`) revealed the component **writes `--base-accent-color:#4f46e5` onto `:root` on
 upgrade** (its fallback), overriding the *theme's* accent on any page it's embedded. Themes that drive
 links/buttons off `--base-accent-color` would get tinted on demo pages. Mitigation used: the version dot
-reads `--pa-accent` (chrome token, untouched). Real fixes: (a) the component should scope its `--base-*`
-fallbacks to its host, not `:root` (upstream web-multiselect); (b) keen-docs chrome should prefer `--pa-*`
+reads `--pc-accent` (chrome token, untouched). Real fixes: (a) the component should scope its `--base-*`
+fallbacks to its host, not `:root` (upstream web-multiselect); (b) keen-docs chrome should prefer `--pc-*`
 for its own accents. Note-to-self: this is the flip side of "components read `--base-*`" — they must not
 *write* them globally.
 
@@ -83,7 +83,7 @@ flex row of `.pa-header__start` · `.pa-header__center` · `.pa-header__end`, wh
 the centred search collapses to zero and the shrink-0 sides overlap (seen: search crushed behind
 "GitHub"). The bend that fits docs is **compositional, not CSS**: choose what occupies the bar (the
 `header` render-block) rather than fight the flex. Left open upstream: pure-admin could add a
-`--pa-navbar-*` spacing layer and/or let the nav region shrink/scroll, so a heavier nav degrades
+`--pc-navbar-*` spacing layer and/or let the nav region shrink/scroll, so a heavier nav degrades
 gracefully instead of crushing the search. Also unresolved: the hub nav still carries a "GitHub" text
 item *and* we add a GitHub CTA — dedupe belongs in the hub-nav seed, not the theme.
 
@@ -99,12 +99,12 @@ This is a small, deliberate departure from the CSS-only/no-JS stance — the col
 enhancement (SSR stays deterministic; JS only reflows by viewport). Non-nav controls still shed via CSS
 (`≤1200` utility links → `≤768` CTA label → `≤560` search + brand suffix). Also fixed here: the brand is
 a **stacked** wordmark (`kd-brand-label` > `kd-brand-set`, tunable via
-`--pa-brand-label-size`/`-set-size`/`-divider`) — the inline suffix had been oversized.
+`--pc-brand-label-size`/`-set-size`/`-divider`) — the inline suffix had been oversized.
 
 ### Positive findings (system already flexible enough)
 - **Overlay-on-core** works cleanly: a hand-authored theme reskins the whole page via variables +
   selector overrides, no SCSS build, no framework fork.
-- `--pa-*` (chrome) + `--base-*` (content) + `html.pc-mode-dark` reach every surface incl. embedded
+- `--pc-*` (chrome) + `--base-*` (content) + `html.pc-mode-dark` reach every surface incl. embedded
   components. Callout icons, table headers, card bars, code frames all reachable in pure CSS.
 - The render block (`toc`, `fonts`, now `brand`) is the right home for declarative per-theme
   page-assembly — extending it (now `brand`, `versionControl`, `header`) is the natural path for #2–#4.
@@ -113,7 +113,7 @@ a **stacked** wordmark (`kd-brand-label` > `kd-brand-set`, tunable via
   reveals on hover with **no JS** — one less bespoke widget to own.
 
 ## Next
-- **Spacing/metrics token layer** (the systemic finding above) — expose `--pa-*` spacing variables in
+- **Spacing/metrics token layer** (the systemic finding above) — expose `--pc-*` spacing variables in
   pure-admin-core + harness defaults, so layout is tunable via variables not selector overrides. Top
   priority: it's what makes every *other* theme cheaper to build.
 - Render extensions: #2 (header config) ✅, #3 (nav active) ✅, #4 (version control → live

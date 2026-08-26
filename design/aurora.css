@@ -3,7 +3,7 @@
 
    Skins the REAL DOM that KeenDocs.Web.View emits (pa-* chrome, kd-* harness,
    km-* rendered content) — NOT invented markup. It layers AFTER core.css: it
-   overrides the --pa-* variables core's chrome reads and the --base-* variables
+   overrides the --pc-* variables core's chrome reads and the --base-* variables
    keen-docs' harness/content read, then adds the Aurora-specific signatures
    (translucent blur navbar, gradient h1 + hero underline, gradient-soft active
    states, callout accent bars, showcase pips, soft layered shadows). Light +
@@ -45,25 +45,25 @@
   --base-text-color-2: #54626f;
   --base-text-color-3: #7a8a99;
 
-  /* pure-admin chrome vars core.css reads (--pa-*) */
-  --pa-header-bg: rgba(255,255,255,.82);
-  --pa-header-border-color: #e6e9ee;
-  --pa-header-text: #2c3e50;
-  --pa-header-text-secondary: #6c757d;
-  --pa-sidebar-bg: #ffffff;
-  --pa-sidebar-text: #6c757d;
-  --pa-sidebar-text-secondary: #7a8a99;
-  --pa-main-bg: #ffffff;
-  --pa-card-bg: #ffffff;
-  --pa-card-header-bg: linear-gradient(180deg, #ffffff, #fcfcfd);
-  --pa-border-color: #e1e5e9;
-  --pa-text-color-1: #2c3e50;
-  --pa-text-color-2: #54626f;
-  --pa-border-radius: 12px;
-  --pa-border-radius-sm: 8px;
-  --pa-border-radius-lg: 16px;
-  --pa-accent: #007bff;
-  --pa-accent-hover: rgba(0,123,255,.08);
+  /* pure-admin chrome vars core.css reads (--pc-*) */
+  --pc-header-bg: rgba(255,255,255,.82);
+  --pc-header-border-color: #e6e9ee;
+  --pc-header-text: #2c3e50;
+  --pc-header-text-secondary: #6c757d;
+  --pc-sidebar-bg: #ffffff;
+  --pc-sidebar-text: #6c757d;
+  --pc-sidebar-text-secondary: #7a8a99;
+  --pc-main-bg: #ffffff;
+  --pc-card-bg: #ffffff;
+  --pc-card-header-bg: linear-gradient(180deg, #ffffff, #fcfcfd);
+  --pc-border-color: #e1e5e9;
+  --pc-text-color-1: #2c3e50;
+  --pc-text-color-2: #54626f;
+  --pc-border-radius: 12px;
+  --pc-border-radius-sm: 8px;
+  --pc-border-radius-lg: 16px;
+  --pc-accent: #007bff;
+  --pc-accent-hover: rgba(0,123,255,.08);
 }
 
 /* ---------------------------------------------------------------- base canvas */
@@ -78,10 +78,10 @@ body {
 
 /* ---------------------------------------------------------------- navbar (translucent + blur) */
 .pa-navbar {
-  background: var(--pa-header-bg);
+  background: var(--pc-header-bg);
   -webkit-backdrop-filter: saturate(180%) blur(12px);
   backdrop-filter: saturate(180%) blur(12px);
-  border-bottom: 1px solid var(--pa-header-border-color);
+  border-bottom: 1px solid var(--pc-header-border-color);
 }
 /* gradient logo chip before the wordmark */
 .pa-header__brand h1 a {
@@ -188,7 +188,7 @@ h2 { letter-spacing: -.02em; }
   position: relative;
   overflow: hidden;
   border: 1px solid var(--base-border-color);
-  border-radius: var(--pa-border-radius);
+  border-radius: var(--pc-border-radius);
   box-shadow: var(--au-shadow-sm);
   padding-inline-start: 2rem;
 }
@@ -215,7 +215,7 @@ h2 { letter-spacing: -.02em; }
 .km-showcase {
   background: var(--base-main-bg);
   border: 1px solid var(--base-border-color);
-  border-radius: var(--pa-border-radius-lg);
+  border-radius: var(--pc-border-radius-lg);
   box-shadow: var(--au-shadow-md);
   overflow: hidden;
   padding: 0;
@@ -259,7 +259,7 @@ h2 { letter-spacing: -.02em; }
 .km-card, .kd-card {
   background: var(--base-main-bg);
   border: 1px solid var(--base-border-color);
-  border-radius: var(--pa-border-radius);
+  border-radius: var(--pc-border-radius);
   box-shadow: var(--au-shadow-sm);
   overflow: hidden;
 }
@@ -284,7 +284,7 @@ code { background: var(--base-subtle-bg); border: 1px solid #eceef1; border-radi
 /* the live demo mount */
 .kd-demo-live {
   border: 1px solid var(--base-border-color);
-  border-radius: var(--pa-border-radius);
+  border-radius: var(--pc-border-radius);
   box-shadow: var(--au-shadow-sm);
   background: #fff;
 }
@@ -294,7 +294,7 @@ code { background: var(--base-subtle-bg); border: 1px solid #eceef1; border-radi
 .kd-badge.component { background: var(--au-grad-soft); color: var(--au-brand); }
 
 /* ---------------------------------------------------------------- tables */
-table { border-radius: var(--pa-border-radius); overflow: hidden; box-shadow: var(--au-shadow-sm); border: 1px solid var(--base-border-color); }
+table { border-radius: var(--pc-border-radius); overflow: hidden; box-shadow: var(--au-shadow-sm); border: 1px solid var(--base-border-color); }
 th { background: #fafbfc; }
 tbody tr:hover { background: #fafbfd; }
 
@@ -329,18 +329,18 @@ html.pa-mode-dark {
   --base-text-color-3: #7e8b98;
   --au-grad-soft: linear-gradient(120deg, rgba(0,123,255,.18), rgba(124,92,255,.18));
 
-  --pa-header-bg: rgba(23,31,39,.82);
-  --pa-header-border-color: #222c36;
-  --pa-header-text: #e7ecf1;
-  --pa-header-text-secondary: #a9b6c2;
-  --pa-sidebar-bg: #171f27;
-  --pa-sidebar-text: #a9b6c2;
-  --pa-main-bg: #171f27;
-  --pa-card-bg: #171f27;
-  --pa-card-header-bg: linear-gradient(180deg, #1a232c, #171f27);
-  --pa-border-color: #2a3540;
-  --pa-text-color-1: #e7ecf1;
-  --pa-text-color-2: #a9b6c2;
+  --pc-header-bg: rgba(23,31,39,.82);
+  --pc-header-border-color: #222c36;
+  --pc-header-text: #e7ecf1;
+  --pc-header-text-secondary: #a9b6c2;
+  --pc-sidebar-bg: #171f27;
+  --pc-sidebar-text: #a9b6c2;
+  --pc-main-bg: #171f27;
+  --pc-card-bg: #171f27;
+  --pc-card-header-bg: linear-gradient(180deg, #1a232c, #171f27);
+  --pc-border-color: #2a3540;
+  --pc-text-color-1: #e7ecf1;
+  --pc-text-color-2: #a9b6c2;
 }
 html.pa-mode-dark body,
 html.pa-mode-dark .kd-page p,

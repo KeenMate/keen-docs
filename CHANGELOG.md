@@ -6,6 +6,15 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Changed — foundation namespace `pa-` → `pc-` (2026-08-26)
+
+Tracked pure-css rc04 / pure-admin-core: the foundation's grid + mode classes
+(`pa-row`/`pa-col*`/`pa-mode-*` → `pc-*`) and its whole runtime CSS-variable surface
+(`--pa-*` → `--pc-*`) are de-branded. Re-vendored `pure-css` + `core.css` from the local
+sibling builds (`make vendor-css`) and flipped the vendored theme CSS + authored
+`view.ex` / design experiments / docs to `--pc-*`. `--base-*` (web-component bridge) is
+unchanged.
+
 ### Added — reader settings panel (pure-admin offcanvas), sidebar-resize as a setting (2026-08-11)
 
 Ported pure-admin's floating **settings panel** — the gear-tab offcanvas drawer, styled entirely by
@@ -47,7 +56,7 @@ layout rather than using it — so the fix was to converge, again.
   window — the faithful pure-admin admin-shell model.
 - **Resizable sidebar + real width** — the aside carries `pa-layout__sidebar--resizable` and we
   vendored pure-admin's `sidebar-resize.js` (drag handle, min 18rem / max 50rem, `localStorage`,
-  double-click reset; writes `--pa-local-sidebar-width`). The harness now pins the width to that var
+  double-click reset; writes `--pc-local-sidebar-width`). The harness now pins the width to that var
   so it beats core's `@media(769–1024px){width:16rem}` tablet reduction — which was the "very thin"
   (160px) sidebar. Core's ≤768 auto-hide (burger overlay) still wins on specificity.
 - **Navbar overlap → honest collapse** — the top-nav *was* collapsing by real measurement, but the
@@ -121,7 +130,7 @@ theme-declarative (DHL stress-test gap #2). See `docs/theme-stress-test-dhl.md`.
 - **Active top-nav** (DHL gap #3) — `top_nav_html/1` marks the current doc_set's top node
   `pa-header__nav-item--active` (a leaf matches its own `doc_set_code`; a section matches when a child
   does, so "Components" lights up under web-multiselect). Styled accent-underline + bold, themeable via
-  `--pa-accent`/`--pa-header-text` (DHL → red underline).
+  `--pc-accent`/`--pc-header-text` (DHL → red underline).
 - **Finding** — pure-admin's header is a fixed 3-slot flex with `flex-shrink:0` start/end, so too many
   items crush the centred search; the fix is compositional (the `header` block), not CSS. DHL sets
   `links:off, resolve:false, cta:GitHub` → the search is no longer squished.
@@ -132,7 +141,7 @@ Follow-up to the navbar rebuild, making the bar hold up as it narrows (it was cr
 
 - **Stacked brand** — the wordmark is now the theme label over a small doc_set line (`kd-brand-label` >
   `kd-brand-set`), divided from the logo by a left rule (matches the DHL mockup). Sizes tunable via
-  `--pa-brand-label-size` / `--pa-brand-set-size` / `--pa-brand-divider` (defaults 12px / 10px).
+  `--pc-brand-label-size` / `--pc-brand-set-size` / `--pc-brand-divider` (defaults 12px / 10px).
 - **Navbar→sidebar overflow** — instead of the hub nav just vanishing at narrow widths, it renders a
   second time as the sidebar's first block (`kd-sidebar-hubnav`, a "Browse" group), hidden at wide
   widths and CSS-revealed at ≤1024px — the same breakpoint where `pa-header__nav` hides. So the items
@@ -158,9 +167,9 @@ expose. Iterated with a Playwright screenshot+computed-style loop (`tmp/pw/`, gi
   `<web-multiselect multiple="false">` instead of a native `<select>` (dogfooding): `{type, module,
   style, label}`. `View.version_selector/5` emits the package pill + component; the module/style load in
   the head (before the theme CSS so the theme's palette wins); navigate-on-change in `layout_js`.
-- **Sidebar spacing-token layer** — the systemic finding: the `--pa-*`/`--base-*` contract covered
+- **Sidebar spacing-token layer** — the systemic finding: the `--pc-*`/`--base-*` contract covered
   colours but **hardcoded spacing** as literals, forcing selector overrides. `harness_css` now drives
-  sidebar layout off `--pa-sidebar-*` tokens (padding, nav-padding, item-gap, link-padding/font-size,
+  sidebar layout off `--pc-sidebar-*` tokens (padding, nav-padding, item-gap, link-padding/font-size,
   section-margin/indent/font-size) with defaults in the `var()` fallbacks. A theme tunes layout by
   setting a few tokens (DHL sets 3) instead of overriding selectors; every theme gets the fixed defaults
   (proper padding, aligned section headers, no core `.pa-sidebar__nav` top gap).
@@ -171,14 +180,14 @@ expose. Iterated with a Playwright screenshot+computed-style loop (`tmp/pw/`, gi
   applied surgically to the live DB). Confirms section names/order are **per-doc_set seed data**, never
   hardcoded.
 - Findings logged for follow-up: an embedded `<web-multiselect>` **writes `--base-*` onto `:root`** on
-  upgrade (clobbers the theme accent — dodged via `--pa-accent`); and a **stray `*/` inside a CSS comment**
+  upgrade (clobbers the theme accent — dodged via `--pc-accent`); and a **stray `*/` inside a CSS comment**
   silently truncates a rule (bit us twice — a lint belongs in the future keendocs CLI's contract check).
 
 ### Added — keen-docs themes (Aurora, DHL) as override-on-core skins (2026-08-05)
 
 keen-docs' own themes are the **design directions** in `design/*.html` (aurora, brand, editorial,
 terminal, glass, dhl…), authored as **overlays on the vendored `core.css`** — a `theme.json` with
-`"base": "core"` + a `dist/<id>.css` that reskins the *real* DOM via `--pa-*`/`--base-*` overrides +
+`"base": "core"` + a `dist/<id>.css` that reskins the *real* DOM via `--pc-*`/`--base-*` overrides +
 `html.pc-mode-dark`, no SCSS build. (The copied pure-admin bundles — nato/dracula/corporate — were only
 to prove the mechanism; they're **standalone** bundles that replace `core.css`. `KeenDocs.Themes.overlay?/1`
 picks the delivery per theme.) Aurora (airy modern-SaaS) and DHL (yellow/red, Archivo) both ship live;
