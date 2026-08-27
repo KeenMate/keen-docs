@@ -902,16 +902,16 @@ defmodule KeenDocs.Web.View do
        behind cards, not reboot's --pc-main-bg surface) and the link treatment. */
     body{background:var(--base-page-bg,#f6f8fb)}
     a{color:var(--base-accent-color,#2563eb);text-decoration:none} a:hover{text-decoration:underline}
-    /* ---- on-bar controls (the bar itself is pure-admin default: --pc-header-bg) ---- */
+    /* ---- on-bar controls (the bar itself is pure-admin default: --pc-navbar-bg) ---- */
     .pa-header__brand{display:flex;align-items:center}
     .pa-header__brand h1{font-size:1.68rem;margin:0;font-weight:700}
-    .pa-header__brand a{color:var(--pc-header-text,#0f172a)!important;text-decoration:none}
+    .pa-header__brand a{color:var(--pc-navbar-text,#0f172a)!important;text-decoration:none}
     .kd-brand-logo{display:inline-flex;align-items:center}
     .kd-brand-logo img{height:2.8rem;width:auto;display:block}
     /* stacked wordmark: theme label on top, doc_set as a small line beneath, a left rule dividing it
        from the logo. Sizes tunable via --pc-brand-* (defaults match the DHL mockup: 12px / 10px). */
-    .kd-brand-label{display:flex;flex-direction:column;justify-content:center;white-space:nowrap;margin-left:1rem;padding-left:1.1rem;border-left:2px solid var(--pc-brand-divider,var(--pc-border-color,rgba(0,0,0,.18)));font-family:var(--kd-heading-font,inherit);font-weight:800;font-size:var(--pc-brand-label-size,1.2rem);letter-spacing:.12em;line-height:1.18;text-transform:uppercase;color:var(--pc-header-text,#0f172a)}
-    .kd-brand-set{display:block;font-weight:600;font-size:var(--pc-brand-set-size,1rem);letter-spacing:.14em;text-transform:uppercase;color:var(--pc-header-text-secondary,#64748b)}
+    .kd-brand-label{display:flex;flex-direction:column;justify-content:center;white-space:nowrap;margin-left:1rem;padding-left:1.1rem;border-left:2px solid var(--pc-brand-divider,var(--pc-border-color,rgba(0,0,0,.18)));font-family:var(--kd-heading-font,inherit);font-weight:800;font-size:var(--pc-brand-label-size,1.2rem);letter-spacing:.12em;line-height:1.18;text-transform:uppercase;color:var(--pc-navbar-text,#0f172a)}
+    .kd-brand-set{display:block;font-weight:600;font-size:var(--pc-brand-set-size,1rem);letter-spacing:.14em;text-transform:uppercase;color:var(--pc-navbar-text-secondary,#64748b)}
     .pa-header__burger{display:none} @media(max-width:768px){.pa-header__burger{display:flex}}
     /* Top nav + search now use pure-admin's OWN components (pa-header__nav > ul > li > a with
        pa-header__dropdown; pa-navbar-search). The harness only adds the dropdown caret and bends
@@ -924,7 +924,7 @@ defmodule KeenDocs.Web.View do
        .pa-header__nav-item--active (currentColor pill) and .pa-sidebar__section. */
     /* on-bar utility text links in pa-header__end (Resolve, per-doc_set header_links) — styled like
        the native nav links so the whole bar reads consistently. */
-    .kd-top-link{color:var(--pc-header-text-secondary,#475569);font-size:1.44rem;padding:0.64rem 1.04rem;border-radius:6px;white-space:nowrap}
+    .kd-top-link{color:var(--pc-navbar-text-secondary,#475569);font-size:1.44rem;padding:0.64rem 1.04rem;border-radius:6px;white-space:nowrap}
     .kd-top-link:hover{background:var(--pc-accent-hover,#eef2ff);color:var(--pc-accent,#2563eb);text-decoration:none}
     /* Reserve the search's min-width on the CENTER FLEX ITEM, not just the input. Flexbox only honours
        a flex item's OWN min-width when distributing space; a min-width on the search (center's child)
@@ -948,9 +948,9 @@ defmodule KeenDocs.Web.View do
     @media(max-width:1150px){.kd-brand-label{display:none}}
     @media(max-width:768px){.kd-cta__label{display:none}}
     @media(max-width:560px){.pa-header__center{display:none}.kd-brand-set{display:none}}
-    .kd-mode{background:transparent;color:var(--pc-header-text,#334155);border:1px solid var(--pc-border-color,#cbd5e1);border-radius:6px;padding:0.48rem 0.88rem;font-size:1.6rem;line-height:1;cursor:pointer}
+    .kd-mode{background:transparent;color:var(--pc-navbar-text,#334155);border:1px solid var(--pc-border-color,#cbd5e1);border-radius:6px;padding:0.48rem 0.88rem;font-size:1.6rem;line-height:1;cursor:pointer}
     .kd-mode:hover{background:var(--pc-accent-hover,#eef2f7)}
-    .pa-header__profile-btn{display:inline-flex;align-items:center;gap:.8rem;background:transparent;border:1px solid var(--pc-border-color,#cbd5e1);color:var(--pc-header-text,#334155);border-radius:6px;padding:.5rem 1rem;cursor:pointer;font:inherit;font-size:1.44rem}
+    .pa-header__profile-btn{display:inline-flex;align-items:center;gap:.8rem;background:transparent;border:1px solid var(--pc-border-color,#cbd5e1);color:var(--pc-navbar-text,#334155);border-radius:6px;padding:.5rem 1rem;cursor:pointer;font:inherit;font-size:1.44rem}
     .pa-header__profile-btn:hover{background:var(--pc-accent-hover,#eef2f7)}
     .pa-header__profile-name{font-weight:600}
     /* ---- content column + in-content page head ---- */

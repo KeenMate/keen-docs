@@ -46,10 +46,10 @@
   --base-text-color-3: #7a8a99;
 
   /* pure-admin chrome vars core.css reads (--pc-*) */
-  --pc-header-bg: rgba(255,255,255,.82);
-  --pc-header-border-color: #e6e9ee;
-  --pc-header-text: #2c3e50;
-  --pc-header-text-secondary: #6c757d;
+  --pc-navbar-bg: rgba(255,255,255,.82);
+  --pc-navbar-border-color: #e6e9ee;
+  --pc-navbar-text: #2c3e50;
+  --pc-navbar-text-secondary: #6c757d;
   --pc-sidebar-bg: #ffffff;
   --pc-sidebar-text: #6c757d;
   --pc-sidebar-text-secondary: #7a8a99;
@@ -78,10 +78,10 @@ body {
 
 /* ---------------------------------------------------------------- navbar (translucent + blur) */
 .pa-navbar {
-  background: var(--pc-header-bg);
+  background: var(--pc-navbar-bg);
   -webkit-backdrop-filter: saturate(180%) blur(12px);
   backdrop-filter: saturate(180%) blur(12px);
-  border-bottom: 1px solid var(--pc-header-border-color);
+  border-bottom: 1px solid var(--pc-navbar-border-color);
 }
 /* gradient logo chip before the wordmark */
 .pa-header__brand h1 a {
@@ -329,10 +329,10 @@ html.pa-mode-dark {
   --base-text-color-3: #7e8b98;
   --au-grad-soft: linear-gradient(120deg, rgba(0,123,255,.18), rgba(124,92,255,.18));
 
-  --pc-header-bg: rgba(23,31,39,.82);
-  --pc-header-border-color: #222c36;
-  --pc-header-text: #e7ecf1;
-  --pc-header-text-secondary: #a9b6c2;
+  --pc-navbar-bg: rgba(23,31,39,.82);
+  --pc-navbar-border-color: #222c36;
+  --pc-navbar-text: #e7ecf1;
+  --pc-navbar-text-secondary: #a9b6c2;
   --pc-sidebar-bg: #171f27;
   --pc-sidebar-text: #a9b6c2;
   --pc-main-bg: #171f27;

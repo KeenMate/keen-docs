@@ -54,7 +54,7 @@
 }
 .pa-profile-panel__header {
   padding: 2.4rem;
-  background-color: var(--pc-header-bg);
+  background-color: var(--pc-navbar-bg);
   border-bottom: 1px solid var(--pc-border-color);
   display: flex;
   align-items: flex-start;
@@ -87,7 +87,7 @@
   margin: 0 0 0.4rem 0;
   font-size: 1.8rem;
   font-weight: 600;
-  color: var(--pc-header-profile-name-color);
+  color: var(--pc-navbar-profile-name-color);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -95,7 +95,7 @@
 .pa-profile-panel__email {
   margin: 0 0 0.8rem 0;
   font-size: 1.4rem;
-  color: var(--pc-header-profile-name-color);
+  color: var(--pc-navbar-profile-name-color);
   opacity: 0.75;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -187,20 +187,20 @@
 .pa-profile-panel__tabs {
   padding: 0 1.6rem;
   border-bottom: 1px solid var(--pc-border-color);
-  background-color: var(--pc-header-bg);
+  background-color: var(--pc-navbar-bg);
 }
 .pa-profile-panel__tabs .pa-tabs {
   border-bottom: none;
   margin-bottom: 0;
 }
 .pa-profile-panel__tabs .pa-tabs__item {
-  color: var(--pc-header-profile-name-color);
+  color: var(--pc-navbar-profile-name-color);
   opacity: 0.6;
   border-bottom-color: transparent;
 }
 .pa-profile-panel__tabs .pa-tabs__item:hover {
   opacity: 0.85;
-  background-color: color-mix(in srgb, var(--pc-header-profile-name-color) 10%, transparent);
+  background-color: color-mix(in srgb, var(--pc-navbar-profile-name-color) 10%, transparent);
 }
 .pa-profile-panel__tabs .pa-tabs__item--active {
   opacity: 1;

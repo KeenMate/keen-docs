@@ -175,8 +175,8 @@ body.sidebar-sticky {
   top: 0;
   inset-inline: 0;
   height: 4.8rem;
-  background-color: var(--pc-header-bg);
-  border-bottom: 1px solid var(--pc-header-border-color);
+  background-color: var(--pc-navbar-bg);
+  border-bottom: 1px solid var(--pc-navbar-border-color);
   z-index: 4000;
   display: flex;
   align-items: center;
@@ -856,7 +856,7 @@ body:not(.sidebar-hidden) .pa-layout__sidebar--icon-collapse .pa-sidebar__icon {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
-  color: var(--pc-header-text);
+  color: var(--pc-navbar-text);
   white-space: nowrap;
 }
 
@@ -881,7 +881,7 @@ body:not(.sidebar-hidden) .pa-layout__sidebar--icon-collapse .pa-sidebar__icon {
 
 .pa-header__nav > ul > li > a {
   text-decoration: none;
-  color: var(--pc-header-text-secondary);
+  color: var(--pc-navbar-text-secondary);
   font-weight: 500;
   padding: 0.4rem 0.8rem;
   border-radius: var(--pc-border-radius);
@@ -980,7 +980,7 @@ body:not(.sidebar-hidden) .pa-layout__sidebar--icon-collapse .pa-sidebar__icon {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
-  color: var(--pc-header-text);
+  color: var(--pc-navbar-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1005,7 +1005,7 @@ body:not(.sidebar-hidden) .pa-layout__sidebar--icon-collapse .pa-sidebar__icon {
 .burger-menu span {
   width: 100%;
   height: 2px;
-  background-color: var(--pc-header-text);
+  background-color: var(--pc-navbar-text);
   border-radius: var(--pc-border-radius);
   transition: all 0.15s ease-out;
   transform-origin: center;
@@ -1042,7 +1042,7 @@ body:not(.sidebar-hidden) .pa-layout__sidebar--icon-collapse .pa-sidebar__icon {
 }
 
 .theme-switcher label {
-  color: var(--pc-header-text-secondary);
+  color: var(--pc-navbar-text-secondary);
   font-size: 1.4rem;
 }
 
@@ -1050,8 +1050,8 @@ body:not(.sidebar-hidden) .pa-layout__sidebar--icon-collapse .pa-sidebar__icon {
   padding: 0.4rem 0.8rem;
   border: 1px solid var(--pc-border-color);
   border-radius: var(--pc-border-radius);
-  background-color: var(--pc-header-bg);
-  color: var(--pc-header-text);
+  background-color: var(--pc-navbar-bg);
+  color: var(--pc-navbar-text);
   font-size: 1.4rem;
 }
 
@@ -11428,7 +11428,7 @@ code {
   border: none;
   padding: 0.4rem 0.8rem;
   border-radius: var(--pc-border-radius);
-  color: var(--pc-header-text);
+  color: var(--pc-navbar-text);
   cursor: pointer;
   font-size: 1.4rem;
   transition: background-color 0.1s ease-out;
@@ -11445,7 +11445,7 @@ code {
 
 .pa-header__profile-name {
   font-weight: 500;
-  color: var(--pc-header-profile-name-color);
+  color: var(--pc-navbar-profile-name-color);
 }
 
 .pa-profile-panel {
@@ -11500,7 +11500,7 @@ code {
 
 .pa-profile-panel__header {
   padding: 2.4rem;
-  background-color: var(--pc-header-bg);
+  background-color: var(--pc-navbar-bg);
   border-bottom: 1px solid var(--pc-border-color);
   display: flex;
   align-items: flex-start;
@@ -11538,7 +11538,7 @@ code {
   margin: 0 0 0.4rem 0;
   font-size: 1.8rem;
   font-weight: 600;
-  color: var(--pc-header-profile-name-color);
+  color: var(--pc-navbar-profile-name-color);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -11547,7 +11547,7 @@ code {
 .pa-profile-panel__email {
   margin: 0 0 0.8rem 0;
   font-size: 1.4rem;
-  color: var(--pc-header-profile-name-color);
+  color: var(--pc-navbar-profile-name-color);
   opacity: 0.75;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -11652,7 +11652,7 @@ code {
 .pa-profile-panel__tabs {
   padding: 0 1.6rem;
   border-bottom: 1px solid var(--pc-border-color);
-  background-color: var(--pc-header-bg);
+  background-color: var(--pc-navbar-bg);
 }
 
 .pa-profile-panel__tabs .pa-tabs {
@@ -11661,14 +11661,14 @@ code {
 }
 
 .pa-profile-panel__tabs .pa-tabs__item {
-  color: var(--pc-header-profile-name-color);
+  color: var(--pc-navbar-profile-name-color);
   opacity: 0.6;
   border-bottom-color: transparent;
 }
 
 .pa-profile-panel__tabs .pa-tabs__item:hover {
   opacity: 0.85;
-  background-color: color-mix(in srgb, var(--pc-header-profile-name-color) 10%, transparent);
+  background-color: color-mix(in srgb, var(--pc-navbar-profile-name-color) 10%, transparent);
 }
 
 .pa-profile-panel__tabs .pa-tabs__item--active {
@@ -14047,7 +14047,7 @@ code {
   background: none;
   border: none;
   border-radius: var(--pc-border-radius);
-  color: var(--pc-header-text);
+  color: var(--pc-navbar-text);
   cursor: pointer;
   transition: background-color 0.1s ease-out;
 }
@@ -22460,11 +22460,11 @@ html.pa-font-base-12 {
   --pc-detail-row-label: rgba(255, 255, 255, 0.75);
   --pc-detail-title: rgba(255, 255, 255, 0.55);
   --pc-detail-shadow: 0 1.4rem 3.6rem rgba(0, 0, 0, 0.55);
-  --pc-header-bg: #21222c;
-  --pc-header-border-color: #44475a;
-  --pc-header-text: #f8f8f2;
-  --pc-header-text-secondary: rgb(146.4294354839, 157.4939516129, 192.0705645161);
-  --pc-header-profile-name-color: #f8f8f2;
+  --pc-navbar-bg: #21222c;
+  --pc-navbar-border-color: #44475a;
+  --pc-navbar-text: #f8f8f2;
+  --pc-navbar-text-secondary: rgb(146.4294354839, 157.4939516129, 192.0705645161);
+  --pc-navbar-profile-name-color: #f8f8f2;
   --pc-sidebar-bg: #2d2f3d;
   --pc-sidebar-text: #f8f8f2;
   --pc-sidebar-text-secondary: rgb(146.4294354839, 157.4939516129, 192.0705645161);

@@ -6,6 +6,21 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Fixed — navbar ignored the theme; finish the `header` → `navbar` token rename (2026-08-27)
+
+The rc01 → rc04 pure-css bump applied the `--pa-*` → `--pc-*` rename but **skipped rc03's
+`header` → `navbar` top-bar token rename**, so the two cascades were split: pure-admin
+`core.css` (which styles the navbar) consumes `var(--pc-navbar-*)`, while the vendored
+themes still *defined* `--pc-header-*` and the vendored chrome + `view.ex` still *read* it.
+With nothing defining `--pc-navbar-bg`, the navbar fell back to its baked `#ffffff` default
+under every theme — a white bar (with light text) on the dark themes. Renamed the five
+top-bar tokens `--pc-header-{bg,border-color,text,text-secondary,profile-name-color}` →
+`--pc-navbar-*` across the 5 vendored theme CSS files, `layout.css`, `profile-panel.css`,
+and `view.ex` (114 refs); the `--pc-card-header-*` / `--pc-table-header-*` component tokens
+are deliberately left untouched. **Note:** the theme + chrome files are vendored — this
+local patch must be re-applied upstream (theme build + pure-admin chrome) before the next
+`make vendor-css`, or the rename regresses.
+
 ### Changed — foundation namespace `pa-` → `pc-` (2026-08-26)
 
 Tracked pure-css rc04 / pure-admin-core: the foundation's grid + mode classes

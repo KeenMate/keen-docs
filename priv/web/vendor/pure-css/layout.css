@@ -27,8 +27,8 @@
   top: 0;
   inset-inline: 0;
   height: 4.8rem;
-  background-color: var(--pc-header-bg);
-  border-bottom: 1px solid var(--pc-header-border-color);
+  background-color: var(--pc-navbar-bg);
+  border-bottom: 1px solid var(--pc-navbar-border-color);
   z-index: 4000;
   display: flex;
   align-items: center;
@@ -664,7 +664,7 @@ body:not(.sidebar-hidden) .pa-layout__sidebar--icon-collapse .pa-sidebar__icon {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
-  color: var(--pc-header-text);
+  color: var(--pc-navbar-text);
   white-space: nowrap;
 }
 .pa-header__nav {
@@ -685,7 +685,7 @@ body:not(.sidebar-hidden) .pa-layout__sidebar--icon-collapse .pa-sidebar__icon {
 }
 .pa-header__nav > ul > li > a {
   text-decoration: none;
-  color: var(--pc-header-text-secondary);
+  color: var(--pc-navbar-text-secondary);
   font-weight: 500;
   padding: 0.4rem 0.8rem;
   border-radius: var(--pc-border-radius);
@@ -771,7 +771,7 @@ body:not(.sidebar-hidden) .pa-layout__sidebar--icon-collapse .pa-sidebar__icon {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 600;
-  color: var(--pc-header-text);
+  color: var(--pc-navbar-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -794,7 +794,7 @@ body:not(.sidebar-hidden) .pa-layout__sidebar--icon-collapse .pa-sidebar__icon {
 .burger-menu span {
   width: 100%;
   height: 2px;
-  background-color: var(--pc-header-text);
+  background-color: var(--pc-navbar-text);
   border-radius: var(--pc-border-radius);
   transition: all 0.15s ease-out;
   transform-origin: center;
@@ -824,15 +824,15 @@ body:not(.sidebar-hidden) .pa-layout__sidebar--icon-collapse .pa-sidebar__icon {
   gap: 0.8rem;
 }
 .theme-switcher label {
-  color: var(--pc-header-text-secondary);
+  color: var(--pc-navbar-text-secondary);
   font-size: 1.4rem;
 }
 .theme-switcher select {
   padding: 0.4rem 0.8rem;
   border: 1px solid var(--pc-border-color);
   border-radius: var(--pc-border-radius);
-  background-color: var(--pc-header-bg);
-  color: var(--pc-header-text);
+  background-color: var(--pc-navbar-bg);
+  color: var(--pc-navbar-text);
   font-size: 1.4rem;
 }
 .theme-switcher select:focus {
