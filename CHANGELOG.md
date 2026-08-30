@@ -6,6 +6,112 @@ everything lives under Unreleased until the first tagged version.
 
 ## [Unreleased]
 
+### Changed — pure-css-only: adopt the rc06 app shell + JS runtime, drop the pure-admin dependency (2026-08-30)
+
+`@keenmate/pure-css` rc05 relocated the whole **app shell** (navbar / sidebar / layout / footer) into
+the foundation, de-branded to **`pc-*`**, and shipped a dependency-free **JS runtime** (`pure-css.js`,
+`fit.js`, `navbar-dropdown.js`, `sidebar-resize.js`); rc06 made that shell render standalone (see the
+fixes below). keen-docs now consumes pure-css **directly and exclusively** — **zero pure-admin
+dependency**.
+
+- **Vendoring (`Makefile`, `router.ex`).** Pinned `PURE_CSS_VERSION` → `1.0.0-rc06`. `make vendor-css`
+  now vendors the full **`pure-css.css` bundle** (vars + reboot + scrollbars + grid + utilities +
+  the pc-* shell) plus the JS runtime into `priv/web/vendor/pure-css/`. Removed `vendor-pa-core` and
+  `seed-themes`; deleted `priv/web/vendor/pure-admin/` (core.css, navbar-collapse.js, sidebar-resize.js).
+  `/vendor/pure-css/:file` now serves `.js` as `text/javascript`; the `/vendor/pure-admin/:file` route
+  is gone.
+- **Shell → `pc-*` (`view.ex`).** Navbar / navmenu / layout / sidebar / footer markup + the inline
+  harness CSS moved `pa-*` → `pc-*`. `styles/1` collapsed to a single path: link `pure-css.css`, then
+  inline keen-docs' `<style>` (dark override → accent vars → components → harness → content). Dropped
+  `core_link`, the overlay/replace theme branches, and the `pa-color-*` html variant class.
+- **Components → keen-docs' own `kd-*` (copied verbatim from pure-admin).** The pure-admin widgets
+  keen-docs borrowed (buttons, checkbox, the profile + settings panels, tabs) live in the new
+  `priv/web/keendocs-components.css` as keen-docs-OWNED `kd-*` copies. `.kd-btn` is pure-admin's
+  compiled `.pa-btn` **verbatim** (only `pa-btn`→`kd-btn`), plus pure-admin's `--pc-btn-*` component
+  tokens copied into a `:root` block (pure-css doesn't emit them; they resolve off the
+  `--pc-accent`/`--pc-danger`/`--pc-main-bg`/… that pure-css base.css does). To restyle, re-copy from
+  pure-admin — don't hand-tune. (`.kd-badge` reuses the existing harness rule.)
+- **Fixed: shell + panels render correctly standalone.** (a) rc06 gives every `pc-*` shell rule a
+  `--base-*` fallback (`var(--pc-navbar-bg, var(--base-main-bg))`, …), so the navbar / sidebar / footer
+  paint from the base contract alone — rc05 had them reference component tokens pure-css never emits, so
+  keen-docs got a transparent navbar + faint buttons. keen-docs supplies NO `--pc-*` shell tokens. (b)
+  rc06 also unified `--pc-border-radius*` onto `--base-border-radius-*` (rendered radii: -sm 2→4px, mid
+  4→6px). (c) The slide-in `kd-profile-panel` / `kd-settings-panel` now carry `z-index:9000` — the fixed
+  navbar is `z-index:4000` and otherwise rendered OVER an open panel.
+- **JS runtime (`view.ex`, `settings-panel.js`).** Script tags now load the pure-css runtime
+  (`pure-css.js` → `fit.js` → `navbar-dropdown.js` → `sidebar-resize.js`) + `pureCss.components.initAll`.
+  Nav folding moved from the dead `data-pa-nav-collapse*` (old `navbar-collapse.js`) to **`data-pc-fit-nav*`**
+  (fit.js absorbed nav-collapse). Sidebar resize uses `window.pureCss.components.sidebarResize` +
+  `.pc-layout__sidebar--resizable` / `.pc-sidebar-resize`.
+- **Themes (`KeenDocs.Themes`, `keendocs.json`, `config.exs`).** The pure-admin theme **stylesheet
+  bundles** (aurora/corporate/dhl/dracula/nato) are gone (deleted `priv/web/vendor/themes/`, the
+  `/themes/...` routes, `seed_from`/`installed?`/`overlay?`/`default_variant_class`). What survives is
+  the keen-docs-NATIVE **render contract** (`render_block/1` + `@render_defaults`: hero / TOC / navbar
+  composition), now keyed on a plain contract NAME from `keendocs.json`. Default `config :keen_docs,
+  :theme` → `"none"`.
+- Verified: `mix test` green (29/0); `make dev` + `curl /` renders `pc-*` shell + `kd-*` components
+  (styled, inlined), all runtime JS + the bundle serve 200, the old `/vendor/pure-admin/` route 404s,
+  zero `pa-*` shell / `data-pa-nav` / pure-admin refs in output. Interactive fold/resize/drawer verify
+  in a browser (fit.js `data-pc-fit-nav="sidebar"` folds the top-nav into `#kd-nav-overflow`).
+
+### Fixed — navbar markup migrated to pure-admin's `pa-navbar`/`pa-navmenu` contract (2026-08-28)
+
+The vendored pure-admin `core.css` (rc17) had renamed the top-bar BEM block `pa-header__*` →
+`pa-navbar__*` and split the nav out into a standalone **`.pa-navmenu`** component, but `view.ex`
+still emitted the old `pa-header__*` classes for the regions, nav, dropdowns and profile button —
+so `core.css` styled none of it and the whole bar rendered unstyled. Migrated the emitted markup
+(and the inline harness CSS + the profile-panel outside-click JS selector) to the current contract:
+
+- Header regions `pa-header__{start,burger,center,end,profile-btn,profile-name}` → `pa-navbar__*`
+  (all defined in `core.css`).
+- Top nav `<nav class="pa-header__nav pa-header__nav--start">` → `<nav class="pa-navmenu">` (the zone
+  now determines the side; no per-side modifier), with items `pa-navmenu__item`,
+  `pa-navmenu__item--{active,has-dropdown}`, `pa-navmenu__link`, `pa-navmenu__dropdown`. The
+  `data-pa-nav-collapse*` / `data-pa-nav-priority` wiring is **unchanged** — the vendored
+  `navbar-collapse.js` still drives `.pa-navmenu[data-pa-nav-collapse]` (it's a separate component
+  from the newer `fit.js`).
+- Brand wrapper `pa-header__brand` → **`kd-brand`** (keen-docs owns the brand look via harness CSS;
+  keeping it a `kd-*` class preserves the exact styling and avoids inheriting `core.css`'s
+  `.pa-app-header` slot rules).
+- Verified end-to-end: `mix run` + `curl /` renders `pa-navbar__*` + `pa-navmenu` (0 `pa-header`),
+  HTTP 200; `mix test` green (29/0).
+
+**Known gap (not fixed here):** the vendored **theme bundles** (`aurora/corporate/dhl/dracula/nato`)
+and the calm template still carry `.pa-header__*` navbar overrides (corporate/nato ~41 each) targeting
+the dead classes, so a themed navbar currently falls back to `core.css`'s base look instead of its
+theme accent. Unlike the mode/grid rename, this is **not** a clean 1:1 sed (`.pa-header__title` →
+`.pa-page-header`, `.pa-header__dropdown--level` → `.pa-navmenu__dropdown--level2`, brand →
+keen-docs' `.kd-brand`) — it belongs in the upstream theme rebuild before the next re-vendor.
+
+### Fixed — finish the `pa-` → `pc-` rename: dark mode + theme grids; re-sync `base.css` to rc04 (2026-08-28)
+
+Auditing rc04 adoption surfaced the same class of straggler as the navbar fix below: the
+`pa-` → `pc-` de-brand had renamed the **CSS variables** everywhere but left the **mode class
+and grid class selectors** on the dead `pa-` prefix in several files, so anything reading them
+silently no-op'd.
+
+- **Dark mode was broken.** `priv/web/dark-theme.css` scoped its whole `--base-*` override to
+  `html.pa-mode-dark`, but `view.ex` adds/toggles `pc-mode-dark` — nothing matched, so every page
+  stayed light under a dark toggle. Fixed the selector (+ comment). The **calm template**
+  (`priv/templates/calm/dist/calm.css`) had the identical bug across its dark block (8 selectors)
+  and also styled `.km-showcase > .pa-row` (grid now emits `.pc-row`) — both renamed.
+- **All five vendored theme bundles** (`aurora/corporate/dhl/dracula/nato`) still scoped dark mode
+  to `html.pa-mode-dark` (77 refs, 0 `pc-mode-dark`), and `corporate/dracula/nato` — which *replace*
+  `core.css` and ship their own grid — carried the **old `.pa-row`/`.pa-col`/`.pa-offset`/`.pa-hide`/
+  `.pa-show`/`.pa-cq` grid** (0 `.pc-row`). Renamed the mode class in all five and the grid family in
+  the three; pure-admin **chrome** classes (`.pa-navbar`/`.pa-layout`/`.pa-sidebar`/…) are deliberately
+  left `pa-` (that's pure-admin's contract, not the foundation's). **Note:** these theme files are
+  **vendored** — like the navbar patch, this must be re-applied upstream (theme build) before the next
+  re-vendor, or it regresses.
+- **Re-synced the vendored pure-css layers to rc04** via `make vendor-css-npm` (pinned npm, not the
+  local `../pure-css` which is already at rc05). This replaced the stale pre-rc04 `base.css`
+  (313 lines, 67 `--pc-<component>` tokens) with rc04's **base-only** emission (148 lines, 0 component
+  tokens); the component tokens are provided at runtime by the linked pure-admin `core.css`.
+  `utilities.css` also picked up rc04's sizing/flex additions.
+- Refreshed stale `.pa-row`/`.pa-col-*` comments in `keendocs.css`. Verified: `make poc` rebuilds and
+  `mix test` is green (29/0); repo-wide sweep shows no stale mode/grid `pa-*` selectors outside the
+  do-not-hand-edit `layout.css` banner comment.
+
 ### Fixed — navbar ignored the theme; finish the `header` → `navbar` token rename (2026-08-27)
 
 The rc01 → rc04 pure-css bump applied the `--pa-*` → `--pc-*` rename but **skipped rc03's

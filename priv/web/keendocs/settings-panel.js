@@ -1,7 +1,7 @@
 /**
  * keen-docs settings panel
  *
- * A floating offcanvas drawer (pure-admin's `.pa-settings-panel` chrome, styled by core.css) that
+ * A floating offcanvas drawer (keen-docs' own `.kd-settings-panel` chrome, styled by keendocs-components.css) that
  * drives the reader-facing preferences keen-docs actually supports: appearance (light/dark/auto),
  * font size, font family, and the sidebar (docked/hidden + drag-to-resize). All state persists to
  * localStorage under `kd-*` keys and is applied WITHOUT a reload.
@@ -69,19 +69,19 @@
     var behaviorSel = document.getElementById('kdSidebarBehaviorSelector');
     var resizableChk = document.getElementById('kdSidebarResizable');
     var resetBtn = document.getElementById('kdResetSettings');
-    var sidebar = document.querySelector('.pa-layout__sidebar');
+    var sidebar = document.querySelector('.pc-layout__sidebar');
 
     // ── open / close ────────────────────────────────────────────────────────
     if (toggle) {
       toggle.addEventListener('click', function (e) {
         e.stopPropagation();
-        panel.classList.toggle('pa-settings-panel--open');
+        panel.classList.toggle('kd-settings-panel--open');
       });
     }
     // Dismiss on an outside click (the toggle's stopPropagation keeps its own click from closing it).
     document.addEventListener('click', function (e) {
-      if (panel.classList.contains('pa-settings-panel--open') && !panel.contains(e.target)) {
-        panel.classList.remove('pa-settings-panel--open');
+      if (panel.classList.contains('kd-settings-panel--open') && !panel.contains(e.target)) {
+        panel.classList.remove('kd-settings-panel--open');
       }
     });
 
@@ -161,17 +161,19 @@
 
     // ── sidebar resizable (drag-to-resize handle) ─────────────────────────────
     // Default ON (keen-docs' prior always-resizable behavior). Adds/removes the `--resizable` class
-    // that vendored sidebar-resize.js keys off, then (re)inits or strips the handle.
+    // that pure-css's sidebar-resize.js keys off, then (re)inits or strips the handle.
+    function sidebarResize() {
+      return window.pureCss && pureCss.components && pureCss.components.sidebarResize;
+    }
     function applyResizable(on) {
       if (!sidebar) return;
       if (on) {
-        sidebar.classList.add('pa-layout__sidebar--resizable');
-        if (window.PureAdminSidebarResize && window.PureAdminSidebarResize.init) {
-          window.PureAdminSidebarResize.init();
-        }
+        sidebar.classList.add('pc-layout__sidebar--resizable');
+        var sr = sidebarResize();
+        if (sr && sr.init) sr.init();
       } else {
-        sidebar.classList.remove('pa-layout__sidebar--resizable');
-        var handle = sidebar.querySelector('.pa-sidebar-resize');
+        sidebar.classList.remove('pc-layout__sidebar--resizable');
+        var handle = sidebar.querySelector('.pc-sidebar-resize');
         if (handle) handle.remove();
       }
     }
@@ -189,9 +191,8 @@
     if (resetBtn) {
       resetBtn.addEventListener('click', function () {
         ['kd-mode', 'kd-font-size', 'kd-font-family', 'kd-sidebar-hidden', 'kd-sidebar-resizable', 'sidebar-width'].forEach(drop);
-        if (window.PureAdminSidebarResize && window.PureAdminSidebarResize.reset) {
-          window.PureAdminSidebarResize.reset();
-        }
+        var sr = sidebarResize();
+        if (sr && sr.reset) sr.reset();
         location.reload();
       });
     }

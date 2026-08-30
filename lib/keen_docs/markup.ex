@@ -6,7 +6,7 @@ defmodule KeenDocs.Markup do
   **layout** slots (Level-2 structure) so content columns render on `@keenmate/pure-css`'s native
   `pa-grid` — `:::columns` → `.pc-row`, each `:::col` → `.pc-col-<width>` — instead of the engine's
   standalone CSS-grid. That gets the grid's built-in gutters, container-query responsiveness and
-  mobile auto-stacking for free, and shares one grid vocabulary with pure-admin pages.
+  mobile auto-stacking for free, and shares one grid vocabulary with any pure-css page.
 
   The column's width comes from the `:col` assigns' `width` (`{part, total}`, supplied by
   `KeenMarkdown.Extensions.Layout` from the `cols=` spec). It maps to an exact `pc-col` fraction

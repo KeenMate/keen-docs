@@ -202,16 +202,16 @@ still passes with `unsafe: true`; sanitize (ammonia / `unsafe: false`) if conten
 
 ### Theming & themes — built (plan of record: [`docs/themes.md`](./docs/themes.md))
 
-keen-docs replicates **pure-admin's whole theming mechanism**, extended: a theme is a CSS bundle **plus**
-a small **declarative render layer**. Baseline = the vendored pure-admin **`core.css`** framework bundle;
-themes install under `priv/web/vendor/themes/<id>/` and are declared in `keendocs.json` (mirrors
-`pureadmin.json`). Two delivery kinds (`KeenDocs.Themes.overlay?/1`): **standalone** bundles that replace
-`core.css` (the copied pure-admin samples), and **overlay** themes (`theme.json` `"base":"core"`) that
-layer a skin on core — the model for keen-docs' own themes, authored from the **design directions**
-(`design/*.html`) against the *real* `pa-*`/`kd-*`/`km-*` DOM (Aurora, DHL ship live). Selection:
-`config :keen_docs, :theme` + per-doc_set `settings.theme.id`.
+keen-docs is a **`@keenmate/pure-css`-only** consumer — **no pure-admin dependency**. Since pure-css rc05
+the whole app shell (navbar/sidebar/layout/footer, `pc-*`) + a dependency-free JS runtime ship in the
+foundation; keen-docs links the one `pure-css.css` bundle, vendors the runtime, and styles the shell
+plus its OWN chrome components (`kd-*`, `priv/web/keendocs-components.css`) itself. A keen-docs "theme"
+is therefore now **purely a declarative render contract** — no CSS bundle. The pure-admin theme
+*stylesheet* bundles (and the standalone/overlay delivery split) were dropped. Selection:
+`config :keen_docs, :theme` + per-doc_set `settings.theme.id`, resolving a `themes.<id>.keendocs` block
+in `keendocs.json`.
 
-The **render layer** (`keendocs` block in `theme.json`, interpreted by `View.layout/3`, contract v1.0,
+The **render layer** (`keendocs` block in `keendocs.json`, interpreted by `View.layout/3`, contract v1.0,
 deep-merged defaults) is declarative and bounded — no theme code, preserving the RCE-safe invariant above.
 It drives page-head (hero/crumbs/badges), TOC placement, region toggles, layout variant, fonts, the navbar
 **brand slot**, and the **version control** (which can be rendered as a live `<web-multiselect>`). A
@@ -238,16 +238,15 @@ header, active nav, upstreaming the spacing tokens, embedded-component `--base-*
 - **Content variables** use mustache `{{a.b}}` → whitelisted `Vars.get(assigns, "a.b")` (read-only, not code).
 - **Compile-boundary safety = trust separation** (sentinel → neutralize → swap): only trusted tokens are
   compiled, so author `{…}`/`<%…%>`/`<.component>` can't execute (RCE-safe). XSS remains a separate policy.
-- **Styling is theme-driven off the `@keenmate/pure-css` `--base-*` foundation.** The engine still ships
-  no CSS (emits classed HTML + inline-styled code); the *consumer's* styling reads the KeenMate `--base-*`
-  custom properties — the same contract pure-admin, its themes, and every web/svelte component derive from.
-  `../pure-css` (`@keenmate/pure-css`) is that foundation (variables + PureCSS grid + utilities), extracted
-  from `pure-admin-core` so a docs site consumes it without the component library. keen-docs vendors the
-  **built** CSS (`priv/web/vendor/pure-css/`), inlines `base.css` for FOUC-free vars, and links grid/utils.
-  A **theme is a `--base-*` override** (per `doc_set` from `settings.theme`, emitted after the defaults);
-  because everything reads `--base-*`, one override re-themes the chrome, the `km-*` content, *and* an
-  embedded `<web-multiselect>` at once. Same model as `../pure-admin-themes`, so the same publish CLI/infra
-  applies. (De-duping `pure-admin-core` to import `pure-css` is a planned follow-up, not yet done.)
+- **Styling is `@keenmate/pure-css`-only** — **zero pure-admin dependency**. The engine still ships no CSS
+  (emits classed HTML + inline-styled code); the *consumer's* styling reads the KeenMate `--base-*`/`--pc-*`
+  custom properties — the same contract every web/svelte component derives from. `../pure-css` is that
+  foundation AND (since rc05) the **app shell + dependency-free JS runtime**. keen-docs vendors the built
+  `pure-css.css` bundle + runtime (`priv/web/vendor/pure-css/`), inlines `base.css`/`reboot.css`/`scrollbars.css`
+  for FOUC-free vars, links the bundle for the `pc-*` shell, and provides its OWN `kd-*` chrome components
+  (`keendocs-components.css`) — no pure-admin `core.css`. A **theme is a `--base-*` override** (per `doc_set`
+  from `settings.theme`, emitted after the defaults); because everything reads `--base-*`, one override
+  re-themes the chrome, the `km-*` content, *and* an embedded `<web-multiselect>` at once.
 - **The generated content vocabulary is consumer-owned (`KeenMarkdown.Profile`), not the engine's brand.**
   The engine's generic extensions render to a default BEM `km-*` vocabulary, swappable per consumer at two
   levels — Level 1 a class map, Level 2 whole-markup functions (foreign DOM / HEEx components). keen-docs

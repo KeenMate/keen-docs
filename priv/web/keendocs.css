@@ -39,8 +39,8 @@ body {
 .kd-page-head h1 { color: var(--kd-secondary); margin-bottom: 0.4rem; }
 .kd-page-desc { color: var(--kd-muted); margin-top: 0; }
 
-/* ---- col label + body (KeenDocs.Markup profile renders the grid itself on pa-grid:
-   :::columns -> .pa-row, :::col -> .pa-col-* — sizing/gutters/responsive come from
+/* ---- col label + body (KeenDocs.Markup profile renders the grid itself on the pc grid:
+   :::columns -> .pc-row, :::col -> .pc-col-* — sizing/gutters/responsive come from
    pure-css grid.css; only the column's label + body chrome live here) ---- */
 .km-col__header { font-weight: 600; font-size: 1.52rem; margin-bottom: 0.8rem; color: var(--kd-secondary); }
 .km-col__header--blue  { color: var(--kd-accent-blue); }

@@ -20,19 +20,19 @@ config :keen_markdown,
     KeenDocs.Extensions.CdnPackage,
     KeenDocs.Extensions.App
   ],
-  # keen-docs' presentation profile: renders content columns on pure-css's pa-grid
+  # keen-docs' presentation profile: renders content columns on pure-css's pc grid
   # (`:::columns` -> `.pc-row`, `:::col` -> `.pc-col-*`); other blocks keep the engine's
   # default BEM `km-*`. See `KeenDocs.Markup`.
   profile: KeenDocs.Markup
 
-# The presentation THEME — the visual "shape" (layout shell, chrome, typography, component styling)
-# a site renders in, as an installed pure-admin theme bundle (see keendocs.json + KeenDocs.Themes).
-# Resolution mirrors the profile pattern: this ONE global default, overridable per doc_set via its
-# `settings["theme"]["id"]` (the same settings.theme map also carries a per-doc_set accent/vars
-# micro-override). The id maps to priv/web/vendor/themes/<id>/dist/<id>.css (served at
-# /themes/<id>/dist/<id>.css). nil / "none" / an uninstalled id → the vendored pure-admin core.css
-# baseline shell. Installed themes: nato, dracula, corporate (`make seed-themes`).
-config :keen_docs, :theme, "dhl"
+# The presentation THEME — now a NAMED render CONTRACT (keen-docs-native layout config:
+# hero / breadcrumbs / TOC placement / region toggles / navbar composition), NOT a CSS bundle.
+# keen-docs styles the pc-* app shell + its own kd-* components itself on @keenmate/pure-css (no
+# pure-admin dependency). Resolution mirrors the profile pattern: this ONE global default, overridable
+# per doc_set via `settings["theme"]["id"]` (the same settings.theme map also carries a per-doc_set
+# accent/vars micro-override). The id selects a `themes.<id>.keendocs` block in keendocs.json;
+# nil / "none" / an unknown id → the baseline render contract. See `KeenDocs.Themes`.
+config :keen_docs, :theme, "none"
 
 # keen-phoenix-svelte islands mounted by `:::app`. `base_path` mirrors
 # `KeenPhoenixSvelte.Apps.base_path/0`. This harness is a plain (non-LiveView) page, so it

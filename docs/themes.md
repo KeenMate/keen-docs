@@ -1,7 +1,16 @@
 # keen-docs themes & rendering — mechanism plan
 
-Status: **design agreed, implementation pending.** This is the plan of record for how keen-docs
-does theming. It extends [`../DESIGN.md`](../DESIGN.md); update both when decisions change.
+> ⚠️ **SUPERSEDED (2026-08-30) for the CSS/bundle half.** keen-docs is now **`@keenmate/pure-css`-only
+> with no pure-admin dependency**: the pc-\* app shell + JS runtime come from pure-css, chrome components
+> are keen-docs' own `kd-*` (`priv/web/keendocs-components.css`), and the **pure-admin theme stylesheet
+> bundles were dropped** (no `priv/web/vendor/themes/`, `seed_from`, `overlay?`, `/themes/…` routes).
+> What survives — and is still accurate below — is the **declarative render contract** (`render_block/1`
+> + `@render_defaults`: pageHead / toc / regions / header composition / fonts / brand / versionControl),
+> now keyed on a plain contract name in `keendocs.json`. Read the sections below as the render-layer plan;
+> ignore the CSS-bundle install/lock/overlay plumbing. See CHANGELOG (2026-08-30) + `../DESIGN.md §5`.
+
+Status: **render contract implemented; CSS theme bundles removed (pure-css-only).** This extends
+[`../DESIGN.md`](../DESIGN.md); update both when decisions change.
 
 ## The idea in one breath
 

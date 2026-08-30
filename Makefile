@@ -1,10 +1,10 @@
-.PHONY: help deps dev iex kill-port db-gen demo poc test clean vendor-css vendor-css-npm vendor-pa-core seed-themes
+.PHONY: help deps dev iex kill-port db-gen demo poc test clean vendor-css vendor-css-npm
 
 # Pick the right db-gen binary for the platform (Windows .exe vs linux).
 DBGEN := $(if $(findstring Windows_NT,$(OS)),./db-gen-win.exe,./db-gen-linux)
 
-# Pinned @keenmate/pure-css release the vendored CSS tracks. Bump + `make vendor-css` to update.
-PURE_CSS_VERSION := 1.0.0-rc04
+# Pinned @keenmate/pure-css release the vendored CSS+JS tracks. Bump + `make vendor-css` to update.
+PURE_CSS_VERSION := 1.0.0-rc06
 
 # The Bandit HTTP port (keep in sync with config :keen_docs, KeenDocs.Web, port:).
 PORT := 4000
@@ -23,10 +23,8 @@ help:
 	@echo "Codegen / deps:"
 	@echo "  deps       Fetch mix dependencies"
 	@echo "  db-gen     Regenerate the DB wrappers from the live keen_docs DB"
-	@echo "  vendor-css Re-vendor @keenmate/pure-css CSS from the local ../pure-css build (latest)"
+	@echo "  vendor-css Re-vendor @keenmate/pure-css CSS+JS from the local ../pure-css build (latest)"
 	@echo "  vendor-css-npm  Re-vendor from the pinned npm release @$(PURE_CSS_VERSION)"
-	@echo "  vendor-pa-core  Re-vendor the pure-admin core.css framework bundle (the baseline shell)"
-	@echo "  seed-themes  Install the keendocs.json theme bundles from ../pure-admin-themes"
 	@echo "  test       Run the test suite"
 	@echo "  clean      Remove build artifacts"
 
@@ -68,52 +66,36 @@ demo:
 poc:
 	mix run -e "KeenDocs.POC.build()"
 
-# The set of CSS layers vendored from pure-css (base.css inlined; the rest served/linked).
-PURE_CSS_FILES := base grid utilities reboot scrollbars
+# keen-docs is a pure-css-ONLY consumer (no pure-admin dependency). The app shell + JS runtime live
+# in @keenmate/pure-css since rc05. CSS layers: base/reboot/scrollbars are inlined into the page
+# <style> (FOUC-free); pure-css.css is the full bundle (vars + reboot + scrollbars + grid + utilities
+# + app shell) linked from the page. JS: the dependency-free runtime that drives the shell.
+PURE_CSS_FILES := base reboot scrollbars pure-css
+PURE_CSS_JS := pure-css fit navbar-dropdown sidebar-resize
 # Local pure-css working copy (sibling repo) — the source while co-developing both.
 PURE_CSS_DIR := ../pure-css
-# Local pure-admin working copy — source for the core framework bundle (the keen-docs baseline).
-PURE_ADMIN_DIR := ../pure-admin
 
-# Re-vendor the pure-css foundation CSS from the LOCAL sibling working copy (co-development: pick up
+# Re-vendor the pure-css foundation CSS+JS from the LOCAL sibling working copy (co-development: pick up
 # the latest build immediately, no publish/version bump needed). Assumes ../pure-css is freshly BUILT
 # (run its `make`/build first) — vendoring a stale dist once left an old grid behind. For a pinned,
 # registry-as-truth build instead, use `make vendor-css-npm`.
 vendor-css:
-	@echo "Vendoring @keenmate/pure-css from $(PURE_CSS_DIR)/dist/css (local working copy)..."
-	@dest="$$PWD/priv/web/vendor/pure-css"; src="$(PURE_CSS_DIR)/dist/css"; \
-	for f in $(PURE_CSS_FILES); do cp "$$src/$$f.css" "$$dest/$$f.css"; done; \
-	echo "Vendored $(PURE_CSS_FILES) .css -> priv/web/vendor/pure-css (rebuild to re-inline base.css)"
+	@echo "Vendoring @keenmate/pure-css from $(PURE_CSS_DIR) (local working copy)..."
+	@dest="$$PWD/priv/web/vendor/pure-css"; src="$(PURE_CSS_DIR)"; \
+	for f in $(PURE_CSS_FILES); do cp "$$src/dist/css/$$f.css" "$$dest/$$f.css"; done; \
+	for j in $(PURE_CSS_JS); do cp "$$src/src/js/$$j.js" "$$dest/$$j.js"; done; \
+	echo "Vendored CSS[$(PURE_CSS_FILES)] + JS[$(PURE_CSS_JS)] -> priv/web/vendor/pure-css (rebuild to re-inline base.css)"
 
 # Re-vendor from the PINNED published npm release (registry as single source of truth). `npm pack`
-# needs no package.json; it downloads + extracts the tarball into a temp dir. Note: layers added
-# after the pinned version (e.g. reboot/scrollbars in rc02) won't exist until that version ships.
+# needs no package.json; it downloads + extracts the tarball into a temp dir.
 vendor-css-npm:
 	@echo "Vendoring @keenmate/pure-css@$(PURE_CSS_VERSION) from npm..."
 	@dest="$$PWD/priv/web/vendor/pure-css"; tmp=`mktemp -d`; \
 	( cd "$$tmp" && npm pack @keenmate/pure-css@$(PURE_CSS_VERSION) >/dev/null && tar -xzf *.tgz ); \
 	for f in $(PURE_CSS_FILES); do [ -f "$$tmp/package/dist/css/$$f.css" ] && cp "$$tmp/package/dist/css/$$f.css" "$$dest/$$f.css" || echo "  (skip $$f.css — not in $(PURE_CSS_VERSION))"; done; \
+	for j in $(PURE_CSS_JS); do [ -f "$$tmp/package/src/js/$$j.js" ] && cp "$$tmp/package/src/js/$$j.js" "$$dest/$$j.js" || echo "  (skip $$j.js — not in $(PURE_CSS_VERSION))"; done; \
 	rm -rf "$$tmp"; \
 	echo "Vendored -> priv/web/vendor/pure-css (rebuild to re-inline base.css)"
-
-# Re-vendor the pure-admin CORE framework bundle — the keen-docs baseline shell (10px rem base +
-# reset + grid + utilities + all pa-* chrome + a baked light palette). This ONE self-contained sheet
-# is linked by View.styles/1 when no template is active, replacing the old hand-extracted fragments.
-# Assumes ../pure-admin core is freshly BUILT. Real themes (Phase 2) will supersede it per doc_set.
-vendor-pa-core:
-	@echo "Vendoring pure-admin core.css from $(PURE_ADMIN_DIR)/packages/core/dist/css/main.css..."
-	@cp "$(PURE_ADMIN_DIR)/packages/core/dist/css/main.css" "$$PWD/priv/web/vendor/pure-admin/core.css"
-	@cp "$(PURE_ADMIN_DIR)/packages/core/src/js/navbar-collapse.js" "$$PWD/priv/web/vendor/pure-admin/navbar-collapse.js"
-	@cp "$(PURE_ADMIN_DIR)/demo/js/sidebar-resize.js" "$$PWD/priv/web/vendor/pure-admin/sidebar-resize.js"
-	@echo "Vendored -> priv/web/vendor/pure-admin/{core.css,navbar-collapse.js,sidebar-resize.js}"
-
-# Install the theme bundles declared in keendocs.json by copying them from ../pure-admin-themes
-# (theme.json + dist/<id>.css + assets/) into themesDir, and write keendocs.lock.json. The manual
-# stand-in for the future `keendocs themes install` (themes Phase 4). Re-run after editing
-# keendocs.json's theme list or rebuilding the theme sources.
-seed-themes:
-	@echo "Seeding themes from $$(sed -n 's/.*\"source\": *\"\([^\"]*\)\".*/\1/p' keendocs.json)..."
-	@mix run --no-start -e 'KeenDocs.Themes.seed_from()'
 
 test:
 	mix test

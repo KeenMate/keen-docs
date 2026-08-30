@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 66" role="img" aria-label="DHL">
-  <text x="2" y="52" font-family="'Arial Black',Arial,sans-serif" font-weight="900" font-style="italic" font-size="60" fill="#D40511" letter-spacing="-4">DHL</text>
-  <g fill="#D40511">
-    <path d="M168 15 h96 l-15 12 h-96 z"/>
-    <path d="M176 28 h110 l-15 12 h-110 z"/>
-    <path d="M168 41 h96 l-15 12 h-96 z"/>
-  </g>
-</svg>

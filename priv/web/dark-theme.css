@@ -1,17 +1,17 @@
 /* Dark mode for keen-docs.
  *
- * A --base-* override layered over @keenmate/pure-css, using pure-admin's dark
- * palette and its `.pa-mode-dark` dual-mode convention (color-scheme: dark so
+ * A --base-* override layered over @keenmate/pure-css, using a dark
+ * palette and its `.pc-mode-dark` dual-mode convention (color-scheme: dark so
  * native scrollbars/controls adapt). Because the chrome, the kd-* content and
  * embedded web/svelte components all read --base-*, toggling this one class on
  * <html> re-themes the whole page at once.
  *
  * The per-doc brand accent is preserved: theme_css/1 publishes the raw accent as
  * --kd-doc-accent, and here we brighten it for contrast on dark surfaces instead
- * of replacing it (falling back to pure-admin's dark blue when a page has no
+ * of replacing it (falling back to a default dark blue when a page has no
  * doc theme). Higher specificity than :root, so it wins over the light defaults
  * and the doc's :root accent override in dark mode. */
-html.pa-mode-dark {
+html.pc-mode-dark {
   color-scheme: dark;
 
   /* surfaces */

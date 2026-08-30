@@ -36,19 +36,14 @@ defmodule KeenDocs.Web.Router do
     send_js(conn, Path.join(["apps", name, "main.mjs"]))
   end
 
-  # ── vendored CSS foundation (@keenmate/pure-css) ──────────────────────────
-  # base.css is inlined into the page <style> (FOUC-free --base-*); grid.css and
-  # utilities.css are linked from here so authored content can use .pc-col-*/.m-* etc.
-  # Declared before the greedy /:set/... routes so /vendor/... isn't read as a document.
+  # ── vendored foundation (@keenmate/pure-css) — the ONLY UI dependency ──────
+  # base.css is inlined into the page <style> (FOUC-free --base-*); pure-css.css (the full bundle:
+  # vars + reboot + scrollbars + grid + utilities + the pc-* app shell) is linked from here, and the
+  # dependency-free JS runtime (pure-css.js / fit.js / navbar-dropdown.js / sidebar-resize.js) is
+  # served as text/javascript. Content-type by extension. Declared before the greedy /:set/... routes
+  # so /vendor/... isn't read as a document.
   get "/vendor/pure-css/:file" do
-    send_css(conn, Path.join(["vendor", "pure-css", file]))
-  end
-
-  # The pure-admin framework bundle (core.css) — the baseline shell + palette linked by
-  # View.styles/1 when no template is active — plus its vanilla JS enhancements (navbar-collapse.js).
-  # Same repo-relative send (no traversal); content-type by extension so the .js loads as a module.
-  get "/vendor/pure-admin/:file" do
-    rel = Path.join(["vendor", "pure-admin", file])
+    rel = Path.join(["vendor", "pure-css", file])
     if String.ends_with?(file, ".js"), do: send_js(conn, rel), else: send_css(conn, rel)
   end
 
@@ -56,18 +51,6 @@ defmodule KeenDocs.Web.Router do
   # driver. Served as a real ES-flavoured module; declared before the greedy /:set/... routes.
   get "/keendocs/:file" do
     send_js(conn, Path.join(["keendocs", file]))
-  end
-
-  # ── installed theme bundles (priv/web/vendor/themes/<id>/…) ────────────────
-  # The active theme's self-contained bundle: its stylesheet (View links it in place of core.css)
-  # and its bundled assets (fonts the CSS @font-face's via ../assets/…). Declared before the greedy
-  # /:set/... routes so /themes/... isn't read as a document. Ids/paths are validated (no traversal).
-  get "/themes/:id/dist/:file" do
-    send_theme_file(conn, id, ["dist", file])
-  end
-
-  get "/themes/:id/assets/*rest" do
-    send_theme_file(conn, id, ["assets" | rest])
   end
 
   # ── presentation templates (priv/templates/<id>/dist/<id>.css) ────────────
@@ -525,33 +508,6 @@ defmodule KeenDocs.Web.Router do
     end
   end
 
-  # Serve a file from an installed theme bundle (priv/web/vendor/themes/<id>/<sub...>). The id is a
-  # slug and every sub-segment is a safe filename (no dots-only/slashes), so the join can't escape
-  # the theme dir. Content-type is derived from the extension (css / woff2 / woff / json).
-  defp send_theme_file(conn, id, sub) do
-    if id =~ ~r/^[a-z][a-z0-9-]*$/ and Enum.all?(sub, &(&1 =~ ~r/^[A-Za-z0-9][A-Za-z0-9._-]*$/)) do
-      path = Path.join([File.cwd!(), "priv", "web", "vendor", "themes", id | sub])
-
-      if File.exists?(path) do
-        conn |> put_resp_content_type(theme_content_type(path)) |> send_resp(200, File.read!(path))
-      else
-        send_resp(conn, 404, "missing theme asset: #{id}/#{Enum.join(sub, "/")}")
-      end
-    else
-      send_resp(conn, 400, "bad theme asset path")
-    end
-  end
-
-  defp theme_content_type(path) do
-    case Path.extname(path) do
-      ".css" -> "text/css"
-      ".woff2" -> "font/woff2"
-      ".woff" -> "font/woff"
-      ".json" -> "application/json"
-      ".svg" -> "image/svg+xml"
-      _ -> "application/octet-stream"
-    end
-  end
 
   # Serve a template stylesheet from priv/templates/<id>/dist/<file>. Both segments are
   # validated to a safe charset (no dots/slashes) so neither can escape the templates dir.

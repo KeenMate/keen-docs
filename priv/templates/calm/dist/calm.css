@@ -5,7 +5,7 @@
  * and content styling. Extracted from design/brand.html and re-bound to the
  * keen-docs markup contract (see priv/templates/README.md):
  *   - kd-*  chrome  (KeenDocs.Web.View)
- *   - km-*  content (keen_markdown default profile) + pure-css .pa-row/.pa-col-*
+ *   - km-*  content (keen_markdown default profile) + pure-css .pc-row/.pc-col-*
  *
  * COLOURS flow from the --base-* contract (pure-css base.css + a doc_set's
  * theme_css override), so Calm re-tints per doc_set. Only Calm's *shape* tokens
@@ -219,9 +219,9 @@ code, pre { font-family: var(--calm-font-mono); }
 .km-showcase__title { margin: 0; padding: 14px 20px 2px; background: var(--calm-grad); color: #fff;
   font-family: var(--calm-font-head); font-weight: 800; font-size: 16px; }
 .km-showcase__subtitle { margin: 0; padding: 0 20px 14px; background: var(--calm-grad); color: rgba(255,255,255,.9); font-size: 13px; }
-.km-showcase > .pa-row { margin: 0; padding: 18px; gap: 18px; }
+.km-showcase > .pc-row { margin: 0; padding: 18px; gap: 18px; }
 
-/* ---- columns (pure-css .pa-row/.pa-col-*; Calm styles the header + body) ---- */
+/* ---- columns (pure-css .pc-row/.pc-col-*; Calm styles the header + body) ---- */
 .km-col__header { font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
   color: #fff; padding: 8px 14px; border-radius: var(--calm-r-sm) var(--calm-r-sm) 0 0; background: var(--calm-accent); }
 .km-col__header--blue  { background: linear-gradient(90deg, var(--calm-accent), var(--calm-accent-deep)); }
@@ -314,7 +314,7 @@ h1:hover > a.anchor, h2:hover > a.anchor, h3:hover > a.anchor, h4:hover > a.anch
 /* ============================ DARK MODE ============================ */
 /* Calm ships its own dark scope (same convention as pure-admin themes). It sets
  * color-scheme: dark so embedded web components and light-dark() code follow. */
-html.pa-mode-dark {
+html.pc-mode-dark {
   color-scheme: dark;
   --base-page-bg: #0b1220;
   --base-main-bg: #111a2b;
@@ -328,17 +328,17 @@ html.pa-mode-dark {
   /* brighten the doc accent for contrast on dark surfaces while keeping the hue */
   --calm-accent: color-mix(in srgb, var(--base-accent-color, #007bff) 60%, #eaf6ff);
 }
-html.pa-mode-dark body { background: var(--calm-page); color: var(--calm-text-1); }
-html.pa-mode-dark .kd-search { background: rgba(12,20,33,.65); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
-html.pa-mode-dark .kd-search input { color: #fff; }
-html.pa-mode-dark .kd-toc, html.pa-mode-dark .km-card, html.pa-mode-dark .km-showcase,
-html.pa-mode-dark .km-col__body, html.pa-mode-dark .version-l { background: var(--calm-surface); }
-html.pa-mode-dark .kd-version-l { background: var(--calm-surface); }
-html.pa-mode-dark :not(pre) > code { background: rgba(255,255,255,.08); color: var(--calm-accent-2); }
+html.pc-mode-dark body { background: var(--calm-page); color: var(--calm-text-1); }
+html.pc-mode-dark .kd-search { background: rgba(12,20,33,.65); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+html.pc-mode-dark .kd-search input { color: #fff; }
+html.pc-mode-dark .kd-toc, html.pc-mode-dark .km-card, html.pc-mode-dark .km-showcase,
+html.pc-mode-dark .km-col__body, html.pc-mode-dark .version-l { background: var(--calm-surface); }
+html.pc-mode-dark .kd-version-l { background: var(--calm-surface); }
+html.pc-mode-dark :not(pre) > code { background: rgba(255,255,255,.08); color: var(--calm-accent-2); }
 
 /* ============================ RESPONSIVE ============================ */
 /* Sidebar collapse/overlay below 768px is owned by layout.css (pa-layout responsive +
    the burger/resize JS). Calm only tunes shell spacing and the hero here. */
-@media (max-width: 1080px) { .km-showcase > .pa-row { padding: 14px; gap: 14px; } }
+@media (max-width: 1080px) { .km-showcase > .pc-row { padding: 14px; gap: 14px; } }
 @media (max-width: 900px) { .pa-layout__inner { padding: 0 16px; gap: 20px; } .kd-hero h1 { font-size: 34px; } }
 @media (max-width: 768px) { .pa-layout__inner { padding: 0; } .kd-main--doc { padding: 24px 16px 48px; } }
